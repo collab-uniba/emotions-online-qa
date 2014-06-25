@@ -8,7 +8,7 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^$', views.databases, name='databases'),
-	url(r'^queries/(?P<db>[-\w\.]+)$', views.queries, name='queries'),
-	url(r'^queries/(?P<db>[-\w\.]+)/(?P<query>[-\w\ \,\=\']+)/process/$', views.process_req, name='process_req'),
+	url(r'^(?P<db>[-\w\.]+)/queries/$', views.queries, name='queries'),
+	url(r'^(?P<db>[-\w\.]+)/queries/(?P<query>[-\w\ \,\=\']+)/process/$', views.process_req, name='process_req'),
 )
 #urlpatterns += staticfiles_urlpatterns()
