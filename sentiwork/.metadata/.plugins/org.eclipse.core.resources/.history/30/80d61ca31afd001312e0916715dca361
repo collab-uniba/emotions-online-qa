@@ -1,0 +1,209 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.LinkedList;
+
+import uk.ac.wlv.sentistrength.*;
+import csv.*;
+
+public class App {
+
+	private static String input_file_dir = "input_file/";
+	private static String output_file_dir = "output_file/";
+	private static String download_file_dir = "download/";
+	private static SentiStrength sentiStrength = null;
+	private static Corpus corpus = null;
+	
+	private static String protocol = "http://";
+	private static String host = "localhost";
+	private static String port = ":8000";
+	private static String sep = "/";
+	
+	private static String db_req = "databases";
+	private static String query_req = "queries";
+	private static String process_req = "process";
+	
+	private static String answers_query = "SELECT%20Id%2C%20Body%2C%20CreationDate%20FROM%20Posts%20WHERE%20PostTypeId%20%3D%202%20AND%20creationDate%20BETWEEN%20%272014-01-01%27%20AND%20%272014-01-07%27";
+	private static String posts_query = "SELECT%20Id%2C%20Tags%20FROM%20Posts";
+	
+	private static String stackoverflow_db = "stacoverflow.db";
+	private static String italian_db = "italian.stackexchange.dump.db";
+	
+	
+	public App(){
+		initialize();
+		initializeCorpus();
+	}
+	
+	// Inizializza oggetto SentiStrength per la classificazione
+	public static void initialize(){
+		sentiStrength = new SentiStrength();
+		String ssthInitialisation[] = {"sentidata", "lib/SentiStrength_Data/", "explain"};
+		sentiStrength.initialise(ssthInitialisation);
+	}
+	
+	public static void initializeCorpus(){
+		corpus = sentiStrength.getCorpus();
+	}
+	
+	/*
+	 *  Analizza il file 'inputFile' (che deve essere in formato CSV) prendendo la colonna body_column
+	 *  e scrive il risultato dell'analisi di SentiStrength nel file 'outputFile'
+	 *  
+	 *  	@param
+	 *  		inputFile:		path del file di input in formato CSV
+	 *  		outputFile:		path del file su cui scrivere i risultati
+	 *  		body_column:	colonna che contiene il testo da analizzare
+	 */			
+	public void analizeCSV(String inputFile, String outputFile, int body_column) throws IOException{
+		Reader in = new FileReader(inputFile);
+		Writer out = new FileWriter(outputFile);
+		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
+		CSVPrinter printer_csv = new CSVPrinter(out, CSVFormat.DEFAULT);
+		
+		for (CSVRecord record : records) {
+			
+			// Campi
+			String body = record.get(body_column-1);
+			
+			// Classificazione
+			String score = sentiStrength.computeSentimentScores(body);
+			String[] split_res = score.split(" ");
+			String pos_score = split_res[0];
+			String neg_score = split_res[1];
+			
+			// Stampa a video
+			System.err.print("Body: ");
+			System.out.println(body);
+			System.err.print("Positive score: ");
+			System.out.println(pos_score + "\n");
+			System.err.print("Negative score: ");
+			System.out.println(neg_score + "\n");
+			
+			printer_csv.print(pos_score);
+			printer_csv.print(neg_score);
+			printer_csv.print(body);
+			printer_csv.println();
+			
+			// Scrive sul file
+			//out.write(score + "\n\n\n###################################################\n\n\n");
+		}
+		//out.close();
+		printer_csv.close();
+	}
+	
+	public void listTagsAverage(String inputFile, int body_column) throws IOException{
+		Reader in = new FileReader(inputFile);
+		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
+		LinkedList<String> tags = new LinkedList<String>();
+		
+		int num_records = 0;
+		int part_value = 0;
+		int average = 0;
+		
+		for (CSVRecord record : records) {
+			
+			num_records++;
+			
+			String field_tags = record.get(body_column-1);
+			String[] splitted_field = field_tags.split(">");
+			int len = splitted_field.length;
+			
+			part_value = part_value + len;
+			
+			for(int i=0; i < len; i++){
+				if(!tags.contains(splitted_field[i])){
+					tags.add(splitted_field[i]);
+				}
+					
+			}
+		}
+		
+		average = part_value/num_records;
+	}
+	
+	/*
+	 *  Prende in input il file da analizzare che deve avere su ogni riga la frase da analizzare,
+	 *  scrive in output il risultato dell'analisi
+	 */
+	public void analizeLines(String inputFile, String outputFile){
+		corpus.classifyAllLinesInInputFile(inputFile, outputFile);
+	}
+	
+	/*
+	 * Prende in input il file da analizzare, che deve avere su ogni riga la frase da analizzare,
+	 * e il numero della riga su cui si trova la frase da analizzare. Stampa il risultato a video
+	 * 
+	 */ 
+	public void analizeOneLine(String inputFile, int line){
+		corpus.setCorpus(inputFile);
+		
+		//corpus.calculateCorpusSentimentScores();
+		System.out.println( /*"BaselinePositiveAccuracyProportion: " + corpus.getBaselinePositiveAccuracyProportion() + "\n" +
+							"BaselineNegativeAccuracyProportion: " + corpus.getBaselineNegativeAccuracyProportion() + "\n\n" +
+							
+							"ClassificationPositiveAccuracyProportion: " + corpus.getClassificationPositiveAccuracyProportion() + "\n" +
+							"ClassificationNegativeAccuracyProportion: " + corpus.getClassificationNegativeAccuracyProportion() + "\n\n" +
+							
+							"ClassificationPositiveMeanDifference: " + corpus.getClassificationPositiveMeanDifference() + "\n" +
+							"ClassificationNegativeMeanDifference: " + corpus.getClassificationNegativeMeanDifference() + "\n\n" +
+							
+							"ClassificationPositiveNumberCorrect: " + corpus.getClassificationPositiveNumberCorrect() + "\n" +
+							"ClassificationNegativeNumberCorrect: " + corpus.getClassificationNegativeNumberCorrect() + "\n\n" +
+									
+							"ClassificationPositiveTotalDifference: " + corpus.getClassificationPositiveTotalDifference() + "\n" +
+							"ClassificationNegativeTotalDifference: " + corpus.getClassificationNegativeTotalDifference() + "\n\n" +
+									
+							"ClassificationPosCorrelationWholeCorpus: " + corpus.getClassificationPosCorrelationWholeCorpus() + "\n" +
+							"ClassificationNegCorrelationWholeCorpus: " + corpus.getClassificationNegCorrelationWholeCorpus() + "\n\n" +
+									
+							"CorpusMemberPositiveSentimentScore(1): " + corpus.getCorpusMemberPositiveSentimentScore(1) + "\n" +
+							"CorpusMemberNegativeSentimentScore(1): " + corpus.getCorpusMemberNegativeSentimentScore(1) + "\n\n" +*/
+									
+							"CorpusMemberPositiveSentimentScore("+line+"): " + corpus.getCorpusMemberPositiveSentimentScore(line) + "\n" +
+							"CorpusMemberNegativeSentimentScore("+line+"): " + corpus.getCorpusMemberNegativeSentimentScore(line));
+		
+	}
+	
+	public static void downloadCSV(String db, String query, String path_to_save){
+		try {
+			  URL url = new URL(protocol+host+port+sep+db_req+sep+db+sep+query_req+sep+query+sep+process_req+sep);
+			  HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			  BufferedReader read = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			  String line = read.readLine();
+			  String res = "";
+			  while(line!=null) {
+			    res += line + "\n";
+			    line = read.readLine();
+			  }
+			  Writer out = new FileWriter(path_to_save);
+			  out.write(res);
+			  out.close();
+			  //System.out.println(res);
+		} catch(MalformedURLException ex) {
+		      ex.printStackTrace();
+		} catch(IOException ioex) {
+		      ioex.printStackTrace();
+		}
+	}
+	
+	public static void main(String[] args) throws IOException {
+		// TODO Auto-generated method stub
+		
+		App.downloadCSV(App.italian_db, App.posts_query, App.download_file_dir + "downloaded.csv");
+		
+		App app = new App();
+		//app.analizeCSV(input_file_dir + "downloaded.csv", output_file_dir + "result-set_out.csv", 2);
+		//app.analizeLines(input_file_dir + "input.txt", output_file_dir + "output.txt");
+		//app.analizeOneLine(input_file_dir + "input.txt", 1);
+	}
+
+}
