@@ -14,11 +14,12 @@ from django.template import RequestContext
 db_directory = 'databases/db/'
 
 # Query
+posts_tags_query = "SELECT Id, Tags FROM Posts"
 answers_query = "SELECT Id, Body, CreationDate FROM Posts WHERE PostTypeId = 2 AND creationDate BETWEEN '2014-01-01' AND '2014-01-07'"
 questions_query = "SELECT Id, Body, CreationDate FROM Posts WHERE PostTypeId = 1 AND creationDate BETWEEN '2014-01-01' AND '2014-01-07'"
 simple_query = "SELECT Id, Body, CreationDate FROM Posts WHERE Id = 4"
 
-all_queries = [answers_query, questions_query, simple_query]
+all_queries = [answers_query, questions_query, simple_query, posts_tags_query]
 
 
 # Create your views here.
