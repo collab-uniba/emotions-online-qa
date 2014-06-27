@@ -25,7 +25,7 @@ public class App {
 	
 	private static String protocol = "http://";
 	private static String host = "localhost";
-	private static String port = ":8000";
+	private static String port = ":80";
 	private static String sep = "/";
 	
 	private static String db_req = "databases";
@@ -35,7 +35,7 @@ public class App {
 	private static String answers_query = "SELECT%20Id%2C%20Body%2C%20CreationDate%20FROM%20Posts%20WHERE%20PostTypeId%20%3D%202%20AND%20creationDate%20BETWEEN%20%272014-01-01%27%20AND%20%272014-01-07%27";
 	private static String posts_query = "SELECT%20Id%2C%20Tags%20FROM%20Posts";
 	
-	private static String stackoverflow_db = "stacoverflow.db";
+	private static String stackoverflow_db = "stackoverflow.db";
 	private static String italian_db = "italian.stackexchange.dump.db";
 	
 	
@@ -106,8 +106,16 @@ public class App {
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
 		LinkedList<String> tags = new LinkedList<String>();
 		
+		int no_tag_post = 0;
+		int quest_no_tag = 0;
+		int answ_no_tag = 0;
+		int quest = 0;
+		int answ = 0;
+		int max_tag = 0;
 		int num_records = 0;
+		int num_tags = 0;
 		int part_value = 0;
+		float tags_p_quest = 0;
 		float average = 0;
 		boolean first = true;
 		
@@ -115,36 +123,69 @@ public class App {
 			if(first == false){
 				num_records++;
 				
+				String post_type = record.get(2);
 				String field_tags = record.get(body_column-1);
 				String[] splitted_field = field_tags.split(">");
 				int len = splitted_field.length;
-				part_value = part_value + len;
-				//System.out.println("Part:" + part_value);
+				
+				if(post_type.equals("1"))
+					quest++;
+				else if(post_type.equals("2"))
+					answ++;
+				
+				if(max_tag < len)
+					max_tag = len;
 				
 				if(!splitted_field[0].equals("None")){
-					
+					part_value = part_value + len;
+					//System.out.println("Tags: " + len);
 					
 					for(int i=0; i < len; i++){
-						if(!tags.contains(splitted_field[i])){
-							tags.add(splitted_field[i]);
+						String tag = splitted_field[i].replace("<", "");
+						if(!tags.contains(tag)){
+							tags.add(tag);
 						}
 							
 					}
+				}else{
+					no_tag_post++;
+					if(post_type.equals("1"))
+						quest_no_tag++;
+					else if(post_type.equals("2"))
+						answ_no_tag++;
 				}
-				
 			}
 			else
 				first = false;
 		}
 		
-		average = part_value/num_records;
+		average = (float)part_value/(float)num_records;
+		tags_p_quest = (float)part_value/(float)quest;
 		
+		Writer out = new FileWriter("tags.txt");
+		out.write("Tags identified:\n");
 		Iterator<String> it = tags.iterator();
 		while(it.hasNext()){
-			System.out.println(it.next());
+			num_tags++;
+			out.write("\t"+it.next()+"\n");
 		}
 		
-		System.out.printf("Average: %.2f", average);
+		System.out.println("Part: " + part_value);
+		
+		
+		out.write("\nNumber of tags: " + num_tags + "\n" +
+					"Number of posts: " + num_records + "\n" +
+					"Number of questions: " + quest + "\n" +
+					"Number of answers: " + answ + "\n" +
+					"Number of posts with no tag: " + no_tag_post + "\n" +
+					"Number of questions with no tag: " + quest_no_tag + "\n" +
+					"Number of answers with no tag: " + answ_no_tag + "\n" +
+					"Max tags received by a post: " + max_tag + "\n" +
+					"Average of tags per posts: "+ average + "\n" +
+					"Average of tags per questions: "+ tags_p_quest + "\n"/* +
+					"Average of tags in answers: "+ average + "\n"*/);
+		
+		out.close();
 	}
 	
 	/*
@@ -194,6 +235,7 @@ public class App {
 		try {
 			  URL url = new URL(protocol+host+port+sep+db_req+sep+db+sep+query_req+sep+query+sep+process_req+sep);
 			  HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			  System.out.println("Timeout: " + connection.getReadTimeout());
 			  BufferedReader read = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			  String line = read.readLine();
 			  String res = "";
@@ -215,13 +257,17 @@ public class App {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		
-		App.downloadCSV(/*App.italian_db*/args[0], App.posts_query, /*App.download_file_dir + */"downloaded.csv");
+		//App.downloadCSV(App.stackoverflow_db, App.posts_query, /*App.download_file_dir + */"downloaded.csv");
 		
 		App app = new App();
-		app.listTagsAverage(/*App.download_file_dir + */"downloaded.csv", 2);
+		app.listTagsAverage(/*App.download_file_dir + */"so_tag.csv", 2);
 		//app.analizeCSV(input_file_dir + "downloaded.csv", output_file_dir + "result-set_out.csv", 2);
 		//app.analizeLines(input_file_dir + "input.txt", output_file_dir + "output.txt");
 		//app.analizeOneLine(input_file_dir + "input.txt", 1);
+		/*int part_value = 21292198;
+		int posts = 19881018;
+		float average = (float)part_value/(float)posts;
+		System.out.printf("Average %.2f", average);*/
 	}
 
 }
