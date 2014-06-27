@@ -189,6 +189,24 @@ public class App {
 	}
 	
 	/*
+	 * Restituisce in input il file CSV contenente per ogni riga, riferita ad un post, i tag del post 
+	 */
+	public void cleanTagsCSV(String inputFile, String outputFile, int body_column) throws IOException{
+		Reader in = new FileReader(inputFile);
+		Writer out = new FileWriter(outputFile);
+		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
+		CSVPrinter printer_csv = new CSVPrinter(out, CSVFormat.DEFAULT);
+		
+		for (CSVRecord record : records) {
+			String tags_field = record.get(body_column-1);
+			String tags_cleaned = tags_field.replace(">", " ").replace("<", "");
+			printer_csv.print(tags_cleaned);
+			printer_csv.println();
+		}
+		printer_csv.close();
+	}
+	
+	/*
 	 *  Prende in input il file da analizzare che deve avere su ogni riga la frase da analizzare,
 	 *  scrive in output il risultato dell'analisi
 	 */
@@ -260,14 +278,12 @@ public class App {
 		//App.downloadCSV(App.stackoverflow_db, App.posts_query, /*App.download_file_dir + */"downloaded.csv");
 		
 		App app = new App();
-		app.listTagsAverage(/*App.download_file_dir + */"so_tag.csv", 2);
+		app.cleanTagsCSV("it_tags.csv", "it_tags_cleaned.csv", 2);
+		//app.listTagsAverage(/*App.download_file_dir + */"so_tags.csv", 2);
 		//app.analizeCSV(input_file_dir + "downloaded.csv", output_file_dir + "result-set_out.csv", 2);
 		//app.analizeLines(input_file_dir + "input.txt", output_file_dir + "output.txt");
 		//app.analizeOneLine(input_file_dir + "input.txt", 1);
-		/*int part_value = 21292198;
-		int posts = 19881018;
-		float average = (float)part_value/(float)posts;
-		System.out.printf("Average %.2f", average);*/
+		
 	}
 
 }
