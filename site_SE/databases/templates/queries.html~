@@ -14,7 +14,7 @@
 		<h6>for the database selected: {{ db }}</h6>
 
 		{% for query in all_queries %}
-			{{ query.title }}<a href="{% url 'process_req' db query.quer %}">  Download CSV </a>
+			{{ query.title }}<li><a href="{% url 'process_req' db query.quer %}">  Download CSV </a></li>
 			<p></p>
 		{% endfor %}
 

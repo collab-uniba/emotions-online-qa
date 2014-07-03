@@ -18,8 +18,26 @@ posts_tags_query = "SELECT Id, Tags, PostTypeId FROM Posts"
 answers_query = "SELECT Id, Body, CreationDate FROM Posts WHERE PostTypeId = 2 AND creationDate BETWEEN '2014-01-01' AND '2014-01-07'"
 questions_query = "SELECT Id, Body, CreationDate FROM Posts WHERE PostTypeId = 1 AND creationDate BETWEEN '2014-01-01' AND '2014-01-07'"
 simple_query = "SELECT Id, Body, CreationDate FROM Posts WHERE Id = 4"
+most_recent_post_date = "SELECT MAX(CreationDate) FROM Posts ORDER BY CreationDate DESC"
+first_post_date = "SELECT MAX(CreationDate) FROM Posts ORDER BY CreationDate DESC"
+number_of_users = "SELECT COUNT(Id) from Users"
+quest_accepted = "SELECT COUNT(Id) FROM Posts WHERE PostTypeId = 1 AND AcceptedAnswerId IS NOT NULL"
+quest_resp_no_accepted = "SELECT COUNT(Id) FROM Posts WHERE PostTypeId = 1 AND AnswerCount > 0 AND AcceptedAnswerId IS NULL"
+quest_no_accepted = "SELECT COUNT(Id) FROM Posts WHERE PostTypeId = 1 AND AnswerCount = 0"
 
-all_queries = [answers_query, questions_query, simple_query, posts_tags_query]
+
+all_queries = [{'title':"List of all questions with id, body and creation date", 'quer':answers_query}, 
+		{'title':"List of all questions with id, body and creation date", 'quer':questions_query}, 
+		{'title':"Post with id 4 with body and creation date", 'quer':simple_query}, 
+		{'title':"List of all posts with id, tags and the type", 'quer':posts_tags_query}, 
+		{'title':"Date of the most recent post", 'quer':most_recent_post_date}, 
+		{'title':"Date of the first post", 'quer':first_post_date}, 
+		{'title':"Number of all users", 'quer':number_of_users}, 
+		{'title':"Number of questions with an 'accepted' answer", 'quer':quest_accepted}, 
+		{'title':"Number of questions with at least one answer but with no 'accepted' answer", 'quer':quest_resp_no_accepted}, 
+		{'title':"Number of questions with no 'accepted' answer", 'quer':quest_no_accepted}]
+
+#all_queries = [answers_query, questions_query, simple_query, posts_tags_query, most_recent_post_date, first_post_date, number_of_users, quest_accepted, quest_resp_no_accepted, quest_no_accepted]
 
 
 # Create your views here.
