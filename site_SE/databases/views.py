@@ -11,22 +11,24 @@ from django.template import RequestContext
 
 
 # Nomi database
+stackoverflow = 'stackoverflow.db'
+italian = 'italian.stackexchange.dump.db'
 db_directory = '/mnt/workingdir/emotions-online-qa/site_SE/databases/db/'
 
 # Query
 posts_tags_query = "SELECT Id, Tags, PostTypeId FROM Posts"
-answers_query = "SELECT Id, Body, CreationDate FROM Posts WHERE PostTypeId = 2 AND creationDate BETWEEN '2014-01-01' AND '2014-01-07'"
-questions_query = "SELECT Id, Body, CreationDate FROM Posts WHERE PostTypeId = 1 AND creationDate BETWEEN '2014-01-01' AND '2014-01-07'"
+answers_query = "SELECT Id, Body, CreationDate FROM Posts WHERE PostTypeId = 2"
+questions_query = "SELECT Id, Body, CreationDate FROM Posts WHERE PostTypeId = 1"
 simple_query = "SELECT Id, Body, CreationDate FROM Posts WHERE Id = 4"
 most_recent_post_date = "SELECT MAX(CreationDate) FROM Posts ORDER BY CreationDate DESC"
-first_post_date = "SELECT MAX(CreationDate) FROM Posts ORDER BY CreationDate DESC"
+first_post_date = "SELECT MIN(CreationDate) FROM Posts ORDER BY CreationDate DESC"
 number_of_users = "SELECT COUNT(Id) from Users"
 quest_accepted = "SELECT COUNT(Id) FROM Posts WHERE PostTypeId = 1 AND AcceptedAnswerId IS NOT NULL"
 quest_resp_no_accepted = "SELECT COUNT(Id) FROM Posts WHERE PostTypeId = 1 AND AnswerCount > 0 AND AcceptedAnswerId IS NULL"
 quest_no_accepted = "SELECT COUNT(Id) FROM Posts WHERE PostTypeId = 1 AND AnswerCount = 0"
 
 
-all_queries = [{'title':"List of all questions with id, body and creation date", 'quer':answers_query}, 
+all_queries = [{'title':"List of all answers with id, body and creation date", 'quer':answers_query}, 
 		{'title':"List of all questions with id, body and creation date", 'quer':questions_query}, 
 		{'title':"Post with id 4 with body and creation date", 'quer':simple_query}, 
 		{'title':"List of all posts with id, tags and the type", 'quer':posts_tags_query}, 
@@ -37,7 +39,12 @@ all_queries = [{'title':"List of all questions with id, body and creation date",
 		{'title':"Number of questions with at least one answer but with no 'accepted' answer", 'quer':quest_resp_no_accepted}, 
 		{'title':"Number of questions with no 'accepted' answer", 'quer':quest_no_accepted}]
 
-#all_queries = [answers_query, questions_query, simple_query, posts_tags_query, most_recent_post_date, first_post_date, number_of_users, quest_accepted, quest_resp_no_accepted, quest_no_accepted]
+
+
+
+
+dbs = [{'title':"Stackoverflow",'dir':stackoverflow},
+	{'title':"Italian",'dir':italian}]
 
 
 # Create your views here.
@@ -45,7 +52,7 @@ all_queries = [{'title':"List of all questions with id, body and creation date",
 def databases(request):
 	#curr_dir = os.getcwd()
 	#dbs = os.listdir(curr_dir + '/' + db_directory)
-	dbs = os.listdir(db_directory)
+	#dbs = os.listdir(db_directory)
 	page_title = "Databases"
 	return render(request, 'index.html', {'page_title': page_title, 'dbs': dbs})
 
@@ -54,11 +61,21 @@ def queries(request, db):
 	return render(request, 'queries.html', {'page_title': page_title, 'all_queries': all_queries, 'db': db})
 
 
-def process_req(request, db, query):
+def process_csv(request, db, query):
 	result_set = execute_query(db, query)
 	resp_csv = download_csv(request, result_set)
 	return resp_csv
 	
+def process_vis(request, db, query):
+	page_title = "Result set"
+	result_set = execute_query(db, query)
+	desc = result_set.description
+	fields = []
+	for d in desc:
+		fields = fields + [d[0]]
+
+	return render(request, 'results.html', {'page_title': page_title, 'result_set': result_set, 'fields': fields})
+
 def execute_query(db, query):
 	path_to_db = db_directory + db
 	conn = sqlite3.connect(path_to_db)

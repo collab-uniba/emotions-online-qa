@@ -5,6 +5,7 @@ from databases import views
 urlpatterns = patterns('',
     url(r'^$', views.databases, name='databases'),
 	url(r'^(?P<db>[-\w\.]+)/queries/$', views.queries, name='queries'),
-	url(r'^(?P<db>[-\w\.]+)/queries/(?P<query>[-\w\ \,\=\(\)\>\<\']+)/process/$', views.process_req, name='process_req'),
+	url(r'^(?P<db>[-\w\.]+)/queries/(?P<query>[-\w\ \,\=\(\)\>\<\']+)/csv/$', views.process_csv, name='process_csv'),
+	url(r'^(?P<db>[-\w\.]+)/queries/(?P<query>[-\w\ \,\=\(\)\>\<\']+)/vis/$', views.process_vis, name='process_vis'),
 )
 urlpatterns += staticfiles_urlpatterns()
