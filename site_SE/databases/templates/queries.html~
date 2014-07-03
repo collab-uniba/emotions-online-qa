@@ -12,7 +12,7 @@
 	<body>
 	<div id="page">
 		<div id="primary">
-			<!<div id="content" class="clearfix">
+			<div id="content" class="clearfix">
 		<h2>{{ page_title }} for the database selected: {{ db }}</h2>
 
 		
