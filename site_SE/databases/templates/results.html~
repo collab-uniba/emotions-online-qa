@@ -15,10 +15,20 @@
 			<!<div id="content" class="clearfix">
 		<h2>{{ page_title }} for the database selected: {{ db }}</h2>
 
-		
-		{% for query in all_queries %}
-			<p>{{ query.title }}<a href="{% url 'process_csv' db query.quer %}">  Download CSV </a><a href="{% url 'process_vis' db query.quer %}">  Visualize results </a></p>
+		<table border=3>
+		<tr>
+		{% for f in fields %}
+			<td>{{ f }}</td>
 		{% endfor %}
+		</tr>
+		{% for row in result_set %}
+			<tr>
+			{% for field in row %}
+				<td>{{ field }}</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
 		
 
 	</body>

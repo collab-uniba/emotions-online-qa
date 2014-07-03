@@ -17,7 +17,7 @@
 
 		
 		{% for query in all_queries %}
-			<p>{{ query.title }}<a href="{% url 'process_csv' db query.quer %}">  Download CSV </a><a href="{% url 'process_vis' db query.quer %}">  Visualize results </a></p>
+			<p>{{ query.title }}<p><a href="{% url 'process_csv' db query.quer %}">  Download CSV \t</a><a href="{% url 'process_vis' db query.quer %}">  Visualize results </a></p></p>
 		{% endfor %}
 		
 
