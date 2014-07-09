@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,10 +8,20 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
 
+import edu.stanford.nlp.*;
+import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
+import edu.stanford.nlp.sentiment.SentimentPipeline;
+import edu.stanford.nlp.util.CoreMap;
 import uk.ac.wlv.sentistrength.*;
 import csv.*;
 
@@ -41,6 +50,13 @@ public class App {
 	private static String stackoverflow_db = "stackoverflow.db";
 	private static String italian_db = "italian.stackexchange.dump.db";
 	
+	static enum Output {
+		PENNTREES, VECTORS, ROOT, PROBABILITIES
+	}
+
+	static enum Input {
+		TEXT, TREES
+	}
 	
 	public App(){
 		initialize();
@@ -95,6 +111,93 @@ public class App {
 				
 				printer_csv.print(pos_score);
 				printer_csv.print(neg_score);
+				printer_csv.println();
+			}
+			else{
+				// Trova la colonna da analizzare
+				int count = 0;
+				Iterator it = record.iterator();
+				while(it.hasNext()){
+					String currentField = (String)it.next();
+					if(currentField.equals(string_column))
+						body_column = count;
+					
+					count++;
+				}
+				
+				first = false;
+			}
+				
+			
+			
+		}
+		//out.close();
+		printer_csv.close();
+		System.out.println("Done");
+	}
+	
+	public void analizeNLPCSV(String inputFile, String outputFile, String string_column) throws IOException{
+		Reader in = new FileReader(inputFile);
+		Writer out = new FileWriter(outputFile);
+		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
+		CSVPrinter printer_csv = new CSVPrinter(out, CSVFormat.DEFAULT);
+		boolean first = true;
+		int body_column = 0;
+		
+		String parserModel = null;
+	    String sentimentModel = null;
+
+	    boolean filterUnknown = false;
+
+	    List<Output> outputFormats = Arrays.asList(new Output[] { Output.ROOT });
+	    Input inputFormat = Input.TEXT;
+		
+	    Properties pipelineProps = new Properties();
+	    pipelineProps.setProperty("ssplit.eolonly", "true");
+	    pipelineProps.setProperty("annotators", "parse, sentiment");
+	    pipelineProps.setProperty("enforceRequirements", "false");
+	    
+	    Properties tokenizerProps = new Properties();
+	    tokenizerProps.setProperty("annotators", "tokenize, ssplit");
+	    
+		for (CSVRecord record : records) {
+			if(first == false){
+				// Riscrive file...
+				Iterator it = record.iterator();
+				while(it.hasNext()){
+					String current_field = (String)it.next();
+					printer_csv.print(current_field);
+				}
+				
+				// ...aggiunge score NLP
+				String body = record.get(body_column);
+				
+				StanfordCoreNLP tokenizer = new StanfordCoreNLP(tokenizerProps);
+			    StanfordCoreNLP pipeline = new StanfordCoreNLP(pipelineProps);
+			    
+			    
+				
+		        
+		        String line = body.trim();
+		        
+		        if (line.length() > 0) {
+		          Annotation annotation = tokenizer.process(line);
+		          pipeline.annotate(annotation);
+		          System.out.println(annotation.toString());
+		          for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+		        	  //System.out.println("  " + sentence.get(SentimentCoreAnnotations.ClassName.class));
+		        	  printer_csv.print(sentence.get(SentimentCoreAnnotations.ClassName.class));
+		          }
+		        } else {
+		          // Output blank lines for blank lines so the tool can be
+		          // used for line-by-line text processing
+		          //System.out.println("");
+		        }
+				
+				
+				//printer_csv.print(neg_score);
+				
+				
 				printer_csv.println();
 			}
 			else{
@@ -353,6 +456,7 @@ public class App {
 		//app.cleanTagsCSV("downloaded.csv", "Tags");
 		//app.listTagsStatistics("it_posts.csv");
 		//app.analizeSentiStrengthCSV("ac_questions.csv", "ac_questions_ss.csv", "Body");
+		app.analizeNLPCSV("ac_questions.csv", "ac_questions_nlp.csv", "Body");
 		//app.analizeLines(input_file_dir + "input.txt", output_file_dir + "output.txt");
 		//app.analizeOneLine(input_file_dir + "input.txt", 1);
 		
