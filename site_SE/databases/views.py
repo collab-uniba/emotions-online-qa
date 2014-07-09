@@ -13,11 +13,13 @@ from django.template import RequestContext
 # Nomi database
 stackoverflow = 'stackoverflow.db'
 italian = 'italian.stackexchange.dump.db'
+academia = 'academia.dump.db'
 db_directory = '/mnt/workingdir/emotions-online-qa/site_SE/databases/db/'
 
 # Query
 posts_tags_query = "SELECT Id, Tags, PostTypeId FROM Posts"
 answers_query = "SELECT Id, Body, CreationDate FROM Posts WHERE PostTypeId = 2"
+answers_query_id = 1
 questions_query = "SELECT Id, Body, CreationDate FROM Posts WHERE PostTypeId = 1"
 simple_query = "SELECT Id, Body, CreationDate FROM Posts WHERE Id = 4"
 most_recent_post_date = "SELECT MAX(CreationDate) FROM Posts ORDER BY CreationDate DESC"
@@ -25,26 +27,26 @@ first_post_date = "SELECT MIN(CreationDate) FROM Posts ORDER BY CreationDate DES
 number_of_users = "SELECT COUNT(Id) from Users"
 quest_accepted = "SELECT COUNT(Id) FROM Posts WHERE PostTypeId = 1 AND AcceptedAnswerId IS NOT NULL"
 quest_resp_no_accepted = "SELECT COUNT(Id) FROM Posts WHERE PostTypeId = 1 AND AnswerCount > 0 AND AcceptedAnswerId IS NULL"
-quest_no_accepted = "SELECT COUNT(Id) FROM Posts WHERE PostTypeId = 1 AND AnswerCount = 0"
+quest_no_answ = "SELECT COUNT(Id) FROM Posts WHERE PostTypeId = 1 AND AnswerCount = 0"
+logit_regr_data = "select PostId, UserQuest as UserId, Reputation, N_Answers, N_Questions, CreationDate, Title, Body, Tags, AcceptedAnswerId from (select count(Users_Answ.Id) as N_Answers, Users_Answ.Id as UserAnsw from Posts Answers, Users Users_Answ where Answers.PostTypeId = 2 and Answers.OwnerUserId = Users_Answ.Id group by (Users_Answ.Id)), (select count(Users_Quest.Id)as N_Questions, Users_Quest.Id as UserQuest, Users_Quest.Reputation as Reputation from Posts Questions, Users Users_Quest where Questions.PostTypeId = 1 and		Questions.OwnerUserId = Users_Quest.Id group by (Users_Quest.Id)), (select Id as PostId, Title, Body, Tags, CreationDate, OwnerUserId, AcceptedAnswerId from Posts where Posts.PostTypeId = 1) where UserQuest = UserAnsw and OwnerUserId = UserQuest"
 
 
-all_queries = [{'title':"List of all answers with id, body and creation date", 'quer':answers_query}, 
-		{'title':"List of all questions with id, body and creation date", 'quer':questions_query}, 
-		{'title':"Post with id 4 with body and creation date", 'quer':simple_query}, 
-		{'title':"List of all posts with id, tags and the type", 'quer':posts_tags_query}, 
-		{'title':"Date of the most recent post", 'quer':most_recent_post_date}, 
-		{'title':"Date of the first post", 'quer':first_post_date}, 
-		{'title':"Number of all users", 'quer':number_of_users}, 
-		{'title':"Number of questions with an 'accepted' answer", 'quer':quest_accepted}, 
-		{'title':"Number of questions with at least one answer but with no 'accepted' answer", 'quer':quest_resp_no_accepted}, 
-		{'title':"Number of questions with no 'accepted' answer", 'quer':quest_no_accepted}]
-
-
-
+all_queries = [{'id':'1','title':"List of all answers with id, body and creation date", 'quer':answers_query}, 
+		{'id':'2','title':"List of all questions with id, body and creation date", 'quer':questions_query}, 
+		{'id':'3','title':"Post with id 4 with body and creation date", 'quer':simple_query}, 
+		{'id':'4','title':"List of all posts with id, tags and the type", 'quer':posts_tags_query}, 
+		{'id':'5','title':"Date of the most recent post", 'quer':most_recent_post_date}, 
+		{'id':'6','title':"Date of the first post", 'quer':first_post_date}, 
+		{'id':'7','title':"Number of all users", 'quer':number_of_users}, 
+		{'id':'8','title':"Number of questions with an 'accepted' answer", 'quer':quest_accepted}, 
+		{'id':'9','title':"Number of questions with at least one answer but with no 'accepted' answer", 'quer':quest_resp_no_accepted}, 
+		{'id':'10','title':"Number of questions with no answer", 'quer':quest_no_answ},
+		{'id':'11','title':"Data for the logistic regression", 'quer':logit_regr_data}]
 
 
 dbs = [{'title':"Stackoverflow",'dir':stackoverflow},
-	{'title':"Italian",'dir':italian}]
+	{'title':"Italian",'dir':italian},
+	{'title':"Academia",'dir':academia}]
 
 
 # Create your views here.
@@ -53,20 +55,35 @@ def databases(request):
 	#curr_dir = os.getcwd()
 	#dbs = os.listdir(curr_dir + '/' + db_directory)
 	#dbs = os.listdir(db_directory)
-	page_title = "Databases"
+	page_title = "Choose a database"
 	return render(request, 'index.html', {'page_title': page_title, 'dbs': dbs})
 
-def queries(request, db):
+def queries(request, db_title):
 	page_title = "Query List"
-	return render(request, 'queries.html', {'page_title': page_title, 'all_queries': all_queries, 'db': db})
+	return render(request, 'queries.html', {'page_title': page_title, 'all_queries': all_queries, 'db_title': db_title})
 
+def get_query(query_id):
+	for q_elem in all_queries:
+		if q_elem['id'] == query_id:
+			query = q_elem['quer']
+	return query
 
-def process_csv(request, db, query):
+def get_db_dir(db_title):
+	for db_elem in dbs:
+		if db_elem['title'] == db_title:
+			db = db_elem['dir']
+	return db
+
+def process_csv(request, db_title, query_id):
+	query = get_query(query_id)
+	db = get_db_dir(db_title)
 	result_set = execute_query(db, query)
 	resp_csv = download_csv(request, result_set)
 	return resp_csv
 	
-def process_vis(request, db, query):
+def process_vis(request, db_title, query_id):
+	query = get_query(query_id)
+	db = get_db_dir(db_title)
 	page_title = "Result set"
 	result_set = execute_query(db, query)
 	desc = result_set.description
