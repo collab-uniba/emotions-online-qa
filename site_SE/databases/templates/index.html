@@ -16,7 +16,7 @@
         <h2>{{ page_title }}</h2>
 			
 		{% for db in dbs %}
-			<p><a href="{% url 'queries' db.dir %}">{{ db.title }}</a></p>
+			<p><a href="{% url 'queries' db.title %}">{{ db.title }}</a></p>
 		{% endfor %}
 		
 	</body>

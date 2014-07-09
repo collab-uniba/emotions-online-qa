@@ -13,13 +13,15 @@
 	<div id="page">
 		<div id="primary">
 			<!<div id="content" class="clearfix">
-		<h2>{{ page_title }} for the database selected: {{ db }}</h2>
+		<h2>{{ page_title }} for the database selected: {{ db_title }}</h2>
 
-		
+		<table>
 		{% for query in all_queries %}
-			<p>{{ query.title }}<a href="{% url 'process_csv' db query.quer %}">  Download CSV </a><a href="{% url 'process_vis' db query.quer %}">  Visualize results </a></p>
+			<tr><p><td>{{ query.title }}</td>
+				<td><a href="{% url 'process_csv' db_title query.id %}">  Download CSV </a></td>
+				<td><a href="{% url 'process_vis' db_title query.id %}">  Visualize results </a></td></p></tr>
 		{% endfor %}
-		
+		</table>
 
 	</body>
 </html>
