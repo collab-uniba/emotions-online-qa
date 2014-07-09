@@ -196,7 +196,7 @@ def dump_files(file_names, anathomy,
         columns=', '.join(row.attrib.keys()), 
         values=('?, ' * len(row.attrib.keys()))[:-2]),
         row.attrib.values())
-     print ".",
+     #print ".",
     except Exception, e:
      logging.warning(e)
      print "x",
