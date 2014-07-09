@@ -59,25 +59,33 @@ public class App {
 	}
 	
 	/*
-	 *  Analizza il file 'inputFile' (che deve essere in formato CSV) prendendo la colonna body_column
+	 *  Analizza il file 'inputFile' (che deve essere in formato CSV) prendendo la colonna string_column
 	 *  e scrive il risultato dell'analisi di SentiStrength nel file 'outputFile'
 	 *  
 	 *  	@param
 	 *  		inputFile:		path del file di input in formato CSV
 	 *  		outputFile:		path del file su cui scrivere i risultati
-	 *  		body_column:	colonna che contiene il testo da analizzare
+	 *  		body_column:	nome della colonna che contiene il testo da analizzare
 	 */			
-	public void analizeCSV(String inputFile, String outputFile, int body_column) throws IOException{
+	public void analizeSentiStrengthCSV(String inputFile, String outputFile, String string_column) throws IOException{
 		Reader in = new FileReader(inputFile);
 		Writer out = new FileWriter(outputFile);
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
 		CSVPrinter printer_csv = new CSVPrinter(out, CSVFormat.DEFAULT);
 		boolean first = true;
+		int body_column = 0;
 		
 		for (CSVRecord record : records) {
 			if(first == false){
-				// Campi
-				String body = record.get(body_column-1);
+				// Riscrive file...
+				Iterator it = record.iterator();
+				while(it.hasNext()){
+					String current_field = (String)it.next();
+					printer_csv.print(current_field);
+				}
+				
+				// ...aggiunge score SentiStrength
+				String body = record.get(body_column);
 				
 				// Classificazione
 				String score = sentiStrength.computeSentimentScores(body);
@@ -87,11 +95,23 @@ public class App {
 				
 				printer_csv.print(pos_score);
 				printer_csv.print(neg_score);
-				printer_csv.print(body);
 				printer_csv.println();
 			}
-			else
+			else{
+				// Trova la colonna da analizzare
+				int count = 0;
+				Iterator it = record.iterator();
+				while(it.hasNext()){
+					String currentField = (String)it.next();
+					if(currentField.equals(string_column))
+						body_column = count;
+					
+					count++;
+				}
+				
 				first = false;
+			}
+				
 			
 			
 		}
@@ -103,7 +123,7 @@ public class App {
 	/*
 	 * Prende in input il file CSV contenente tutti i post
 	 */
-	public void listTagsAverage(String inputFile) throws IOException{
+	public void listTagsStatistics(String inputFile) throws IOException{
 		Reader in = new FileReader(inputFile);
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
 		LinkedList<String> tags = new LinkedList<String>();
@@ -206,9 +226,9 @@ public class App {
 	}
 	
 	/*
-	 * Restituisce in input il file CSV contenente per ogni riga, riferita ad un post, i tag del post 
+	 * Riscrive il file dato in input con il campo Tags ripulito dai caratteri "<" ">" 
 	 */
-	public void cleanTagsCSV(String inputFile) throws IOException{
+	public void cleanTagsCSV(String inputFile, String tags_field) throws IOException{
 		Reader in = new FileReader(inputFile);
 		Writer out = new FileWriter(inputFile.replace(".csv", "_clean.csv"));
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
@@ -219,19 +239,34 @@ public class App {
 		
 		for (CSVRecord record : records) {
 			if(first == false){
-				String tags_field = record.get(tags_column);
-				if(!tags_field.equals("None")){
-					String tags_cleaned = tags_field.replace(">", " ").replace("<", "");
-					printer_csv.print(tags_cleaned);
-					printer_csv.println();
+				// Riscrive file...
+				Iterator it = record.iterator();
+				int count = 0;
+				while(it.hasNext()){
+					String current_field = (String)it.next();
+					
+					if(count == tags_column){
+						if(!current_field.equals("None")){
+							String tags_cleaned = current_field.replace(">", " ").replace("<", "");
+							printer_csv.print(tags_cleaned);
+						}else{
+							printer_csv.print(current_field);
+						}
+					}else{
+						printer_csv.print(current_field);
+					}
+					
+					count++;
 				}
+				printer_csv.println();
+				
 			}
 			else{
 				int count = 0;
 				Iterator it = record.iterator();
 				while(it.hasNext()){
 					String currentField = (String)it.next();
-					if(currentField.equals("Tags"))
+					if(currentField.equals(tags_field))
 						tags_column = count;
 					
 					count++;
@@ -315,12 +350,14 @@ public class App {
 		//App.downloadCSV(App.stackoverflow_db, App.posts_query, /*App.download_file_dir + */"downloaded.csv");
 		
 		App app = new App();
-		//app.cleanTagsCSV("it_posts.csv");
-		//app.listTagsAverage("it_posts.csv");
-		//app.analizeCSV("it_body.csv", "it_body_senti.csv", 2);
+		//app.cleanTagsCSV("downloaded.csv", "Tags");
+		//app.listTagsStatistics("it_posts.csv");
+		//app.analizeSentiStrengthCSV("ac_questions.csv", "ac_questions_ss.csv", "Body");
 		//app.analizeLines(input_file_dir + "input.txt", output_file_dir + "output.txt");
 		//app.analizeOneLine(input_file_dir + "input.txt", 1);
-		String prova_1 = "The Flesch Reading Ease Score indicates on a scale of 0 to 100 the difficulty of comprehending a document. A score of 100 indicates an extremely simple document, while a score of 0 would describe a very complex document. A Flesch Reading Ease Score in the range of 40–50 would correspond to a relatively complex document that might score a 12 as its Flesch-Kincaid Grade Level. The Flesch Reading Ease Score can be calculated by using the following equation.";
+		
+		
+		/*String prova_1 = "The Flesch Reading Ease Score indicates on a scale of 0 to 100 the difficulty of comprehending a document. A score of 100 indicates an extremely simple document, while a score of 0 would describe a very complex document. A Flesch Reading Ease Score in the range of 40–50 would correspond to a relatively complex document that might score a 12 as its Flesch-Kincaid Grade Level. The Flesch Reading Ease Score can be calculated by using the following equation.";
 		String prova_2 = "Technically R is an expression language with a very simple syntax. It is case sensitive as are most UNIX based packages, so A and a are different symbols and would refer to different variables. The set of symbols which can be used in R names depends on the operating system and country within which R is being run (technically on the locale in use).";
 		String prova_3 = "Elementary commands consist of either expressions or assignments. If an expression is given as a command, it is evaluated, printed (unless specifically made invisible), and the value is lost. An assignment also evaluates an expression and passes the value to a variable but the result is not automatically printed.";
 		String prova_4 = "Alternatively, the Emacs text editor provides more general support mechanisms (via ESS, Emacs Speaks Statistics) for working interactively with R.";
@@ -329,7 +366,7 @@ public class App {
 		FleshIndex.calculate(prova_2);
 		FleshIndex.calculate(prova_3);
 		FleshIndex.calculate(prova_4);
-		FleshIndex.calculate(prova_5);
+		FleshIndex.calculate(prova_5);*/
 	}
 
 }
