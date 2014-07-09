@@ -9,11 +9,14 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import uk.ac.wlv.sentistrength.*;
 import csv.*;
+
+
 
 public class App {
 
@@ -69,42 +72,44 @@ public class App {
 		Writer out = new FileWriter(outputFile);
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
 		CSVPrinter printer_csv = new CSVPrinter(out, CSVFormat.DEFAULT);
+		boolean first = true;
 		
 		for (CSVRecord record : records) {
+			if(first == false){
+				// Campi
+				String body = record.get(body_column-1);
+				
+				// Classificazione
+				String score = sentiStrength.computeSentimentScores(body);
+				String[] split_res = score.split(" ");
+				String pos_score = split_res[0];
+				String neg_score = split_res[1];
+				
+				printer_csv.print(pos_score);
+				printer_csv.print(neg_score);
+				printer_csv.print(body);
+				printer_csv.println();
+			}
+			else
+				first = false;
 			
-			// Campi
-			String body = record.get(body_column-1);
 			
-			// Classificazione
-			String score = sentiStrength.computeSentimentScores(body);
-			String[] split_res = score.split(" ");
-			String pos_score = split_res[0];
-			String neg_score = split_res[1];
-			
-			// Stampa a video
-			System.err.print("Body: ");
-			System.out.println(body);
-			System.err.print("Positive score: ");
-			System.out.println(pos_score + "\n");
-			System.err.print("Negative score: ");
-			System.out.println(neg_score + "\n");
-			
-			printer_csv.print(pos_score);
-			printer_csv.print(neg_score);
-			printer_csv.print(body);
-			printer_csv.println();
-			
-			// Scrive sul file
-			//out.write(score + "\n\n\n###################################################\n\n\n");
 		}
 		//out.close();
 		printer_csv.close();
+		System.out.println("Done");
 	}
 	
-	public void listTagsAverage(String inputFile, int body_column) throws IOException{
+	/*
+	 * Prende in input il file CSV contenente tutti i post
+	 */
+	public void listTagsAverage(String inputFile) throws IOException{
 		Reader in = new FileReader(inputFile);
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
 		LinkedList<String> tags = new LinkedList<String>();
+		
+		int tags_column = 0;
+		int posttype_column = 0;
 		
 		int no_tag_post = 0;
 		int quest_no_tag = 0;
@@ -123,8 +128,8 @@ public class App {
 			if(first == false){
 				num_records++;
 				
-				String post_type = record.get(2);
-				String field_tags = record.get(body_column-1);
+				String post_type = record.get(posttype_column);
+				String field_tags = record.get(tags_column);
 				String[] splitted_field = field_tags.split(">");
 				int len = splitted_field.length;
 				
@@ -155,23 +160,34 @@ public class App {
 						answ_no_tag++;
 				}
 			}
-			else
+			else{
+				int count = 0;
+				Iterator it = record.iterator();
+				while(it.hasNext()){
+					String currentField = (String)it.next();
+					if(currentField.equals("Tags"))
+						tags_column = count;
+					else if(currentField.equals("PostTypeId"))
+						posttype_column = count;
+					
+					count++;
+				}
+				
 				first = false;
+			}
 		}
 		
 		average = (float)part_value/(float)num_records;
 		tags_p_quest = (float)part_value/(float)quest;
 		
-		Writer out = new FileWriter("tags.txt");
+		Collections.sort(tags);
+		Writer out = new FileWriter(inputFile.replace(".csv", ".txt"));
 		out.write("Tags identified:\n");
 		Iterator<String> it = tags.iterator();
 		while(it.hasNext()){
 			num_tags++;
 			out.write("\t"+it.next()+"\n");
 		}
-		
-		System.out.println("Part: " + part_value);
-		
 		
 		out.write("\nNumber of tags: " + num_tags + "\n" +
 					"Number of posts: " + num_records + "\n" +
@@ -186,22 +202,43 @@ public class App {
 					"Average of tags in answers: "+ average + "\n"*/);
 		
 		out.close();
+		System.out.println("Done");
 	}
 	
 	/*
 	 * Restituisce in input il file CSV contenente per ogni riga, riferita ad un post, i tag del post 
 	 */
-	public void cleanTagsCSV(String inputFile, String outputFile, int body_column) throws IOException{
+	public void cleanTagsCSV(String inputFile) throws IOException{
 		Reader in = new FileReader(inputFile);
-		Writer out = new FileWriter(outputFile);
+		Writer out = new FileWriter(inputFile.replace(".csv", "_clean.csv"));
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
 		CSVPrinter printer_csv = new CSVPrinter(out, CSVFormat.DEFAULT);
 		
+		boolean first = true;
+		int tags_column = 0;
+		
 		for (CSVRecord record : records) {
-			String tags_field = record.get(body_column-1);
-			String tags_cleaned = tags_field.replace(">", " ").replace("<", "");
-			printer_csv.print(tags_cleaned);
-			printer_csv.println();
+			if(first == false){
+				String tags_field = record.get(tags_column);
+				if(!tags_field.equals("None")){
+					String tags_cleaned = tags_field.replace(">", " ").replace("<", "");
+					printer_csv.print(tags_cleaned);
+					printer_csv.println();
+				}
+			}
+			else{
+				int count = 0;
+				Iterator it = record.iterator();
+				while(it.hasNext()){
+					String currentField = (String)it.next();
+					if(currentField.equals("Tags"))
+						tags_column = count;
+					
+					count++;
+				}
+				first = false;
+			}
+			
 		}
 		printer_csv.close();
 	}
@@ -278,12 +315,21 @@ public class App {
 		//App.downloadCSV(App.stackoverflow_db, App.posts_query, /*App.download_file_dir + */"downloaded.csv");
 		
 		App app = new App();
-		app.cleanTagsCSV("it_tags.csv", "it_tags_cleaned.csv", 2);
-		//app.listTagsAverage(/*App.download_file_dir + */"so_tags.csv", 2);
-		//app.analizeCSV(input_file_dir + "downloaded.csv", output_file_dir + "result-set_out.csv", 2);
+		//app.cleanTagsCSV("it_posts.csv");
+		//app.listTagsAverage("it_posts.csv");
+		//app.analizeCSV("it_body.csv", "it_body_senti.csv", 2);
 		//app.analizeLines(input_file_dir + "input.txt", output_file_dir + "output.txt");
 		//app.analizeOneLine(input_file_dir + "input.txt", 1);
-		
+		String prova_1 = "The Flesch Reading Ease Score indicates on a scale of 0 to 100 the difficulty of comprehending a document. A score of 100 indicates an extremely simple document, while a score of 0 would describe a very complex document. A Flesch Reading Ease Score in the range of 40–50 would correspond to a relatively complex document that might score a 12 as its Flesch-Kincaid Grade Level. The Flesch Reading Ease Score can be calculated by using the following equation.";
+		String prova_2 = "Technically R is an expression language with a very simple syntax. It is case sensitive as are most UNIX based packages, so A and a are different symbols and would refer to different variables. The set of symbols which can be used in R names depends on the operating system and country within which R is being run (technically on the locale in use).";
+		String prova_3 = "Elementary commands consist of either expressions or assignments. If an expression is given as a command, it is evaluated, printed (unless specifically made invisible), and the value is lost. An assignment also evaluates an expression and passes the value to a variable but the result is not automatically printed.";
+		String prova_4 = "Alternatively, the Emacs text editor provides more general support mechanisms (via ESS, Emacs Speaks Statistics) for working interactively with R.";
+		String prova_5 = "It is recommended that you should use separate working directories for analyses conducted with R. It is quite common for objects with names x and y to be created during an analysis. Names like this are often meaningful in the context of a single analysis, but it can be quite hard to decide what they might be when the several analyses have been conducted in the same directory.";
+		FleshIndex.calculate(prova_1);
+		FleshIndex.calculate(prova_2);
+		FleshIndex.calculate(prova_3);
+		FleshIndex.calculate(prova_4);
+		FleshIndex.calculate(prova_5);
 	}
 
 }
