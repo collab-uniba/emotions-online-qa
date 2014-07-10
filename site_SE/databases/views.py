@@ -91,10 +91,11 @@ def process_vis(request, db_title, query_id):
 	for d in desc:
 		fields = fields + [d[0]]
 
-	return render(request, 'results.html', {'page_title': page_title, 'result_set': result_set, 'fields': fields})
+	return render(request, 'results.html', {'page_title': page_title, 'result_set': result_set, 'fields': fields, 'db_title': db_title})
 
 def execute_query(db, query):
-	path_to_db = db_directory + db
+	#path_to_db = db_directory + db
+	path_to_db = os.getcwd() + '/databases/db/' + db
 	conn = sqlite3.connect(path_to_db)
 	c = conn.cursor()
 	result_set = c.execute(query)
