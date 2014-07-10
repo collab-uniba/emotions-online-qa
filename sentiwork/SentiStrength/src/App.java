@@ -455,7 +455,7 @@ public class App {
 		App app = new App();
 		//app.cleanTagsCSV("downloaded.csv", "Tags");
 		//app.listTagsStatistics("it_posts.csv");
-		//app.analizeSentiStrengthCSV("ac_questions.csv", "ac_questions_ss.csv", "Body");
+		app.analizeSentiStrengthCSV("ac_questions.csv", "ac_questions_ss.csv", "Body");
 		app.analizeNLPCSV("ac_questions.csv", "ac_questions_nlp.csv", "Body");
 		//app.analizeLines(input_file_dir + "input.txt", output_file_dir + "output.txt");
 		//app.analizeOneLine(input_file_dir + "input.txt", 1);
