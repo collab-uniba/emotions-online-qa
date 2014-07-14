@@ -1,4 +1,7 @@
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,12 +11,19 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Formatter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import edu.stanford.nlp.*;
 import edu.stanford.nlp.ling.CoreAnnotations;
@@ -24,11 +34,20 @@ import edu.stanford.nlp.sentiment.SentimentPipeline;
 import edu.stanford.nlp.util.CoreMap;
 import uk.ac.wlv.sentistrength.*;
 import csv.*;
-
+import cc.mallet.util.*;
+import cc.mallet.types.*;
+import cc.mallet.pipe.*;
+import cc.mallet.pipe.iterator.*;
+import cc.mallet.topics.*;
 
 
 public class App {
 
+	private static StanfordCoreNLP tokenizer;
+	private static StanfordCoreNLP pipeline;
+	
+	private static HashMap<String,String> LIWC;
+	
 	private static String input_file_dir = "input_file/";
 	private static String output_file_dir = "output_file/";
 	private static String download_file_dir = "download/";
@@ -49,22 +68,16 @@ public class App {
 	
 	private static String stackoverflow_db = "stackoverflow.db";
 	private static String italian_db = "italian.stackexchange.dump.db";
-	
-	static enum Output {
-		PENNTREES, VECTORS, ROOT, PROBABILITIES
-	}
 
-	static enum Input {
-		TEXT, TREES
-	}
 	
-	public App(){
-		initialize();
+	public App() throws IOException{
+		initializeSentiStrength();
 		initializeCorpus();
+		loadLIWC();
 	}
 	
 	// Inizializza oggetto SentiStrength per la classificazione
-	public static void initialize(){
+	public static void initializeSentiStrength(){
 		sentiStrength = new SentiStrength();
 		String ssthInitialisation[] = {"sentidata", "lib/SentiStrength_Data/", "explain"};
 		sentiStrength.initialise(ssthInitialisation);
@@ -72,6 +85,380 @@ public class App {
 	
 	public static void initializeCorpus(){
 		corpus = sentiStrength.getCorpus();
+	}
+	
+	public static void initializeNLP(){
+		Properties pipelineProps = new Properties();
+	    //pipelineProps.setProperty("ssplit.eolonly", "true");
+	    pipelineProps.setProperty("annotators", "tokenize,pos,cleanxml,parse,sentiment");
+	    pipelineProps.setProperty("enforceRequirements", "false");
+	    
+	    Properties tokenizerProps = new Properties();
+	    tokenizerProps.setProperty("annotators", /*"tokenize, ssplit"*/"tokenize,cleanxml,ssplit,pos,lemma,parse,sentiment");
+	    
+	    tokenizer = new StanfordCoreNLP(tokenizerProps);
+	    pipeline = new StanfordCoreNLP(pipelineProps);
+	    
+	}
+	
+	public static void loadLIWC() throws IOException{
+		LIWC = new <String,String>HashMap();
+		Reader in = new FileReader("LIWC[1].all.txt");
+		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
+		
+		for (CSVRecord record : records) {
+			String key = record.get(0);
+			String aff_class = record.get(1);
+
+			key = key.replace(" ", "");
+			if(key.contains("*")){
+				key = key.replace("*", "");
+			}
+			LIWC.put(key, aff_class);
+		}
+	}
+	
+	public static int countWords(String text){
+		int words     = 0;
+	    String delimiters = ".,':;?{}[]=-+_!@#$%^&*() ";
+	    StringTokenizer tokenizer = new StringTokenizer(text, delimiters);
+	    
+	    while(tokenizer.hasMoreTokens())
+	    	words++;
+	    
+	    return words;
+	}
+	
+	public static String getReadability(String text){
+		//TODO Inserire chiamata all'indice scelto
+		return String.valueOf(FleshIndex.getFleschGradeIndex(text));
+	}
+	
+	public static String hasCodeSnippet(String text){
+		String has_code = "no";
+		if(text.contains("<code>"))
+			has_code = "yes";
+		
+		return has_code;
+	}
+	
+	public static String cleanTags(String tags){
+		String tags_cleaned;
+		if(!tags.equals("None")){
+			tags_cleaned = tags.replace(">", " ").replace("<", "");
+		}else{
+			tags_cleaned = tags;
+		}
+		return tags_cleaned;
+	}
+	
+	public static String getTopic(String tags){
+		//TODO
+		return "Selected topic";
+	}
+	
+	public String SentiStrengthgetScore(String text){
+		String score = sentiStrength.computeSentimentScores(text);
+		String[] split_res = score.split(" ");
+		String pos_score = split_res[0];
+		String neg_score = split_res[1];
+				
+		return pos_score + "," + neg_score;
+	}
+	
+	public String NLPgetScore(String text){
+		String score = new String();
+		String line = text.trim();
+        
+        if (line.length() > 0) {
+        	Annotation annotation = tokenizer.process(line);
+        	
+        	pipeline.annotate(annotation);
+            for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+          	  	score = score + "," + sentence.get(SentimentCoreAnnotations.ClassName.class);
+            }
+        }
+          
+		return score;
+	}
+	
+	public String LIWCgetAffectiveClass(String word){
+		return (String)LIWC.get(word);
+	}
+	
+	public HashMap getAffClasses(String text){
+		HashMap classes = new HashMap();
+		classes.put("PREPS", 0); classes.put("NUMBER", 0); classes.put("AFFECT", 0); classes.put("POSEMO", 0); classes.put("POSFEEL", 0); classes.put("OPTIM", 0); classes.put("NEGEMO", 0); classes.put("ANX", 0); classes.put("ANGER", 0); classes.put("SAD", 0); classes.put("PRONOUN", 0); classes.put("COGMECH", 0); classes.put("CAUSE", 0); classes.put("INSIGHT", 0); classes.put("DISCREP", 0); classes.put("INHIB", 0); classes.put("TENTAT", 0); classes.put("CERTAIN", 0); classes.put("SENSES", 0); classes.put("SEE", 0); classes.put("HEAR", 0); classes.put("I", 0); classes.put("FEEL", 0); classes.put("SOCIAL", 0); classes.put("COMM", 0); classes.put("OTHREF", 0); classes.put("FRIENDS", 0); classes.put("FAMILY", 0); classes.put("HUMANS", 0); classes.put("TIME", 0);classes.put("PAST", 0); classes.put("PRESENT", 0); classes.put("WE", 0); classes.put("FUTURE", 0); classes.put("SPACE", 0); classes.put("UP", 0); classes.put("DOWN", 0); classes.put("INCL", 0); classes.put("EXCL", 0); classes.put("MOTION", 0); classes.put("OCCUP", 0); classes.put("SCHOOL", 0); classes.put("JOB", 0); classes.put("SELF", 0); classes.put("ACHIEVE", 0); classes.put("LEISURE", 0); classes.put("HOME", 0); classes.put("SPORTS", 0); classes.put("TV", 0); classes.put("MUSIC", 0); classes.put("MONEY", 0); classes.put("METAPH", 0); classes.put("RELIG", 0); classes.put("DEATH", 0); classes.put("YOU", 0); classes.put("PHYSCAL", 0); classes.put("BODY", 0); classes.put("SEXUAL", 0); classes.put("EATING", 0); classes.put("SLEEP", 0); classes.put("GROOM", 0); classes.put("SWEAR", 0); classes.put("NONFL", 0); classes.put("FILLERS", 0); classes.put("SIMILES", 0); classes.put("OTHER", 0); classes.put("NEGATE", 0); classes.put("ASSENT", 0); classes.put("ARTICLE", 0);
+		
+		//TODO Ciclo su testo tokenizzato
+		if(LIWC.containsKey(text)){
+			String aff_class = LIWCgetAffectiveClass(text);
+			int c = (int)classes.get(aff_class);
+			c++;
+			classes.remove(aff_class);
+			classes.put(aff_class, c);
+		}
+		
+		return classes;
+	}
+	
+	public String isAcceptedAnswer(String field){
+		String acc;
+		if(field.contains("None"))
+			acc = "no";
+		else
+			acc = "yes";
+		
+		return acc;
+	}
+	
+	public static int CSVgetColumn(String s_column, String inputFile) throws IOException{
+		Reader in = new FileReader(inputFile);
+		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
+		int n_column = 0;
+		CSVRecord record = records.iterator().next();
+		
+		int count = 0;
+		Iterator it = record.iterator();
+		while(it.hasNext()){
+			String currentField = (String)it.next();
+			if(currentField.equals(s_column))
+				n_column = count;
+			
+			count++;
+		}
+		
+		return n_column;
+	}
+	
+	public void buildDataset(String inputFile, String outputFile) throws IOException{
+		Reader in = new FileReader(inputFile);
+		Writer out = new FileWriter(outputFile);
+		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
+		CSVPrinter printer_csv = new CSVPrinter(out, CSVFormat.DEFAULT);
+		boolean first = true; 
+		
+		int post = this.CSVgetColumn("Post", inputFile);
+		int user_quest_acc = this.CSVgetColumn("UsersQuestionsAccepted", inputFile);
+		int user_answ_acc = this.CSVgetColumn("UsersAnswersAccepted", inputFile);
+		int title = this.CSVgetColumn("PostTitle", inputFile);
+		int body = this.CSVgetColumn("PostBody", inputFile);
+		int tags = this.CSVgetColumn("PostTags", inputFile);
+		int quest_up = this.CSVgetColumn("UpVotesQuest", inputFile);
+		int quest_down = this.CSVgetColumn("DownVotesQuest", inputFile);
+		int answ_up = this.CSVgetColumn("UpVotesAnsw", inputFile);
+		int answ_down = this.CSVgetColumn("DownVotesAnsw", inputFile);
+		int badges = this.CSVgetColumn("UsersBadges", inputFile);
+		int accepted_answ = this.CSVgetColumn("PostAcceptedAnswerId", inputFile);
+		
+		
+		
+		for (CSVRecord record : records) {
+			if(first == false){
+				
+				
+				
+				int q_up = 0, q_down = 0, a_up = 0, a_down = 0, q_score = 0, a_score = 0;
+				int  title_length = 0, body_length = 0;
+				String post_id = "";
+				String post_title = "";
+				String post_body = "";
+				String body_readability = "";
+				String code_snippet = "";
+				String topic = "";
+				String sentiment = "";
+				String badge = "";
+				String acc = "";
+				String u_quest_acc = "";
+				String u_answ_acc = "";
+				HashMap aff_class = new HashMap();
+				int count = 0;
+				
+				Iterator it = record.iterator();
+				System.out.println("Lettura record...");
+				while(it.hasNext()){
+					String current_field = (String)it.next();
+					
+					if(count == post){
+						System.out.println("Post...");
+						//printer_csv.print(current_field);
+						post_id = current_field;
+					}else if(count == title){
+						System.out.println("Title...");
+						post_title = current_field;
+						title_length = countWords(current_field);
+					}else if(count == body){
+						System.out.println("Body...");
+						post_body = current_field;
+						body_length = countWords(current_field);
+						body_readability = getReadability(current_field);
+						code_snippet = hasCodeSnippet(current_field);
+						sentiment = SentiStrengthgetScore(current_field); //TODO SS o NLP ?
+						aff_class = getAffClasses(current_field);
+					}else if(count == quest_up){
+						System.out.println("Quest UP...");
+						q_up = Integer.valueOf(current_field);
+					}else if(count == quest_down){
+						System.out.println("Quest DOWN...");
+						q_down = Integer.valueOf(current_field);
+					}else if(count == answ_up){
+						System.out.println("Answ UP...");
+						a_up = Integer.valueOf(current_field);
+					}else if(count == answ_down){
+						System.out.println("Answ DOWN...");
+						a_down = Integer.valueOf(current_field);
+					}else if(count == tags){
+						//TODO Topic
+						System.out.println("Topic...");
+						topic = "TOPICS";
+					}else if(count == badges){
+						System.out.println("Badges...");
+						badge = current_field;
+					}else if(count == accepted_answ){
+						System.out.println("Acc Answ...");
+						acc = isAcceptedAnswer(current_field);
+					}else if(count == user_quest_acc){
+						System.out.println("User Quest Acc...");
+						u_quest_acc = current_field;
+					}else if(count == user_answ_acc){
+						System.out.println("User Answ Acc...");
+						u_answ_acc = current_field;
+					}
+
+					count++;
+				}
+				System.out.println("Valori calcolati...");
+				printer_csv.print(acc);
+				printer_csv.print(post_id);
+				printer_csv.print(post_title);
+				printer_csv.print(post_body);
+				printer_csv.print(Integer.valueOf(title_length));
+				printer_csv.print(Integer.valueOf(body_length));
+				printer_csv.print(body_readability);
+				printer_csv.print(code_snippet);
+				printer_csv.print(topic); //TODO
+				printer_csv.print(Integer.valueOf(Math.abs(q_up-q_down)));
+				printer_csv.print(Integer.valueOf(Math.abs(a_up-a_down)));
+				printer_csv.print(u_quest_acc);
+				printer_csv.print(u_answ_acc);
+				printer_csv.print(badge);
+				printer_csv.print(sentiment);
+				printer_csv.print(aff_class); //TODO
+				printer_csv.println();
+				System.out.println("Record stampato...");
+			}
+			else{
+				printer_csv.print("AcceptedAnswer");
+				printer_csv.print("Post");
+				printer_csv.print("PostTitle");
+				printer_csv.print("PostBody");
+				printer_csv.print("TitleLength");
+				printer_csv.print("BodyLength");
+				printer_csv.print("Readability");
+				printer_csv.print("CodeSnippet");
+				printer_csv.print("Topic");
+				printer_csv.print("QuestionScore");
+				printer_csv.print("AnswerScore");
+				printer_csv.print("UsersQuestionsAccepted");
+				printer_csv.print("UsersAnswersAccepted");
+				printer_csv.print("UsersBadges");
+				printer_csv.print("SentimentScore");
+				printer_csv.print("PREPS"); printer_csv.print("NUMBER"); printer_csv.print("AFFECT"); printer_csv.print("POSEMO"); printer_csv.print("POSFEEL"); printer_csv.print("OPTIM"); printer_csv.print("NEGEMO"); printer_csv.print("ANX"); printer_csv.print("ANGER"); printer_csv.print("SAD"); printer_csv.print("PRONOUN"); printer_csv.print("COGMECH"); printer_csv.print("CAUSE"); printer_csv.print("INSIGHT"); printer_csv.print("DISCREP"); printer_csv.print("INHIB"); printer_csv.print("TENTAT"); printer_csv.print("CERTAIN"); printer_csv.print("SENSES"); printer_csv.print("SEE"); printer_csv.print("HEAR"); printer_csv.print("I"); printer_csv.print("FEEL"); printer_csv.print("SOCIAL"); printer_csv.print("COMM"); printer_csv.print("OTHREF"); printer_csv.print("FRIENDS"); printer_csv.print("FAMILY"); printer_csv.print("HUMANS"); printer_csv.print("TIME");printer_csv.print("PAST"); printer_csv.print("PRESENT"); printer_csv.print("WE"); printer_csv.print("FUTURE"); printer_csv.print("SPACE"); printer_csv.print("UP"); printer_csv.print("DOWN"); printer_csv.print("INCL"); printer_csv.print("EXCL"); printer_csv.print("MOTION"); printer_csv.print("OCCUP"); printer_csv.print("SCHOOL"); printer_csv.print("JOB"); printer_csv.print("SELF"); printer_csv.print("ACHIEVE"); printer_csv.print("LEISURE"); printer_csv.print("HOME"); printer_csv.print("SPORTS"); printer_csv.print("TV"); printer_csv.print("MUSIC"); printer_csv.print("MONEY"); printer_csv.print("METAPH"); printer_csv.print("RELIG"); printer_csv.print("DEATH"); printer_csv.print("YOU"); printer_csv.print("PHYSCAL"); printer_csv.print("BODY"); printer_csv.print("SEXUAL"); printer_csv.print("EATING"); printer_csv.print("SLEEP"); printer_csv.print("GROOM"); printer_csv.print("SWEAR"); printer_csv.print("NONFL"); printer_csv.print("FILLERS"); printer_csv.print("SIMILES"); printer_csv.print("OTHER"); printer_csv.print("NEGATE"); printer_csv.print("ASSENT"); printer_csv.print("ARTICLE");
+				printer_csv.println();
+				System.out.println("Header stampati...");
+				first = false;
+			}
+				
+			
+			
+		}
+		printer_csv.close();
+		System.out.println("Done");
+	}
+	
+	public static void mullet(String inputFile) throws IOException{
+		// Begin by importing documents from text to feature sequences
+        ArrayList<Pipe> pipeList = new ArrayList<Pipe>();
+
+        // Pipes: lowercase, tokenize, remove stopwords, map to features
+        pipeList.add( new CharSequenceLowercase() );
+        pipeList.add( new CharSequence2TokenSequence(Pattern.compile("\\p{L}[\\p{L}\\p{P}]+\\p{L}")) );
+        pipeList.add( new TokenSequenceRemoveStopwords(new File("lib/mallet-2.0.7/stoplists/en.txt"), "UTF-8", false, false, false) );
+        pipeList.add( new TokenSequence2FeatureSequence() );
+
+        InstanceList instances = new InstanceList (new SerialPipes(pipeList));
+
+        Reader fileReader = new InputStreamReader(new FileInputStream(new File(inputFile)), "UTF-8");
+        instances.addThruPipe(new CsvIterator (fileReader, Pattern.compile("^(\\S*)[\\s,]*(\\S*)[\\s,]*(.*)$"),
+                                               3, 2, 1)); // data, label, name fields
+
+        // Create a model with 100 topics, alpha_t = 0.01, beta_w = 0.01
+        //  Note that the first parameter is passed as the sum over topics, while
+        //  the second is the parameter for a single dimension of the Dirichlet prior.
+        int numTopics = 5;
+        ParallelTopicModel model = new ParallelTopicModel(numTopics, 0.01/*1.0*/, 0.01);
+
+        model.addInstances(instances);
+
+        // Use two parallel samplers, which each look at one half the corpus and combine
+        //  statistics after every iteration.
+        model.setNumThreads(2);
+
+        // Run the model for 50 iterations and stop (this is for testing only, 
+        //  for real applications, use 1000 to 2000 iterations)
+        model.setNumIterations(1000);
+        model.estimate();
+
+        // Show the words and topics in the first instance
+
+        // The data alphabet maps word IDs to strings
+        Alphabet dataAlphabet = instances.getDataAlphabet();
+        
+        FeatureSequence tokens = (FeatureSequence) model.getData().get(1).instance.getData();
+        LabelSequence topics = model.getData().get(1).topicSequence;
+        
+        Formatter out = new Formatter(new StringBuilder(), Locale.US);
+        for (int position = 0; position < tokens.getLength(); position++) {
+            out.format("%s-%d ", dataAlphabet.lookupObject(tokens.getIndexAtPosition(position)), topics.getIndexAtPosition(position));
+        }
+        System.out.println(out);
+        
+        // Estimate the topic distribution of the first instance, 
+        //  given the current Gibbs state.
+        /*double[] topicDistribution = model.getTopicProbabilities(0);
+        
+        System.out.println("Topic 0" + Double.valueOf(topicDistribution[0]));
+        System.out.println("Topic 1" + Double.valueOf(topicDistribution[1]));
+        System.out.println("Topic 2" + Double.valueOf(topicDistribution[2]));
+        System.out.println("Topic 3" + Double.valueOf(topicDistribution[3]));
+        System.out.println("Topic 4" + Double.valueOf(topicDistribution[4]));
+        */
+        
+        
+        Reader in = new FileReader(inputFile);
+        Writer outcsv = new FileWriter("mallet_topics.csv");
+        Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
+        CSVPrinter printer_csv = new CSVPrinter(outcsv, CSVFormat.DEFAULT);
+        
+        int i = 0;
+        
+        for (CSVRecord record : records) {
+    		
+        //for(int i=0; i<267; i++){
+        	double[] topicDistribution = model.getTopicProbabilities(i);
+        	
+            printer_csv.print(record.get(0));
+            for(int j=0; j<model.getNumTopics(); j++)
+            	printer_csv.print(topicDistribution[j]);
+            
+            printer_csv.println();
+        //}
+        
+        i++;
+        }
+        printer_csv.close();
+        
+        
 	}
 	
 	/*
@@ -89,7 +476,7 @@ public class App {
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
 		CSVPrinter printer_csv = new CSVPrinter(out, CSVFormat.DEFAULT);
 		boolean first = true;
-		int body_column = 0;
+		int body_column = this.CSVgetColumn(string_column, inputFile);
 		
 		for (CSVRecord record : records) {
 			if(first == false){
@@ -103,38 +490,21 @@ public class App {
 				// ...aggiunge score SentiStrength
 				String body = record.get(body_column);
 				
-				// Classificazione
-				String score = sentiStrength.computeSentimentScores(body);
-				String[] split_res = score.split(" ");
-				String pos_score = split_res[0];
-				String neg_score = split_res[1];
-				
-				printer_csv.print(pos_score);
-				printer_csv.print(neg_score);
+				printer_csv.print(this.SentiStrengthgetScore(body).split(",")[0]);
+				printer_csv.print(this.SentiStrengthgetScore(body).split(",")[1]);
 				printer_csv.println();
 			}
 			else{
-				// Trova la colonna da analizzare
-				int count = 0;
-				Iterator it = record.iterator();
-				while(it.hasNext()){
-					String currentField = (String)it.next();
-					if(currentField.equals(string_column))
-						body_column = count;
-					
-					count++;
-				}
-				
 				first = false;
 			}
 				
 			
 			
 		}
-		//out.close();
 		printer_csv.close();
 		System.out.println("Done");
 	}
+	
 	
 	public void analizeNLPCSV(String inputFile, String outputFile, String string_column) throws IOException{
 		Reader in = new FileReader(inputFile);
@@ -142,23 +512,8 @@ public class App {
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
 		CSVPrinter printer_csv = new CSVPrinter(out, CSVFormat.DEFAULT);
 		boolean first = true;
-		int body_column = 0;
+		int body_column = this.CSVgetColumn(string_column, inputFile);
 		
-		String parserModel = null;
-	    String sentimentModel = null;
-
-	    boolean filterUnknown = false;
-
-	    List<Output> outputFormats = Arrays.asList(new Output[] { Output.ROOT });
-	    Input inputFormat = Input.TEXT;
-		
-	    Properties pipelineProps = new Properties();
-	    pipelineProps.setProperty("ssplit.eolonly", "true");
-	    pipelineProps.setProperty("annotators", "parse, sentiment");
-	    pipelineProps.setProperty("enforceRequirements", "false");
-	    
-	    Properties tokenizerProps = new Properties();
-	    tokenizerProps.setProperty("annotators", "tokenize, ssplit");
 	    
 		for (CSVRecord record : records) {
 			if(first == false){
@@ -171,54 +526,17 @@ public class App {
 				
 				// ...aggiunge score NLP
 				String body = record.get(body_column);
+				String[] scores = this.NLPgetScore(body).split(",");
 				
-				StanfordCoreNLP tokenizer = new StanfordCoreNLP(tokenizerProps);
-			    StanfordCoreNLP pipeline = new StanfordCoreNLP(pipelineProps);
+			    for(int i = 0; i < scores.length; i++)
+			    	printer_csv.print(scores[i]);
 			    
-			    
-				
-		        
-		        String line = body.trim();
-		        
-		        if (line.length() > 0) {
-		          Annotation annotation = tokenizer.process(line);
-		          pipeline.annotate(annotation);
-		          System.out.println(annotation.toString());
-		          for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-		        	  //System.out.println("  " + sentence.get(SentimentCoreAnnotations.ClassName.class));
-		        	  printer_csv.print(sentence.get(SentimentCoreAnnotations.ClassName.class));
-		          }
-		        } else {
-		          // Output blank lines for blank lines so the tool can be
-		          // used for line-by-line text processing
-		          //System.out.println("");
-		        }
-				
-				
-				//printer_csv.print(neg_score);
-				
-				
 				printer_csv.println();
 			}
 			else{
-				// Trova la colonna da analizzare
-				int count = 0;
-				Iterator it = record.iterator();
-				while(it.hasNext()){
-					String currentField = (String)it.next();
-					if(currentField.equals(string_column))
-						body_column = count;
-					
-					count++;
-				}
-				
 				first = false;
-			}
-				
-			
-			
+			}	
 		}
-		//out.close();
 		printer_csv.close();
 		System.out.println("Done");
 	}
@@ -381,6 +699,8 @@ public class App {
 		printer_csv.close();
 	}
 	
+	
+	
 	/*
 	 *  Prende in input il file da analizzare che deve avere su ogni riga la frase da analizzare,
 	 *  scrive in output il risultato dell'analisi
@@ -447,18 +767,23 @@ public class App {
 		}
 	}
 	
+	
+	
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		
 		//App.downloadCSV(App.stackoverflow_db, App.posts_query, /*App.download_file_dir + */"downloaded.csv");
 		
-		App app = new App();
+		
+		//App app = new App();
 		//app.cleanTagsCSV("downloaded.csv", "Tags");
 		//app.listTagsStatistics("it_posts.csv");
-		app.analizeSentiStrengthCSV("ac_questions.csv", "ac_questions_ss.csv", "Body");
-		app.analizeNLPCSV("ac_questions.csv", "ac_questions_nlp.csv", "Body");
+		//app.analizeSentiStrengthCSV("ac_questions.csv", "ac_questions_ss2.csv", "Body");
+		//app.analizeNLPCSV("ac_questions.csv", "ac_questions_ss_nlp.csv", "Body");
 		//app.analizeLines(input_file_dir + "input.txt", output_file_dir + "output.txt");
 		//app.analizeOneLine(input_file_dir + "input.txt", 1);
+		//app.buildDataset("result-set.csv", "logit_regr.csv");
+		App.mullet("tags.csv");
 		
 		
 		/*String prova_1 = "The Flesch Reading Ease Score indicates on a scale of 0 to 100 the difficulty of comprehending a document. A score of 100 indicates an extremely simple document, while a score of 0 would describe a very complex document. A Flesch Reading Ease Score in the range of 40–50 would correspond to a relatively complex document that might score a 12 as its Flesch-Kincaid Grade Level. The Flesch Reading Ease Score can be calculated by using the following equation.";
@@ -471,6 +796,8 @@ public class App {
 		FleshIndex.calculate(prova_3);
 		FleshIndex.calculate(prova_4);
 		FleshIndex.calculate(prova_5);*/
+		
+		//System.out.println(app.LIWCgetAffectiveClass("thank"));
 	}
 
 }

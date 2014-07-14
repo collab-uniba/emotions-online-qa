@@ -1,0 +1,37 @@
+SELECT Post, User, UserReputation, count(Answ.OwnerUserId) AS DownVotesAnsw, UpVotesAnsw, DownVotesQuest, UpVotesQuest, UsersBadges, UsersQuestionsAccepted, UsersAnswersAccepted, PostCreationDate, PostTitle, PostBody, PostTags, PostAcceptedAnswerId
+FROM Posts Answ, Votes,
+	(SELECT Post, User, UserReputation, count(Answ.OwnerUserId) AS UpVotesAnsw, DownVotesQuest, UpVotesQuest, UsersBadges, UsersQuestionsAccepted, UsersAnswersAccepted, PostCreationDate, PostTitle, PostBody, PostTags, PostAcceptedAnswerId
+	FROM Posts Answ, Votes,
+		(SELECT Post, User, UserReputation, count(Quest.OwnerUserId) AS DownVotesQuest, UpVotesQuest, UsersBadges, UsersQuestionsAccepted, UsersAnswersAccepted, PostCreationDate, PostTitle, PostBody, PostTags, PostAcceptedAnswerId
+		FROM Posts Quest, Votes,
+			(SELECT Post, User, UserReputation, count(Quest.OwnerUserId) AS UpVotesQuest, UsersBadges, UsersQuestionsAccepted, UsersAnswersAccepted, PostCreationDate, PostTitle, PostBody, PostTags, PostAcceptedAnswerId
+			FROM Posts Quest, Votes,
+				(SELECT PostId AS Post, User, UserReputation, count(Badges.UserId) AS UsersBadges, UsersQuestionsAccepted, UsersAnswersAccepted, PostCreationDate, PostTitle, PostBody, PostTags, PostAcceptedAnswerId
+				FROM Badges,
+
+					(SELECT PostId, UserId AS User, UserReputation, count(UsersQuest.Id) AS UsersQuestionsAccepted, UsersAnswersAccepted, PostCreationDate, PostTitle, PostBody, PostTags, PostAcceptedAnswerId
+					FROM Posts Questions, Users UsersQuest,
+	
+						(SELECT PostId, UserId, Reputation AS UserReputation, count(Users_Answ.Id) AS UsersAnswersAccepted, PostCreationDate, PostTitle, PostBody, PostTags, PostAcceptedAnswerId
+						FROM Posts Answers, Posts Questions, Users Users_Answ,
+		
+							(SELECT Id AS PostId, Title AS PostTitle, Body AS PostBody, Tags AS PostTags, CreationDate AS PostCreationDate, OwnerUserId AS UserId, AcceptedAnswerId AS PostAcceptedAnswerId
+							FROM Posts
+							WHERE Posts.PostTypeId = 1)
+	
+						WHERE Answers.PostTypeId = 2 AND Answers.CreationDate <= PostCreationDate AND Questions.PostTypeId = 1 AND Answers.OwnerUserId = Users_Answ.Id AND Questions.AcceptedAnswerId = Answers.Id  AND UserId = Users_Answ.Id
+						GROUP BY (Users_Answ.Id))
+
+					WHERE Questions.PostTypeId = 1 AND Questions.AcceptedAnswerId IS NOT NULL  AND UsersQuest.Id = Questions.OwnerUserId AND Questions.CreationDate <= PostCreationDate AND UsersQuest.Id = UserId and OwnerUserId = UsersQuest.Id
+					GROUP BY (UsersQuest.Id))
+
+				WHERE Badges.Date <= PostCreationDate AND Badges.UserId = User 
+				GROUP BY (Badges.UserId))
+			WHERE Quest.PostTypeId = 1 AND Quest.CreationDate <= PostCreationDate AND Quest.Id = Votes.PostId AND Votes.VoteTypeId = 2 AND Votes.CreationDate <= PostCreationDate AND Quest.OwnerUserId = User
+			GROUP BY (Quest.OwnerUserId))
+		WHERE Quest.PostTypeId = 1 AND Quest.CreationDate <= PostCreationDate AND Quest.Id = Votes.PostId AND Votes.VoteTypeId = 3 AND Votes.CreationDate <= PostCreationDate AND Quest.OwnerUserId = User
+		GROUP BY (Quest.OwnerUserId))
+	WHERE Answ.PostTypeId = 2 AND Answ.CreationDate <= PostCreationDate AND Answ.Id = Votes.PostId AND Votes.VoteTypeId = 2 AND Votes.CreationDate <= PostCreationDate AND Answ.OwnerUserId = User
+	GROUP BY (Answ.OwnerUserId))
+WHERE Answ.PostTypeId = 2 AND Answ.CreationDate <= PostCreationDate AND Answ.Id = Votes.PostId AND Votes.VoteTypeId = 3 AND Votes.CreationDate <= PostCreationDate AND Answ.OwnerUserId = User
+GROUP BY (Answ.OwnerUserId)

@@ -53,7 +53,69 @@ public class FleshIndex {
     
   }
 
+  public static float getFleschEaseIndex(String text){
 
+	    int syllables = 0;
+	    int sentences = 0;
+	    int words     = 0;
+
+	    String delimiters = ".,':;?{}[]=-+_!@#$%^&*() ";
+	    StringTokenizer tokenizer = new StringTokenizer(text,delimiters);
+	    //go through all words
+	    while (tokenizer.hasMoreTokens())
+	    {
+	      String word = tokenizer.nextToken();
+	      syllables += countSyllables(word);
+	      words++;
+	    }
+	    //look for sentence delimiters
+	    String sentenceDelim = ".:;?!";
+	    StringTokenizer sentenceTokenizer = new StringTokenizer(text,sentenceDelim);
+	    sentences = sentenceTokenizer.countTokens();
+	    
+	    //calculate flesch index
+	    final float f1 = (float) 206.835;
+	    final float f2 = (float) 84.6;
+	    final float f3 = (float) 1.015;
+	    float r1 = (float) syllables / (float) words;
+	    float r2 = (float) words / (float) sentences;
+	    float flesch = f1 - (f2*r1) - (f3*r2);
+	    
+	    return flesch;
+  }
+
+  public static float getFleschGradeIndex(String text){
+
+	    int syllables = 0;
+	    int sentences = 0;
+	    int words     = 0;
+
+	    String delimiters = ".,':;?{}[]=-+_!@#$%^&*() ";
+	    StringTokenizer tokenizer = new StringTokenizer(text,delimiters);
+	    //go through all words
+	    while (tokenizer.hasMoreTokens())
+	    {
+	      String word = tokenizer.nextToken();
+	      syllables += countSyllables(word);
+	      words++;
+	    }
+	    //look for sentence delimiters
+	    String sentenceDelim = ".:;?!";
+	    StringTokenizer sentenceTokenizer = new StringTokenizer(text,sentenceDelim);
+	    sentences = sentenceTokenizer.countTokens();
+	    
+	    //calculate flesch index
+
+	    final float f4 = (float) 0.39;
+	    final float f5 = (float) 11.8;
+	    final float f6 = (float) 15.59;
+	    float r1 = (float) syllables / (float) words;
+	    float r2 = (float) words / (float) sentences;
+	    float fleschgrade = (f4*r2) + (f5*r1) - f6;
+	    
+	    return fleschgrade;
+}
+  
 // A method to count the number of syllables in a word
 // Pretty basic, just based off of the number of vowels
 // This could be improved

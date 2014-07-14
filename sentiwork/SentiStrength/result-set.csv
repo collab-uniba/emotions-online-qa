@@ -1,0 +1,477 @@
+Post,User,UserReputation,DownVotesAnsw,UpVotesAnsw,DownVotesQuest,UpVotesQuest,UsersBadges,UsersQuestionsAccepted,UsersAnswersAccepted,PostCreationDate,PostTitle,PostBody,PostTags,PostAcceptedAnswerId
+7395,21,1929,1,69,1,58,14,6,30,2013-01-22T23:32:43.510,In-class pop quizzes (online) and how to moderate them,"<p>I teach an undergraduate course in thermodynamics. In class pop (surprize) quizzes account for about 10% of the grade. I use <a href=""http://en.wikipedia.org/wiki/Instructure#Canvas"" rel=""nofollow"">canvas</a> for my in-class quizzes (and to collect homework assignments, start discussions).</p>
+
+<p>The class room I teach in doesn't have computers so when I set up an pop quiz on canvas, I generally let the students out of class during the last 10 minutes to log in to one of the several campus computers to take the quiz.</p>
+
+<p>However, I know that our computers aren't top notch and one can easily spend about 5-7 minutes just logging in and another 2-3 minutes launching a web browser to access canvas. </p>
+
+<p>Given these technical issues (that can't be sorted out because of a lax IT department) I generally keep my quiz open for about 9 hours. This also takes into account the other classes that my students may have to rush in to right after mine which might prevent them from attempting the pop quiz until later that day.</p>
+
+<p>Isn't this unfair to students who take the quiz immediately? By keeping my quiz open for 9 hours, it takes away the <strong>surprise</strong> component of it substantially. Is there a way I can do this without having to have quizzes on paper and in-class?</p>
+
+<p>Should I just be mean and keep my quiz open for only the 20 minutes or so at the end of my class?</p>
+
+<hr>
+
+<p><em>Edit:</em> I was thinking about this and I thought of a couple of things that I'd like to add:</p>
+
+<ol>
+<li>One way to nullify this is by announcing that there would be a quiz in the next 3 days. That way, the students will try and learn and not just haphazardly flip through their textbook as I assume they would if it were a true pop quiz.</li>
+<li>I could tell them that the examinations which account for 70% of the grade will be tough and it would be sensible to be honest with pop quizzes.</li>
+<li>Borrowing from Zenon's comment below, why not mix multiple choice questions with single valued answers with only 1 attempt?</li>
+</ol>
+",<teaching><online-resource><online-learning><exams>,7396
+9740,49,8599,6,398,2,214,53,7,67,2013-04-30T17:02:48.970,When can I safely use CC-BY license on arXiv?,"<p>On <a href=""http://arxiv.org/"">arXiv</a> one can license a preprint on one of the following (see also <a href=""http://arxiv.org/help/license"">a note on arXiv on licenses</a>):</p>
+
+<ul>
+<li><a href=""http://arxiv.org/licenses/nonexclusive-distrib/1.0/license.html"">arXiv.org perpetual, non-exclusive license to distribute this article</a> (Minimal rights required by arXiv.org. Select this unless you understand the implications of other licenses.) </li>
+<li><a href=""http://creativecommons.org/licenses/by/3.0/"">Creative Commons Attribution license</a></li>
+<li><a href=""http://creativecommons.org/licenses/by-nc-sa/3.0/"">Creative Commons Attribution-Noncommercial-ShareAlike license</a></li>
+<li><a href=""http://creativecommons.org/licenses/publicdomain/"">Creative Commons Public Domain Declaration</a></li>
+</ul>
+
+<p>For cases when it is fine to submit a paper on <em>arXiv.org perpetual</em> (see also <a href=""http://academia.stackexchange.com/questions/7/does-publishing-a-paper-on-arxiv-prevent-me-from-submitting-it-to-a-non-open-acc"">Does publishing a paper on arXiv prevent me from submitting it to a non-open access journal?</a>), when I can safely use <strong>CC-BY</strong> (Creative Commons Attribution license)?</p>
+
+<p>Ideally, I would use it all the time, as it is the most permissible (=open) license, which requires attribution. (However, <a href=""http://arxiv.org/abs/1009.1031"">I used it only once</a>, it a case where I don't intend to send it to a journal; so, except for that case, when one should (or shouldn't) be afraid of using CC-BY on arXiv?)</p>
+
+<p>EDIT: Here the emphasis is on <strong>arXiv perpetual</strong> vs <strong>CC</strong>, not on choosing between CC licenses.</p>
+",<publishing><arxiv><open-access><open-science><creative-commons>,9743
+13923,62,3765,4,180,1,185,35,4,46,2013-11-07T11:28:50.770,How to automatically import APA references into reference manager?,"<p>Related to this question on <a href=""http://academia.stackexchange.com/questions/13921/how-to-check-citations-and-references-match-in-a-manually-prepared-document-with"">cross-checking APA citations and references</a>, I often have an existing list of APA formatted references. This might come from a document from a collaborator or it might just be a published article. </p>
+
+<p>I often want to take this list of APA references (e.g., one reference per line) and import them into my bibliographic software in such a way that the reference manager is able to discern what aspects of the reference correspond to author, year, title, journal, issue, pages, etc.
+I'm often working with Endnote to do this, but I imagine that once you get the data into any reference manager (e.g., Mendeley, Zotero, etc.), it would be relatively easy to export and import into a preferred reference manager.</p>
+
+<p>I'd also be happy with a system that was pretty good but not perfect. In psychology at least, most references are journal articles, book chapters, and books. So a system that imported these and flagged the rest would still be useful.</p>
+
+<h3>Question</h3>
+
+<p>How can an existing list of APA references be automatically imported into a reference manager?</p>
+",<references><reference-managers>,None
+9446,66,3979,1,187,3,188,41,9,41,2013-04-18T03:16:59.497,How much can you share unpublished forum articles?,"<p>There are some journals, such as <a href=""http://journals.cambridge.org/action/displayJournal?jid=BBS"">Behavioral and Brain Sciences</a>, that publish a single target article per issue, followed by 20 to 30 commentaries on that article, and then a rebuttal/synthesis from the target article authors. Their rough workflow seems to be:</p>
+
+<ol>
+<li>Authors submit a target article.</li>
+<li>Target article is peer-reviewed as in a normal journal, with a focus on if it is of sufficient interest to warrant discussion in such a forum setting.</li>
+<li>If accepted, the editors send a massive number of invitations to associates of the journal, soliciting commentary proposals on the target article. A dark-net link to the final version of the target article is included.</li>
+<li>Authors submit commentary proposals, and the editors review them, selecting a subset that would make a good discussion.</li>
+<li>Selected commentators write their articles and submit them to the editors</li>
+<li>Editors do a quick review of commentaries and pass them on to the target article authors for a rebuttal.</li>
+<li>Target article authors write a rebuttal.</li>
+<li>Everything is published at the same time (this is the stage that BBS makes anything directly publicly available from their site).</li>
+</ol>
+
+<p>At stage [3], the number of commentators contacted is significantly in excess of what you would for soliciting peer review. A link to the post-review paper that is accessible without any logins is also distributed, but this link is on the 'dark net' -- nothing on the main site links directly to it. The contacted associates are encouraged to share the article with their colleagues and bring non-contacted collaborators on board if they want to write a commentary. </p>
+
+<p>My question is: <strong>to what extent can the sharing in step [3] be taken?</strong></p>
+
+<ul>
+<li><p>Can you share the article privately as much as you want? I.e. can a non-associate that was sent the article by an associate (but not the editor) then forward it to another non-associate?</p></li>
+<li><p>Can you contact the authors of the target article with questions or comments that make it obvious that you've read the article? (Note, that you wouldn't be able to do this for an article you are peer-reviewing)</p></li>
+<li><p>Can you write a blog post about the article before it comes out, making a summary of it, and referencing it as (to appear)?</p></li>
+<li><p>Can you share the link that was emailed to you publicly (say on your blog)?</p></li>
+</ul>
+
+<p>Note that the target authors often have a preprint of the target article linked from their website, kind of like a white paper (although it isn't always exactly the same version as is sent out by BBS). I am interested in answers to the above questions in both cases: when a preprint is available from the authors and when only the BBS dark-net link exists.</p>
+",<publishing><peer-review><etiquette><community>,None
+14337,79,4422,9,252,1,257,53,11,66,2013-11-24T08:31:54.003,"Should an applicant to an university mention that her spouse is currently a student in the same University, as part of her SOP?","<p>While writing one's Statement of Purpose for applying to a grad program, should one mention that her spouse is also a grad student in the same university? What are the pro's and con's of that approach - while on one hand, it shows that the candidate is very likely to accept an offer made by the dept, it might also imply that the presence of her spouse is the main reason the applicant wants to get admitted, which might not sit well with the Admissions Committee? </p>
+",<graduate-school><graduate-admissions>,14339
+15504,81,8013,6,558,1,86,60,1,60,2014-01-08T10:08:32.860,Is there an open source tool for producing bibtex entries from paper PDFs?,"<p>In the desktop application for Mendeley, it's possible to import a PDF and have the bibliographic data automatically extracted (or perhaps looked up, I'm not sure).  This feature is more or less reliable.  However, Mendeley's code is closed source (they once promised to release the source, but then they were bought by Elsevier).  <strong>I'm looking for an open source tool that takes one or more PDFs as input and returns a bibtex entry for each</strong>.  </p>
+
+<p>I've found the following, but couldn't get either of them to work:</p>
+
+<ul>
+<li><a href=""http://www.molspaces.com/d_cb2bib-overview.php"">cb2Bib</a></li>
+<li><a href=""https://code.google.com/p/pdfmeat/"">pdfmeat</a></li>
+</ul>
+
+<p>At present, the fastest alternative I know is to copy/paste the title into Google Scholar, and click the link to bibtex.  That's very nice, but I'm wondering if there is something more automated.</p>
+",<bibliography><software><tools><reference-managers><bibtex>,None
+9910,96,8031,16,407,1,40,57,2,21,2013-05-10T13:39:41.887,How to phrase authors' contributions when the convention is that all team members are authors?,"<h3>The question</h3>
+
+<p>When a journal (such as one of the Nature family) asks for information about authors' contributions, what is the most effective way to answer this, to ensure that the co-authorship is assigned as intended, and to ensure that reality is represented: that <strong>the work is a product of the intellectual environment of the whole team; and that all members have contributed in various degrees to the analytical methods used, to the research concept, and to the experiment design</strong>. Is what I've just written there sufficient, or is there a more judicious phrasing that is accepted by heavyweight journal publishers such as the Nature Group?</p>
+
+<h3>The context</h3>
+
+<p>The primary context is publications from a team that works on the principle that all members of the team are to be named authors on all papers coming out of the team.</p>
+
+<p><strong>I'm very specifically looking for answers from editors who handle such papers; or from members of teams with similar rules.</strong> Answers from others are of course possible, but I'd value direct personal experience.</p>
+
+<p>Here's the <a href=""http://www.icmje.org/ethical_1author.html"" rel=""nofollow"">Vancouver Group's (International Committee of Medical Journal Editors) statement on the subject</a>:</p>
+
+<blockquote>
+  <p>Authorship credit should be based on 1) substantial contributions to conception and design, acquisition of data, or analysis and interpretation of data; 2) drafting the article or revising it critically for important intellectual content; and 3) final approval of the version to be published. Authors should meet conditions 1, 2, and 3.</p>
+  
+  <p>When a large, multicenter group has conducted the work, the group should identify the individuals who accept direct responsibility for the manuscript. These individuals should fully meet the criteria for authorship/contributorship defined above, and editors will ask these individuals to complete journal-specific author and conflict-of-interest disclosure forms. When submitting a manuscript authored by a group, the corresponding author should clearly indicate the preferred citation and identify all individual authors as well as the group name. Journals generally list other members of the group in the Acknowledgments. The NLM indexes the group name and the names of individuals the group has identified as being directly responsible for the manuscript; it also lists the names of collaborators if they are listed in Acknowledgments.</p>
+  
+  <p>Acquisition of funding, collection of data, or general supervision of the research group alone does not constitute authorship.</p>
+  
+  <p>All persons designated as authors should qualify for authorship, and all those who qualify should be listed.</p>
+  
+  <p>Each author should have participated sufficiently in the work to take public responsibility for appropriate portions of the content. </p>
+</blockquote>
+
+<p><sub><strong>The caveats</strong>:</sub></p>
+
+<p><sub> 1. My field is not medicine: I've used the Vancouver Group's guidelines, as I haven't yet found any in my field.</sub></p>
+
+<p><sub> 2. note that this is emphatically not about the ethics, pros and cons of such a rule. If you want to discuss that, please do so in <a href=""http://chat.stackexchange.com/rooms/2496/academia"">chat</a>. I may join you there as time allows</sub></p>
+
+<h3>Related literature:</h3>
+
+<ul>
+<li><a href=""http://blogs.nature.com/nautilus/2007/11/post_12.html"" rel=""nofollow"">Author contributions audit</a>, by Maxine Clarke on the Nature Nautilus authors' blog, lists example contributors' satements</li>
+<li><a href=""http://dx.doi.org/10.1016/S0140-6736%2805%2964090-1"" rel=""nofollow"">Drummond Rennie discusses ""Authorship Credits""</a></li>
+<li><a href=""http://www.councilscienceeditors.org/i4a/pages/index.cfm?pageid=3407"" rel=""nofollow"">Academia and Clinic, by Yank &amp; Rennie</a>: Disclosure of Researcher Contributions: A Study of Original Research Articles in The Lancet</li>
+<li>and lots more at the <a href=""http://www.councilscienceeditors.org/i4a/pages/index.cfm?pageid=3407"" rel=""nofollow"">US Council of Science Editors</a></li>
+</ul>
+",<publications><authorship>,None
+13570,102,15750,1,1116,3,428,126,22,427,2013-10-21T10:37:31.027,Is there such thing as too many references for one paper?,"<p>I'm currently reviewing a paper that has an uncommonly large number of references compared to the average number for that particular venue (more than 60 versus around 30). This is a regular paper, not a survey one, and although there does not seem to be wrong references, it feels like some are not really necessary, and the fact that one particular author is cited more than 15 times makes me worry that this paper is used to inflate the number of citations of that author (the submission is anonymous). </p>
+
+<p>Should I mention this in my review, and try to examine which submissions are ""abusive"", or just let it go?</p>
+",<references><paper-submission>,13573
+19604,285,1926,4,137,4,53,24,3,12,2014-04-21T15:41:22.383,Is it necessary to ask permission before including someone in the acknowledgements of a research paper?,"<p>I had the impression that obtaining written permission before including someone in acknowledgements was required. Therefore, I just wrote to someone asking for written permission to include him in the acknowledgements of a paper, and he said he didn't think it was necessary. I don't recall where I got this notion from - perhaps the rules of a specific journal? So, I was wondering if there are any general rules about this or not, or are they perhaps journal specific?</p>
+",<publishing><publications><acknowledgement>,None
+13031,406,2111,4,31,16,265,24,34,45,2013-09-27T14:34:13.320,How to highlight the importance of past positions in CV?,"<p>When addressing the past positions in a resume, although titles somewhat describes the role, they cannot clarify the importance of positions.</p>
+
+<p>For example, listing a past position of <code>department chair</code> indicates administrative duties at department level, but it depends on the department. Definitely, chairing a small department with a few faculty members and annual enrollment of 30 undergraduate students is different from a well-funded department with tens of senior faculty members and several PhD programs. However, if a reader does not know that specific department, the term <code>department chair</code> is the same.</p>
+
+<p>This is even more serious when it comes to differences in terminology. In a university, a faculty can be equal to a department, and somewhere else a faculty can be in the size of a university hosting several large departments. Even terms of mid-level administrative positions in academia do not always have the same meaning: e.g., dean, director, chair, head.</p>
+
+<p><strong>How do you fairly clarify the importance of the job you had?</strong></p>
+
+<p>It is possible to add a description, but as it is not very common, it may cause an impression of overestimation.</p>
+",<professors><university><job><cv><administration>,None
+11832,411,8018,3,193,12,894,109,64,199,2013-08-12T12:59:24.993,How to effectively use blogging as a tool to gain visibility in academia,"<p>While <a href=""http://academia.stackexchange.com/questions/726/how-to-become-well-known-in-the-research-community-while-being-a-phd-student"">a lot</a> has been said in this site about the importance of visibility in academia, I specifically want to know about the effectiveness of blogs: are blogs an effective means to communicate your presence in the field? I envisage the blog to contain posts which informally talk about selective publications. </p>
+
+<p>What points should one consider when writing blogs about published papers? It is a significant challenge not to exceed the usual blog lengths when writing on a technical paper. Are there effective tips an academic blogger should keep in mind? </p>
+",<publications><blog>,11840
+17178,532,4969,9,268,8,331,38,24,149,2014-02-20T01:00:28.397,"""Due to many requests, the submission deadline has been extended"" is this real?","<p>following different CS conferences I see the following phrase very often:</p>
+
+<blockquote>
+  <p>Due to many requests, the submission deadline has been extended.</p>
+</blockquote>
+
+<p>Or something similar to this. </p>
+
+<p>I won't overestimate if I said 80% of the conferences (I have followed) have this attitude. This brings me to the question of whether this is true or people (conference organisers) admit a lie when say this. Why does this attitude exit in CS conferences? Do other fields experience the same thing? </p>
+",<publishing><publications><conference>,17188
+20005,929,16563,34,1383,7,442,124,32,844,2014-04-29T21:38:02.430,What rate of faculty turnover is healthy?,"<p>What is considered a reasonable rate for faculty turnover in a ""healthy"" department? How much turnover is too much/little? Presumably the rates might depend on seniority. Does departmental turnover tell you anything about your colleagues?</p>
+",<colleagues><departmental-health>,None
+19434,931,3438,2,122,3,439,54,17,2,2014-04-17T05:06:07.167,Consolation position after tenure is denied,"<p>In my department, an assistant professor was denied tenure. However, he remains in the faculty as a lecturer.  </p>
+
+<p>Is this the typical protocol of departments.  If a professor is denied tenure, do their departments typically offer them some sort of position of lower stature?</p>
+",<tenure-track>,None
+19996,958,3686,5,249,3,174,37,10,32,2014-04-29T17:24:46.720,Is it unethical for professional societies to offer conference discounts to members?,"<p>There is a recurring pattern I see in conferences organized by several professional associations. Two different conference fees are offered, X for members and Y for non-members, with Y>X. Often, the annual membership fee for said professional associations is less than Y-X, so becoming member is cheaper than paying the non-member fee. For example, for different reasons today I have stumbled upon the pages of <a href=""http://www.ima.org.uk/conferences/conferences_calendar/4th_ima_conference_on_numerical_linear_algebra_and_optimisation.cfm.html"">this</a>, <a href=""http://www.ehu.es/en/web/fjim2014/registration"">this</a> and <a href=""http://www.cfenetwork.org/CFE2014/registration.php"">this</a> conference.</p>
+
+<p>I can only see two possible reasons for this practice, both ethically dubious:</p>
+
+<ul>
+<li>to force people to become members, increasing artificially the dimension of the professional association.</li>
+<li>to ""move"" funds from the conference treasure to the association treasure, leaving them available for a larger number of activities.</li>
+</ul>
+
+<p>Often conference fees are paid by research funds, while membership fees are paid personally by the researchers, so this practice also has unpleasant side-effects on their personal finances.</p>
+
+<p>Questions:</p>
+
+<ol>
+<li>Am I overlooking more plausible justifications for this practice? Do you agree with my analysis?</li>
+<li>How ethical do you find this practice?</li>
+<li>Should I raise the issue with the professional societies I am a member* of?</li>
+</ol>
+
+<hr>
+
+<p>*: You can probably guess the reason why I am a member. :(</p>
+",<conference><fees><professional-association>,None
+17461,1033,9056,2,549,2,516,82,16,267,2014-02-26T19:04:52.727,How many PhD students does a typical STEM professor graduate during their entire career?,"<p>The <a href=""http://academia.stackexchange.com/q/17431/1033"">discussion on this infogram</a> made me wonder about the number of PhD students that a full research professor successfully graduates in their entire career.  By professor, I mean a full professor, not an associate or exclusively teaching professor or other positions referred to as professor depending on field and location.  Of course, the answer is not a single number, but rather a probability density function that is a function of field, place, time, university, and probably other factors.  To narrow the scope, I formulate the question as:</p>
+
+<p><em>For selected fields and countries, what are recent figures on the mean and standard deviation (alternatively median and median absolute deviation, in case the distribution is non-Gaussian) for the number of PhD students successfully graduated per professor throughout their entire career?</em></p>
+",<phd><statistics>,None
+16832,1165,1824,1,105,1,14,16,1,3,2014-02-12T01:03:40.527,Why upload to academic preprint sites like arXiv?,"<p>The recent question <a href=""http://academia.stackexchange.com/questions/16831/is-it-legal-to-upload-a-paper-to-arxiv-when-it-is-under-double-blind-review-for"">about the legality of uploading to arXiv</a> made me realize that I don't have any understanding of why one would upload to a preprint site.  (I don't work in a field where they seem to be common.)</p>
+
+<p>Why would one be concerned about getting a manuscript on arXiv, if it's already under review with a journal? </p>
+
+<p>Is it because of the long publishing timeline of journals?  (That could explain why computer science &mdash; which publishes much more in conferences &mdash; doesn't seem to do much with them.)</p>
+",<publishing><arxiv><preprint>,16833
+8340,1190,1562,1,48,1,68,13,8,18,2013-03-02T18:51:40.337,Stating PhD scholarships that I turned down on my CV,"<p>This is probably only relevant to the UK, because in the USA, PhD funding usually come from the department/university through fellowships/TA/RA.</p>
+
+<p>I applied for PhD at a UK university and got admission. The university also runs an extremely competitive named scholarship competition (for example, <a href=""http://www.ox.ac.uk/feesandfunding/prospectivegrad/scholarships/university/felix/"" rel=""nofollow"">this one</a> - not the one I got, just an example) that offer holders can compete in. I was fortunate enough to have won the scholarship. However, I am going to turn it down for a funded PhD at another school.</p>
+
+<p>Is it alright to state that I won this scholarship on my academic CV but turned it down? If this was a typical USA PhD funding offer (fellowship/TA/RA), I would not consider stating it on my CV.</p>
+
+<p><strong>Edit:</strong> This is a similar but slight different question from the ""duplicate"" because I am not asking about the ""typical"" PhD fellowship/TA/RA that is awarded to candidates admitted to PhDs in the USA. I am talking about competitive/prestigious scholarships like Rhodes and Gates-Cambridge scholarships that one has to apply for outside of the regular admissions process.</p>
+",<cv><scholarships>,None
+9211,1265,6580,2,388,3,58,34,3,52,2013-04-08T07:50:07.313,How to explain a bad grade to a delusional student?,"<p>I guess this comes up quite often in educational context. There is a student who attended a seminar where they were supposed to study an assigned research paper and deliver a presentation to the class. The presentation delivered by the student was very low quality as was also reflected by the low grade given by a group/committee of seminar tutors (from post-doc to associate professor level). The evaluation turned out to be a big blow to the student's ego and even after several weeks, the person can't digest the failure, despite very careful explanation on the spot, as well as several interactions and (failed) attempts to ""better the grade by performing some extra work"". The student is all the time coming back with requests for additional explanation of particularities of the failure.</p>
+
+<p><strong>What is/are the right pedagogical technique(s) to handle such a situation?</strong></p>
+
+<ul>
+<li>clearly, the student has a high self-esteem and opinion about him/herself</li>
+<li>probably did not face a situation of a miserable failure before in the past</li>
+<li>the student does not seem to see/accept the relative difference in his/her performance and the rest of the peer group</li>
+<li>the committee of tutors was very careful in assigning the grade and went through a thorough discussion. This is not a question of the grade fairness, but a question of student's self-perceived feeling of receiving an unfair treatment</li>
+</ul>
+",<teaching><undergraduate><grading>,9213
+16841,1424,3223,3,209,1,69,32,2,44,2014-02-12T08:13:51.127,Should I charge entry for a public lecture?,"<p>I am a research scientist, and as part of my role I am expected to perform some form of public outreach and engagement. I enjoy outreach activities and giving public lectures. </p>
+
+<p>I have a suspicion that free public lectures are usually poorly attended. I suspect that the attitude is one of ""Well, it's free and you get what you pay for"". Certainly the quality of artistic performances that I've seen is strongly correlated with entrance fee. </p>
+
+<p>While it is a reasonable expectation that my Faculty would pay for the costs of lecture room hire, advertising, possibly even tea and biscuits, I wonder if there is an advantage of charging a nominal fee to attend, to overcome the low-quality perception of a free lecture.  </p>
+
+<p>What are the views of the community on this? </p>
+",<communication><lecturer><outreach>,None
+19071,1471,1396,3,110,1,23,19,1,8,2014-04-08T13:06:14.657,arXiv or MathSciNet statistics by MSC classes and time,"<p>I suppose I'm not the first person who came across this idea. I would like to compare math branches by means of numbers of articles published. I have access to two large math article indices: AMS' MathSciNet and arXiv.</p>
+
+<p>My question is: Is it possible (in either of them) to get the information <em>how many articles were published with a given MSC class, year by year</em>?</p>
+",<publications><arxiv><statistics>,None
+18725,1482,2566,16,174,2,33,17,1,3,2014-03-31T02:16:35.890,What is a correct way of evaluating the effectiveness of criteria for admissions?,"<p>Most colleges and universities in the US base their admissions on high school grades plus a standardized test (SAT or ACT). To decide whether a particular piece of data X is a good admissions criterion, people seem to focus on how well X correlates with college grades. (This may be freshman grades or total college GPA. Some people think  success in getting a degree would be more appropriate. For the purposes of this question, I don't think these distinctions are relevant.)</p>
+
+<p>Isn't this correlation a completely incorrect way of evaluating X as a tool for admissions?</p>
+
+<p>It seems like an apples-to-oranges comparison. A student who has low X is admitted to a nonselective school, where standards are low and they compete with other low-X students. Grades at this school measure how well they did based on the low standards prevailing there. Students who have high X are admitted to a selective school. A ""B"" grade at Berkeley is not the same as a ""B"" grade at Cal State Dominguez Hills. A high-X student goes to Berkeley and gets a ""B"" in calculus. A low-X student goes to CSDH and gets a ""B"" in calculus. This shows up in the statistics as a lack of correlation between X and grades, since the students differed in X but got the same grade. But isn't that misleading, since the grades mean different things at the two schools?</p>
+
+<p>Is there some more logically justifiable statistic to use in evaluating whether X is a good admissions criterion?</p>
+",<admission><testing>,None
+15590,2692,8483,6,467,3,317,68,21,292,2014-01-10T06:31:32.453,What kind of advantage is there for recommendation letters from the university you are applying to?,"<p>After reading <a href=""http://academia.stackexchange.com/questions/15575/information-about-valuation-of-postgraduate-study"">this question</a>, I started wondering about students applying for graduate school and the letters of recommendation accompaning their applications.</p>
+
+<p>Let's say Student is studying at University A and one of his lecturers is primarily working at University B (lecturer was doing some adjunct or other kind of part-time work at University A). University B is a much higher ranked school. After graduation Student asks the lecturer for a letter of recommendation so Student can attend University B. How much extra weight is the letter of recommendation given in the application process if it is from a lecturer at the university?</p>
+
+<p>I would guess that it would depend on how that lecturer's past recommendations have turned out but I'd like to hear from the experts.</p>
+
+<p>Does it change anything if Student wants to become a PhD and would like to have the lecturer as Student's adviser?</p>
+",<recommendation-letter>,None
+14358,2700,40328,12,3383,11,1047,329,74,5901,2013-11-25T13:22:29.553,"In single-blind peer-review, can you reveal your identity without the editor's consent?","<p>In my field (chemistry), review is always done in a single blind process, i.e. the author does not know who the referees were, but the referees do know who the authors are. In ten years, I have never seen a referee breaching this anonymity, e.g. by signing their review, unless they got prior approval by the editor (in order to continue discuss things further with the authors, once the manuscript was accepted for publication).</p>
+
+<p>So, it seemed logical to assume that in single blind peer-review, the reviewer should not disclose his identity without the editor's consent. Yet, some people have told me (<a href=""http://academia.stackexchange.com/a/14037/2700"">here</a> and <a href=""http://mathoverflow.net/questions/98308/when-if-ever-disclose-your-identity-as-a-reviewer"">there</a>; also IRL a friend from human sciences) that they have seen people sign their reviews, or write emails to them after the review but before the paper is published.</p>
+
+<p>So, <strong>in single-blind peer-review, can you reveal your identity without the editor's consent?</strong> Does it depends on the customs of each field, or is there a hard rule? (in which case, the few anecdotes I heard were outliers)</p>
+",<peer-review><ethics><anonymity>,14359
+17411,2806,4707,7,165,10,503,57,26,167,2014-02-25T20:41:58.097,Is it normal for PIs to change projects to unrelated research,"<p>As I asked in a previous question, I ended up with a project that is not nearly close to my interests or research expertise, and my PI is pushing me so I publish something in that topic.</p>
+
+<p>But that made me wonder. Is it usual for this to happen in Academia? I'm not talking ""Topic was A and ended up with slightly related topic B"", No, I'm talking a topic about a whole different field (even) than topic A, let say Topic Omega (Different Journals, Conferences, etc)</p>
+
+<p>I reviewed my CV and the Job posting of almost 2 years ago, and it clearly said the job was on building algorithms for Brain Machine interfaces using Machine Learning. </p>
+
+<p>However I ended up building electrodes (heavily balanced toward doing electrode characterization) for Brain Signal Capturing, and the paper he wants me to publish is in this topic, that is not nearly related to Machine Learning. Also, nowhere in my CV I even stated that I had nor the expertise nor the experience to deal with these particular field. And at the end of the day, had he advertised it as a heavily experimental postdoc I would not have applied at all.</p>
+
+<p>We are talking Postdoc level here, not a grad student who suddenly switched topics. I just want to know if this is normal, or just a bad situation. </p>
+
+<p>Knowing that this is normal might reduce my level of frustration, but if it is not, at least I can speak up in the exit interview.</p>
+",<career-path><postdocs>,None
+17348,4050,1120,2,47,2,102,22,9,6,2014-02-24T08:32:25.043,Switch PhD program: how to contact possible PhD advisors when already enrolled in PhD program?,"<p>Say a student is enrolled in a PhD program in the US and is in the first or 2nd year and has not started his/her thesis work but has only done coursework. The student has always been in the same lab (no rotations). Say such student for whatever reason wants to switch to a PhD program in Europe.</p>
+
+<p>How should such a student handle contacting PhD advisors and other institutions? Should the student mention in the first e-mail that he/she is already enrolled in a PhD program or can this be mentioned in the first phone call? Or should it be mentioned at all? How much would this situation decrease the chances of getting accepted into a PhD program in Europe? Or should the student first quit the current PhD program before applying to any other program?</p>
+",<phd><graduate-admissions><application><switching>,None
+17438,4249,2461,1,160,1,63,29,2,20,2014-02-26T09:23:58.337,How to reference a tool or a library in an article?,"<p>When using an online library, tool, framework or something similar, what is the proper way to reference it in an article?</p>
+
+<p>(I work in Computer Science). For example, I want to say that many popular implementations of the method presented in <em>[article reference]</em> use a slightly modified version of the main formula. I mention some examples for the implementation (e.g. <a href=""http://opencv.org/"" rel=""nofollow"">OpenCV</a>, <a href=""http://www.vlfeat.org/man/man.html"" rel=""nofollow"">VLFeat</a>).</p>
+
+<p>When thinking of a way to reference this, I have several dilemmas:</p>
+
+<ul>
+<li>I could <em>put a small explanation in a footnote</em> or <em>add it to the list of references</em></li>
+<li>I could use the link to the <em>main webpage</em> or to <em>an online manual</em></li>
+<li>do I reference it at all?</li>
+</ul>
+
+<p><a href=""http://academia.stackexchange.com/q/5482/4249"">This question</a> about how to reference Python is somewhat similar. The difference is that the tools I want to reference are fairly well known in my community (unlike Python for biologists). 
+In short, <strong>I am looking for a good way to acknowledge tools, frameworks or libraries <em>not associated to any article</em> in my writing</strong>.</p>
+",<writing><references>,None
+19756,4394,30046,38,2886,1,28,206,1,139,2014-04-24T13:16:00.410,How can we promote better writing skills in academic education?,"<p>This question may be too wide or in some perspective perceived as unclear but covers a key issue (for me) in academia, namely, <em>academic writing</em>.</p>
+
+<p>Students start their academic career with varying skills in writing. Often, and this the case in my department, there is no thought through progression to go from beginner through novice and proficient to expert level (the latter perhaps in graduate school) or some such scale. </p>
+
+<p>My question is therefore how to get students to progress in appropriate steps through an education. In other words what is a reasonable progression of writing skills through an education. I am looking for suggestions of appropriate expectations for, say, an annual or semester wise increase in difficulty or complexity of exercises with the aim of learning academic writing skills through an education including graduate school.</p>
+",<teaching><writing>,None
+11621,4467,1972,5,131,1,71,22,7,3,2013-08-03T14:21:52.580,Repositories of funded research projects in different countries?,"<p>I am looking for different national repositories (US, Canada, Australia, UK, etc.) of funded research projects, similar to what <strong><a href=""http://www.cordis.europa.eu/projects/home_en.html"" rel=""nofollow"">Cordis</a></strong> does in EU. Any suggestions?</p>
+
+<p>I am after any repository that list funded research and some of the projects details, whether it is public, private or partnership...</p>
+",<research><funding><grants><repository>,11631
+17470,4511,3106,10,186,1,186,42,8,60,2014-02-27T02:21:55.567,What is the general protocol to name something after somebody (some people)?,"<p>In mathematics (and other sciences) there are thousands of concepts, theorems, lemmas, etc which are named after some mathematicians (scientists). However, this nominations are not always very straightforward, especially if we are going to assign a new name for new concepts. For example, I can imagine the following scenarios and I would like to know what general protocol we should apply in each case: </p>
+
+<ol>
+<li>A concept may have several origins in different fields and due to several individuals. </li>
+<li><p>A concept is built on another concept which already have a name and this can happen several times. For example ""Hecke pairs"" is a concept in mathematics, then Bost and Connes make a particular Hecke pair famous, so we have ""the Bost-Connes Hecke pairs"". Should we name all influential people  in each stage of advancement of a concept?</p></li>
+<li><p>If an author invents a concept, is it appropriate to name it after him/herself,  or he/she should wait others call it after his/her name?</p></li>
+<li><p>A concept was invented by some author ""X"" in long time ago, and then it has evolved to something very modern and somehow different. Should we still call it by the name ""X""? </p></li>
+</ol>
+
+<p>Please do not hesitate to add new items if you can imagine other scenarios too.</p>
+
+<p>Finally, I would like to ask another related question:</p>
+
+<p>Can we use acronyms in stead of the full names, especially if the names of several people are involved?  </p>
+",<writing><science><reputation>,None
+17544,5674,4648,2,215,2,303,45,16,29,2014-02-28T13:43:13.767,"Is it acceptable, or advisable, to include self-assessed ratings of your skills on your CV","<p>I am in the process of updating my CV. Since I often get labeled as ""the bioinformatician"" I get to play with many different languages and technologies, and similarly what people expect from a bioinformatician varies from person to person. So I figured it would be a good idea to indicate how much I <em>feel</em> I know in respective fields/languages.</p>
+
+<p>Inspired by <a href=""http://academia.stackexchange.com/questions/14080/mention-impact-factor-or-conference-acceptance-rate-in-cv"">this question</a>, I came to wonder whether or not its acceptable to have self-assessed ratings of your technical skills, such as: proficiency programming languages, familiarity with relevant software etc. </p>
+
+<p>My own feeling is that such ratings are useful to indicate what you feel most confident or comfortable with. It would also be useful to show any potential future employer the level of competence you have in different fields. If you think about it a bit, it is common to have some type of rating for the languages one speaks, so I think an analogue to programming language proficiency should not be that alienating.</p>
+
+<p>On the other hand there is the risk of rendering your CV like, as a friend of mine put it, a role-playing game character sheet. </p>
+
+<p>Is it common to have such ratings on skills? Are there any potential problems with it? </p>
+
+<p><strong>Edit:</strong> What I was thinking is a small listing something like:</p>
+
+<p><img src=""http://i.stack.imgur.com/mGBDG.png"" alt=""enter image description here""></p>
+",<cv>,17546
+14658,5760,1487,1,99,1,23,13,4,7,2013-12-10T13:56:33.703,Learning contracts,"<p>I'm starting a new program in the spring and one of the first things that we will be tasked with is the creation of a 'XYZ Learning Contract'.  After a bit of digging in the search engines I see that there is a pretty broad spectrum of thought on the value and composition of learning contracts.  Having never dealt with them before I find myself wondering:</p>
+
+<ul>
+<li>How common are they?</li>
+<li>If the contracts can be, and some sources say - should be, modified then how is obligation and adherence managed?</li>
+<li>Following on to the last question, how are they enforced?</li>
+</ul>
+
+<p>I understand that every department is going to be different and that an advisor's milage may vary but I'm also curious if there is some general consensus on learning contracts among those that have had to deal with them. </p>
+",<graduate-school><contract>,15124
+18078,5944,4083,7,332,3,121,30,3,46,2014-03-12T23:22:28.117,How frequently do pre-tenured assistant professors switch institutions?,"<p>It's interview season. I've noticed that many of the applicants in this round are already assistant professors at other institutions.</p>
+
+<p><strong>Is there any known number or record on how frequently (let's say, across North America) assistant professors who don't have tenure yet switch institutions?</strong></p>
+
+<p>The market is already incredibly competitive. The academic institution has spent thousands of dollars on hiring a candidate and wants to retain them. If an assistant professor goes to another school and gets hired, then what you might end up with is this cycle of highly-ranking candidates swirling around and leaving empty positions in their wake. Alternatively, one might presume that the hiring system must be inefficient if, in a competitive environment, a university is unable to retain its hires.</p>
+
+<p>This <a href=""http://scientopia.org/blogs/science-professor/2011/01/19/faculty-movers/"">article (and associated comments)</a> for example, illustrates how many faculty have changed institutions for various reasons; I also know personally at least two assistant professors who left their original institution to move to a new one within the first few years of them being hired.</p>
+
+<p>Depending on the answer to this question, I would have a number of follow-ups (Do schools hate it if you apply elsewhere, and would they fire you? How does a department react when a recent hire leaves? Why do people switch? Are applicants often successful? Do people switch more than once?) but I'll start with this first.</p>
+",<hiring><politics><assistant-professor>,None
+19696,6144,1372,4,52,10,188,20,7,66,2014-04-23T12:39:24.107,"cost of digital libraries, are there cheap alternatives?","<p>The faculty in which I am currently working is planning to subscribe to the ACM Digital Library and to the IEEE Xplore Digital Library. I am not pretty sure how much are the real costs of the subscription because for example in:</p>
+
+<p><a href=""http://librarians.acm.org/sites/default/files/ACM_DL_PricingGuides2014_NoTabs_V19_Academic.pdf"" rel=""nofollow"">http://librarians.acm.org/sites/default/files/ACM_DL_PricingGuides2014_NoTabs_V19_Academic.pdf</a></p>
+
+<p>it appears something about tiers; I suppose that for a small access to this material oriented only to students that are doing their bachelor's final year projects, we will be in tier 1. About IEEE I still do not have information about it.</p>
+
+<p>In any case, I would like if there are another alternatives to those two digital libraries, excluding Arxiv because a lot of their articles have not been peer reviewed.</p>
+
+<p>Any suggestion?</p>
+
+<p>PD. Update information:
+We would like to access to articles about all the fields of Computer Science, the access would be for around 20 students maximum each month (that is the number of students enrolled in their last bachelor project). We need only the articles to be reviewed for their research as supporting literature.</p>
+",<digital-libraries>,None
+16243,6393,1103,4,64,2,40,15,3,14,2014-01-28T05:41:17.510,"What ""Applicant Confidential Data Form"" has to do with tenure-track positions?","<p>The data collected using ""<em>Applicant Confidential Data Form</em>"" will be used by US-based universities to monitor University’s Affirmative Action/Equal Employment Opportunity Programs as required by the US government. </p>
+
+<p>I have seen that in (some) cases, faculty job applicant seeking academic job in US-based universities are asked to submit this form <em>after</em> they successfully submitted their initial application. The point is that, typically there is no instruction in ""call for faculty member note"" to fill this form and submit along with application. But the faculty search committee asks after while.</p>
+
+<p>So it raises a question:</p>
+
+<p>Do the faculty search committee sends this form to <strong>ALL</strong> the applicants or particular applicants who are allegedly suitable for the job. Is receiving this notification from the committee can be considered a positive sign in recruitment process?</p>
+",<job-search><united-states><faculty-application>,16263
+17066,7571,1088,6,51,1,17,10,2,5,2014-02-17T19:01:34.633,Are there any documented cases of meta-science or scientific meta-research? Does that have a name?,"<p>Research is an activity, a process to obtain knowledge, which has been greatly empowered by the scientific method. </p>
+
+<p>We can collect lots of information about research, consider impact factors, etc.</p>
+
+<p>There is data and information there, that data could possibly become knowledge through some analysis, hypothesis testing, and in general terms <em>research</em>. So what I'm talking about here is research about research, meta-research.</p>
+
+<p>First of all, I'm interested to know whether this has been done in the past.</p>
+
+<p>Second, if this has been done (I guess so), I would like to know by what name, so that I can search for it. It's easier to find information about fluid dynamics when you know it stands by the name of fluid dynamics.</p>
+
+<p>BTW: I'm not interested in philosophy or epistemology, but science and hard verifiable facts.</p>
+
+<p>There may be some lack of that, whatever that is. Related article: <a href=""http://www.nature.com/news/scientific-method-statistical-errors-1.14700"">Scientific method: Statistical errors</a></p>
+",<research><reference-request><science><methodology><meta>,None
+19826,7746,5859,6,491,2,115,57,5,55,2014-04-25T17:59:03.860,What to do with spare research topics?,"<p>A while back I reached the stage where my ideas for research topics/papers exceeded my capacity to personally work on them. As a PostDoc, I tried to head-hunt students or more junior researchers in my area (or at conferences, etc.) to talk with them about the ideas and see if they would be interested in collaborating or co-authoring a paper. This worked well for a while.</p>
+
+<p>But now (more recently) I find that I again have a back-log of promising topics that have exceeded my capacity to even advise/delegate. I have no students to work on them. The ideas are mixed in quality, concreteness, promise, etc. and I'm saving some of the ones I am most interested in for myself or for students. But I know that there are others I will have to neglect (and I often choose the ""safer"" topics since being in tenure-track, I have a constant hunger for publications).</p>
+
+<p>Now I have a text file on my hard-drive with a list of sketches of ideas so that I remember them. But a lot of the details are left unexpressed in my head; most of the ideas in the text file would be pretty meaningless in their current form without some explanation, further development, context and/or motivation from me. At the same time, I have sufficient experience to know that there are interesting paper/thesis topics in there that I could help develop and/or advise if I had the time/money.</p>
+
+<p>For some of the topics, I have been saying ""<a href=""http://www.goodreads.com/quotes/274079-sure-baby-ma-ana-it-was-always-ma-ana-for-the-next"">some day</a>"" for too long.</p>
+
+<p>In any case, I cannot imagine I am alone in this. I am sure that various researchers see many potentially promising research topics fall ""by the wayside"" due to more urgent, day-to-day matters. I sometimes wonder if other professors similarly have lists of research topics that just rot away in a text file somewhere. It would seem like such a waste if this were the case: think about the union of all these text files sitting on local hard-drives! It would seem to be a major flaw in the academic research system if this were prevalent: that the sharing of raw (or perhaps lightly pasteurised) ideas is not properly incentivised by ""the system"".</p>
+
+<hr>
+
+<p>The question ...</p>
+
+<p><strong>Assuming I have a surplus of (good) ideas for research topics in my area – that I cannot work on myself and cannot delegate or even find time to actively advise – what should I do with them?</strong></p>
+
+<p>To avoid a loss of generality, a good answer should assume that I'm not a nice guy: <strong>what personal incentive would I have for sharing my ideas in this manner?</strong> I don't want to give away my ideas for free. These ideas require development and expression before they can be shared (which is difficult to do ""up front""). If I am not incentivised to develop the ideas into a shareable form, the reality is that I will use my precious time to do something else I <em>am</em> incentivised to do.</p>
+",<research><publishing>,None
+18410,8101,1979,2,76,2,117,16,7,57,2014-03-22T05:18:06.330,Should I reward points for an incorrect answer if it is the result of misinformation presented in a TA's office hours?,"<p>So a TA came to me asking for advice. He gave wrong information in office hours leading a student to a wrong answer. </p>
+
+<p>The TA showed the student how to solve the problem via the wrong statistical test - the assumptions for the statistical test he used do not hold in this case. The answer generated from this test yields a test statistic that doesn't make any sense when you think about it's meaning. Kind of like if you were asked to ""find the length of the fence that encloses ..."" and your method produced the answer of -50 meters. The TA provided the student with step by step instructions, but did not do any of the numerical calculations. Had he done those calculations he would almost certainly have caught his mistake.</p>
+
+<p>The student complains that she should not be punished because her TA made a mistake. TAs can change HW grades, if they have good reason to do so, and this TA wants to correct his mistake by rewarding the student the points on the problem. I told the TA that I would get back to him as I don't want to give my advice in haste. I think I want to say something like this. </p>
+
+<p>to the TA: ""Thank you for asking for my advice in this situation; it is indeed a difficult position to be in. However, this situation concerns me, not because you gave wrong info or bad advice, as we all occasionally make mistakes, but because you seem to have told a student the method for answering the question. While it's OK for students to get help from their TAs, it should only be by reviewing concepts and asking them 'leading questions' that nudge them in the right direction. Note I am not saying that what you did is objectively wrong, as I should have been more clear in my instructions at the beginning of the course, but in the future telling students how to do a problem, in my opinion, is unfair to the students who can't make your office hours.""</p>
+
+<p>to the student: ""Your TA contacted me recently about changing your HW grade. While I sympathize with your situation, and understand that it is very frustrating to receive bad advice/information from your TA, it is ultimately your responsibility to make sure your solution is reasonable, and therefore I can not give you full credit on this problem. Ultimately the majority of the points you lost were not for using this incorrect method (the TAs error), it was for not interpreting your answer and realizing it made no sense. As stated on the first day of class and in the syllabus I require all students to interpret their answers to make sure they make sense. Please come see me if you would like advice on how to check your answers as this is a very important skill in all scientific disciplines and in life in general. TAs, solutions manuals, and even professors make mistakes. Never trust something just because it was told to you by someone with more authority.""</p>
+
+<p>Is this the right thing to do?</p>
+",<teaching><teaching-assistant>,18411
+18846,9680,542,1,19,1,21,9,5,4,2014-04-02T16:18:48.990,How/when to retract a project from a student?,"<p>Take, for example, that a student is nearing the end of their thesis project.</p>
+
+<p>The supervisor has an idea for a new method that can help to verify the results of part of the project. He does not think much of the significance of the idea at the time, [writes up a document outlining the procedure] and passes it to the student to implement.</p>
+
+<p>A week later, a problem arises. The supervisor questions whether the idea was in fact more significant than he originally thought - i.e. could form a paper on its own, and has realised that answering the students questions on the specifics of how to implement the said method would take up more time/effort then just doing it themselves.</p>
+
+<p>So, how would the supervisor go about retracting the new project from the student? From the student's point of view, they would have a strong motivation to try and implement the idea that has been brought to their attention since it is directly relevant to their thesis work. Yet the supervisor does not want to be hassled by the student on learning the specifics (that would form the content of the paper), and does not want the student to claim partial ownership of the idea. The student has not yet produced any results using the method that has been passed to them.</p>
+
+<p>The issues that I see are as follows:</p>
+
+<ul>
+<li>If the supervisor tells the student to relax and think about something else instead, they probably would not listen</li>
+<li>If the supervisor works independently from the student to produce the paper (figures, text, observing trends), then the student could still claim that they were involved (?) since they would have probably started working on it too</li>
+</ul>
+",<research><ethics><authorship><students><intellectual-property>,18848
+17694,10094,6243,2,283,1,54,32,3,37,2014-03-04T07:11:22.613,Is it more difficult to score a Tenure Track position in the US when applying from outside?,"<p>I am currently located in central Europe. When I was hunting for an assistant professor position some months ago, I was also planning to apply to some US institutions for Tenure Track positions. However, one senior professor with some experience working in the US told me pretty much straight-up that this will be a waste of time, as ""US universities do not hire people from outside the US/Canada on Tenure Tracks"". He went on to relativize somewhat, stated that ""of course exceptions exist, especially if they personally know the guy, but generally you will get onto the <em>reject</em> pile immediately as they don't know your school well enough."". He counselled me to apply for a postdoc at an US institution first, if I really wanted to get into an US school.</p>
+
+<p>Looking over the CVs of some existing assistant professors in good schools the statement could  be accurate (almost nobody with the job title assistant professor seems to come directly from outside the US - many <em>graduated</em> somewhere else, but the last position before was almost always an US institution).</p>
+
+<p><strong>In your experience, is this sentiment correct? Does it even make sense to apply for a TT position in the US from outside (under the assumption that your CV is reasonable for a TT in the first place, of course)?</strong> Computer Science is most relevant to me, but any information from any STEM fields would be interesting as well.</p>
+",<career-path><career><united-states><faculty-application><tenure-track>,17695
+19929,10636,2053,5,154,2,35,25,1,15,2014-04-28T16:52:53.753,What is your university's policy on course reductions for service on dissertation committees?,"<p>This is a question branching off of <a href=""http://academia.stackexchange.com/questions/19914/best-practices-for-dissertation-committees-to-review-chapters/19919?noredirect=1#comment41452_19919"">this one</a>. I would like to judge how common it is for universities to give course reductions for service on dissertation committees.</p>
+
+<p>Two questions:</p>
+
+<ol>
+<li>Does your university offer such reductions for the advisor, readers, examiners?</li>
+<li>How generous is the reduction? (1/3 of a course, 1/4 of a course, etc.)</li>
+</ol>
+
+<p>Please include your discipline and location in the reply so we can get a more robust picture.</p>
+
+<p>For instance: USA, Philosophy, 1/2 course for the dissertation advisor, 1/3 course for the readers, 0 for the examiners.</p>
+",<dissertations><examination-committee><service>,None
+19295,11365,10457,4,1017,2,281,120,9,110,2014-04-14T00:07:38.187,Should I answer students' questions immediately or teach them to ask better questions?,"<p>I'm teaching an online lab (to accompany an in-person course) to undergrads in their 3rd or 4th year of an engineering curriculum this semester. The aim of the lab is <em>not</em> to teach them any particular technical skills. It's only meant to supplement the <em>content</em> of the course by exposing them to some more advanced concepts in a hands-on way. The lab itself is the means, not the goal.</p>
+
+<p>So beyond a single ""orientation"" lab, they don't get a whole lot of training in debugging things that go wrong in the lab, and I don't expect them to become advanced users of the lab infrastructure. They're encouraged to post questions on a course forum if they have trouble running a lab exercise, and I answer their questions there.</p>
+
+<p>Having said that, some students post questions that would be closed immediately on a Stack Exchange site for lack of detail, and for good reason. Questions like:</p>
+
+<blockquote>
+  <p>I can't log in to the website, please help.</p>
+</blockquote>
+
+<p>or</p>
+
+<blockquote>
+  <p>When I run the experiment, it gives me an error. Can somebody help me???</p>
+</blockquote>
+
+<p>or </p>
+
+<blockquote>
+  <p>I can't see the results of the experiment.</p>
+</blockquote>
+
+<p>with no further details. These are perfectly reasonable things to ask about, but the student hasn't even attempted to give me any details as to what went wrong. In the ""real world,"" people that ask questions like this won't usually get help.</p>
+
+<p>Since I operate the computing infrastructure for the lab, I can actually find out the specifics of what happened by checking the student's username against the server logs. So I can give them an answer even if they ask a really incomplete question (e.g., I can check the server logs and see that their experiment failed because they mistyped a command).</p>
+
+<p>But I'm not sure if I should answer their questions (because I can, and I want to encourage them to ask questions if they have trouble), or if I should try to train them to ask better questions.</p>
+
+<ul>
+<li><p>On the one hand: it seems like I am doing them a disservice by not teaching them how to ask for help properly.</p></li>
+<li><p>On the other hand: students are (legitimately) frustrated when they're using infrastructure they haven't been extensively trained in, and they can't get it to work. If I try to get them to ask better questions, they'll feel like I'm being deliberately unhelpful and making them jump through hoops to get an answer to their question. (I know this because that's been their reaction the few times I tried this.) They may stop asking questions and just give up on the lab exercises.</p></li>
+</ul>
+
+<p><strong>Should I risk the actual course goal (delivering content to the students) in favor of a general educational goal (teaching them how to ask questions)?</strong></p>
+
+<p><strong>Is there a way to train students to ask better questions without making them feel like I'm not helping them?</strong></p>
+
+<p>Just to clarify: I already provide answers to commonly asked questions, and a lot of material to help students formulate better questions <em>before</em> they ask. Some students ignore that material and ask very non-specific questions anyways. My question is how to address this once they've asked the question: should I walk them through the process of reformulating it before I answer? Is there a way to do so without frustrating them further?</p>
+",<teaching><university><undergraduate>,19302
