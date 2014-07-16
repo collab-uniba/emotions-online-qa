@@ -99,6 +99,7 @@ def create_dictionary(corpus):
 	dictionary = {}
 
 	for word in words:
+		word = word.lower()
 		if word == "":
 			n_word = n_word
 		elif word == "\n":
@@ -115,17 +116,11 @@ def create_dictionary(corpus):
 	print "Number of words ", n_word
 
 	for key in dictionary.keys():
-		dictionary[key] = dictionary[key]/n_word
+		dictionary[key] = float(dictionary[key])/float(n_word)
 
-	#sorted_dict = sorted(dictionary.iteritems(), key=operator.itemgetter(1))
 	sorted_dict = sorted(dictionary, key=dictionary.get, reverse=True)
 
-	
-	#print sorted_dict
-
 	w = csv.writer(open("output.csv", "w"))
-	#for key, val in sorted_dict.items():
-	#	w.writerow([key, val])
 	for elem in sorted_dict:
 		w.writerow([elem,dictionary[elem]])
 
