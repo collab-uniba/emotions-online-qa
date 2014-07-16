@@ -103,8 +103,8 @@ def create_dictionary(file_name, output):
 		body = row['Body']
 		title = row['Title']
 		
-		body_cleaned = del_punctuation(clean_body(body))
-		title_cleaned = del_punctuation(clean_body(title))
+		body_cleaned = del_punctuation(clean_body(body.encode('utf-8')))
+		title_cleaned = del_punctuation(clean_body(title.encode('utf-8')))
 
 		corpus = body_cleaned + " " + title_cleaned
 
