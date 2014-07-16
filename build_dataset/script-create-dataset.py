@@ -14,7 +14,7 @@ def getUsersQuestionsAcceptedQuery1(user, date):
 	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersQuestionsAccepted FROM Posts INNER JOIN Votes ON Posts.AcceptedAnswerId = Votes.PostId WHERE Posts.PostTypeId = 1 AND Posts.AcceptedAnswerId IS NOT NULL  AND Posts.OwnerUserId = " + user + " AND Votes.CreationDate < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
 
 def getUsersQuestionsAcceptedQuery2(user, date):
-	return "SELECT Quest.OwnerUserId AS UserId, count(Quest.Id) AS UsersQuestionsAccepted FROM Posts Quest INNER JOIN Posts Answ ON Quest.AcceptedAnswerId = Answ.Id INNER JOIN Votes ON Answ.Id = Votes.PostId WHERE Quest.PostTypeId = 1 AND Quest.AcceptedAnswerId IS NOT NULL  AND Quest.OwnerUserId = " + user + " AND Votes.CreationDate < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersQuestionsAccepted FROM Posts INNER JOIN Votes ON Posts.AcceptedAnswerId = Votes.PostId WHERE Posts.PostTypeId = 1 AND Posts.AcceptedAnswerId IS NOT NULL  AND Posts.OwnerUserId = " + user + " AND date(Votes.CreationDate) < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
 
 # Estrae il numero di upvotes, prima di una certa data (@Date), ottenuti dalle domande postate da un certo utente (@User) */
 def getQuestUpVotes(user, date):
@@ -84,18 +84,19 @@ def build_dataset(db, file_name, output_file):
 	dict_reader = csv.DictReader(open(file_name, 'r'))
 	
 	head = dict_reader.fieldnames
+	head.append('Weekday')
+	head.append('GMTHour')
 	head.append('BodyCleaned')
 	head.append('BodyLength')
 	head.append('TitleLength')
 	head.append('UsersAnswersAccepted')
-	head.append('UsersQuestionsAccepted')
-	#head.append('UsersQuestionsAccepted2')
+	head.append('UsersQuestionsAccepted1')
+	head.append('UsersQuestionsAccepted2')
 	head.append('QuestionScore')
 	head.append('AnswerScore')
 	head.append('BronzeBadge')
 	head.append('SilverBadge')
 	head.append('GoldBadge')
-	head.append('Weekday')
 	head.append('CodeSnippet')
 	head.append('Accepted')
 	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
@@ -121,7 +122,7 @@ def build_dataset(db, file_name, output_file):
 		if user != 'None':
 			result_set1 = execute_param_query(db, getUsersAnswersAcceptedQuery(user, date))
 			result_set2 = execute_param_query(db, getUsersQuestionsAcceptedQuery1(user, date))
-			#result_set3 = execute_param_query(db, getUsersQuestionsAcceptedQuery2(user, date))
+			result_set3 = execute_param_query(db, getUsersQuestionsAcceptedQuery2(user, date))
 			result_set4 = execute_param_query(db, getQuestUpVotes(user, date))
 			result_set5 = execute_param_query(db, getQuestDownVotes(user, date))
 			result_set6 = execute_param_query(db, getAnswUpVotes(user, date))
@@ -131,9 +132,9 @@ def build_dataset(db, file_name, output_file):
 			for tup in result_set1:
 				row['UsersAnswersAccepted'] = tup[1]
 			for tup in result_set2:
-				row['UsersQuestionsAccepted'] = tup[1]
-			#for tup in result_set3:
-			#	row['UsersQuestionsAccepted2'] = tup[1]
+				row['UsersQuestionsAccepted1'] = tup[1]
+			for tup in result_set3:
+				row['UsersQuestionsAccepted2'] = tup[1]
 			for tup in result_set4:
 				q_up = tup[1]
 			for tup in result_set5:
@@ -170,8 +171,11 @@ def build_dataset(db, file_name, output_file):
 			
 			d = date.split('T')
 			dat = d[0].split('-')
-			hour = d[1]
+			hou = d[1].split(':')
+			hour = hou[0]
 			
+			row['GMTHour'] = hour
+
 			print "Anno: ", dat[0]
 			print "Mese: ", dat[1]
 			print "Giorno: ", dat[2]
@@ -239,6 +243,6 @@ def p_badges(db, file_name):
 	print p_badges
 	return 'Done'
 
-build_dataset('academia.dump.db', 'result-set.csv', 'prova_social+day+code.csv')
+build_dataset('academia.dump.db', 'result-set.csv', 'test.csv')
 #p_badges('academia.dump.db', 'result-set.csv')
 #print text_length('As from title. What kind of visa class do I have to apply for, in order to work as an academic in Japan ?')
