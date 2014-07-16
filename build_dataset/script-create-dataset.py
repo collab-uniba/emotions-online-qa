@@ -126,9 +126,7 @@ def create_dictionary(file_name, output):
 						dictionary[word] += 1
 					else:
 						dictionary[word] = 1
-		except UnicodeDecodeError:
-			continue
-		except HTMLParser.HTMLParseError:	
+		except Exception:
 			continue
 		
 
