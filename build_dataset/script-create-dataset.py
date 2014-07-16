@@ -76,6 +76,7 @@ def build_dataset(db, file_name, output_file):
 	head.append('GoldBadge')
 	head.append('Weekday')
 	head.append('CodeSnippet')
+	head.append('Accepted')
 	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
 	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
 	DayL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
@@ -158,6 +159,12 @@ def build_dataset(db, file_name, output_file):
 				code_snippet = "yes"
 
 			row['CodeSnippet'] = code_snippet
+
+			accepted = 'yes'
+			if row['AcceptedAnswerId'] == 'None':
+				accepted = 'no'
+			row['Accepted'] = accepted
+
 		dict_writer.writerow(row)
 	
 	print p_badges
