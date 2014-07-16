@@ -107,28 +107,32 @@ def create_dictionary(file_name, output):
 		try:
 			body_cleaned = del_punctuation(clean_body(smart_str(body)))
 			title_cleaned = del_punctuation(clean_body(smart_str(title)))
+
+			corpus = body_cleaned + " " + title_cleaned
+
+			words = re.findall(r"[\w']+", corpus)
+		
+			for word in words:
+				word = word.lower()
+				if word == "":
+					n_word = n_word
+				elif word == "\n":
+					n_word = n_word
+				elif word == "\t":
+					n_word = n_word
+				else:
+					n_word += 1
+					if dictionary.has_key(word):
+						dictionary[word] += 1
+					else:
+						dictionary[word] = 1
 		except UnicodeDecodeError:
 			continue
-
-		corpus = body_cleaned + " " + title_cleaned
-
-		words = re.findall(r"[\w']+", corpus)
+		except HTMLParser.HTMLParseError:	
+			continue
 		
-		for word in words:
-			word = word.lower()
-			if word == "":
-				n_word = n_word
-			elif word == "\n":
-				n_word = n_word
-			elif word == "\t":
-				n_word = n_word
-			else:
-				n_word += 1
-				if dictionary.has_key(word):
-					dictionary[word] += 1
-				else:
-					dictionary[word] = 1
 
+		
 	print "Number of words ", n_word
 
 	for key in dictionary.keys():
@@ -337,7 +341,7 @@ def tag_badges(db, outfile):
 	print p_badges
 	return 'Done'
 
-create_dictionary('result-set.csv', 'academia_dict.csv')
+create_dictionary('so_questions.csv', 'stackoverflow_dict.csv')
 #build_dataset('academia.dump.db', 'result-set.csv', 'test.csv')
 #p_badges('academia.dump.db', 'result-set.csv')
 #print text_length('As from title. What kind of visa class do I have to apply for, in order to work as an academic in Japan ?')
