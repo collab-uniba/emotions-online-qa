@@ -104,8 +104,11 @@ def create_dictionary(file_name, output):
 		body = row['Body']
 		title = row['Title']
 		
-		body_cleaned = del_punctuation(clean_body(smart_str(body)))
-		title_cleaned = del_punctuation(clean_body(smart_str(title)))
+		try:
+			body_cleaned = del_punctuation(clean_body(smart_str(body)))
+			title_cleaned = del_punctuation(clean_body(smart_str(title)))
+		except UnicodeDecodeError:
+			continue
 
 		corpus = body_cleaned + " " + title_cleaned
 
