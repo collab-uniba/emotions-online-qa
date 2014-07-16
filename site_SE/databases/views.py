@@ -80,13 +80,6 @@ def process_csv(request, db_title, query_id):
 	resp_csv = download_csv(request, result_set)
 	return resp_csv
 
-def process_save_csv(request, db_title, query_id):
-	query = get_query(query_id)
-	db = get_db_dir(db_title)
-	result_set = execute_query(db, query)
-	resp_csv = save_csv(request, result_set)
-	return resp_csv
-	
 def process_vis(request, db_title, query_id):
 	query = get_query(query_id)
 	db = get_db_dir(db_title)
@@ -108,16 +101,6 @@ def execute_query(db, query):
 	
 	return result_set
 
-def execute_param_query(db, query, user, date):
-	#path_to_db = db_directory + db
-	path_to_db = os.getcwd() + '/databases/db/' + db
-	conn = sqlite3.connect(path_to_db)
-	c = conn.cursor()
-	result_set = c.execute(query, user, date)
-	
-	return result_set
-
-
 def download_csv(request, result_set):
 	resp = HttpResponse(content_type='text/csv')
 	resp['Content-Disposition'] = 'attachment; filename="result-set.csv"'
@@ -138,29 +121,3 @@ def download_csv(request, result_set):
 		writer.writerow(row_to_write)
 
 	return resp
-
-def save_csv(request, result_set):
-	with open("result-set.csv", 'wb') as f:
-		writer = csv.writer(f)
-	
-		desc = result_set.description # Prende i campi della tabella
-		fields = []
-		for d in desc:
-			fields = fields + [d[0]]
-
-		writer.writerow(fields)
-
-		for row in result_set: # Prende i record della tabella
-			row_to_write = []
-			for c in row:
-				row_to_write = row_to_write + [smart_str(c)]
-			writer.writerow(row_to_write)
-
-	resp = "Done"
-	return resp
-
-
-def user_answer_acc(user, date):
-	query = "SELECT Posts.OwnerUserId AS UserId, count(Post.Id) AS UsersAnswersAccepted FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Posts.OwnerUserId = %d AND Votes.CreationDate < %s AND Votes.VoteTypeId = 1"
-	result_set = execute_param_query(query, user, date)
-	return 'ciao'
