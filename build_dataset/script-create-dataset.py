@@ -302,6 +302,30 @@ def p_badges(db, file_name):
 	print p_badges
 	return 'Done'
 
+def tag_badges(db, outfile):
+	new_badges = open(outfile, 'w')
+
+	p_badges = []
+
+	result_set = execute_param_query(db, "SELECT DISTINCT Name FROM Badges")
+		
+	for tup in result_set:
+		if badges.has_key(tup[0]):
+			print ""
+		else:
+			if tup[0] in p_badges:
+				print ""
+			else:
+				p_badges.append(tup[0])
+				#new_badges.write(tup[0]+"\n")
+				
+	p_badges.sort()
+	for elem in p_badges:
+		new_badges.write(elem+"\n")
+	new_badges.close()
+	print p_badges
+	return 'Done'
+
 create_dictionary(get_corpus('result-set.csv'))
 #build_dataset('academia.dump.db', 'result-set.csv', 'test.csv')
 #p_badges('academia.dump.db', 'result-set.csv')
