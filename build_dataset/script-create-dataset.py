@@ -182,4 +182,4 @@ def p_badges(db, file_name):
 	return 'Done'
 
 #build_dataset('academia.dump.db', 'result-set.csv', 'prova_social+day+code.csv')
-p_badges('academia.dump.db', 'result-set.csv', 'prova_badges.csv')
+p_badges('academia.dump.db', 'result-set.csv')
