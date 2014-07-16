@@ -8,29 +8,29 @@ from HTMLParser import HTMLParser
 from badgesDict import badges
 
 def getUsersAnswersAcceptedQuery(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersAnswersAccepted FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Posts.OwnerUserId = " + user + " AND Votes.CreationDate < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersAnswersAccepted FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Posts.OwnerUserId = " + user + " AND date(Votes.CreationDate) < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
 
-def getUsersQuestionsAcceptedQuery1(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersQuestionsAccepted FROM Posts INNER JOIN Votes ON Posts.AcceptedAnswerId = Votes.PostId WHERE Posts.PostTypeId = 1 AND Posts.AcceptedAnswerId IS NOT NULL  AND Posts.OwnerUserId = " + user + " AND Votes.CreationDate < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
+def getUsersQuestionsAcceptedQuery(user, date):
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersQuestionsAccepted FROM Posts INNER JOIN Votes ON Posts.AcceptedAnswerId = Votes.PostId WHERE Posts.PostTypeId = 1 AND Posts.AcceptedAnswerId IS NOT NULL  AND Posts.OwnerUserId = " + user + " AND date(Votes.CreationDate) < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
 
 def getUsersQuestionsAcceptedQuery2(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersQuestionsAccepted FROM Posts INNER JOIN Votes ON Posts.AcceptedAnswerId = Votes.PostId WHERE Posts.PostTypeId = 1 AND Posts.AcceptedAnswerId IS NOT NULL  AND Posts.OwnerUserId = " + user + " AND date(Votes.CreationDate) < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersQuestionsAccepted FROM Posts INNER JOIN Votes ON Posts.AcceptedAnswerId = Votes.PostId WHERE Posts.PostTypeId = 1 AND Posts.AcceptedAnswerId IS NOT NULL  AND Posts.OwnerUserId = " + user + " AND Votes.CreationDate < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
 
 # Estrae il numero di upvotes, prima di una certa data (@Date), ottenuti dalle domande postate da un certo utente (@User) */
 def getQuestUpVotes(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UpVotesQuest FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 1 AND Votes.VoteTypeId = 2 AND Votes.CreationDate < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UpVotesQuest FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 1 AND Votes.VoteTypeId = 2 AND date(Votes.CreationDate) < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
 
 # Estrae il numero di downvotes, prima di una certa data (@Date), ottenuti dalle domande postate da un certo utente (@User) */
 def getQuestDownVotes(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS DownVotesQuest FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 1 AND Votes.VoteTypeId = 3 AND Votes.CreationDate < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS DownVotesQuest FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 1 AND Votes.VoteTypeId = 3 AND date(Votes.CreationDate) < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
 
 # Estrae il numero di upvotes, prima di una certa data (@Date), ottenuti dalle risposte postate da un certo utente (@User) */
 def getAnswUpVotes(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UpVotesAnsw FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Votes.VoteTypeId = 2 AND Votes.CreationDate < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UpVotesAnsw FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Votes.VoteTypeId = 2 AND date(Votes.CreationDate) < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
 
 # Estrae il numero di downvotes, prima di una certa data (@Date), ottenuti dalle risposte postate da un certo utente (@User) */
 def getAnswDownVotes(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS DownVotesAnsw FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Votes.VoteTypeId = 3 AND Votes.CreationDate < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS DownVotesAnsw FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Votes.VoteTypeId = 3 AND date(Votes.CreationDate) < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
 
 # Estrae l'insieme dei badge sbloccati da un utente (@User) prima di una certa data (@Date) */
 def getBadges(user, date):
@@ -90,8 +90,8 @@ def build_dataset(db, file_name, output_file):
 	head.append('BodyLength')
 	head.append('TitleLength')
 	head.append('UsersAnswersAccepted')
-	head.append('UsersQuestionsAccepted1')
-	head.append('UsersQuestionsAccepted2')
+	head.append('UsersQuestionsAccepted')
+	#head.append('UsersQuestionsAccepted2')
 	head.append('QuestionScore')
 	head.append('AnswerScore')
 	head.append('BronzeBadge')
@@ -121,8 +121,8 @@ def build_dataset(db, file_name, output_file):
 		print "Date: ",date,"\n"
 		if user != 'None':
 			result_set1 = execute_param_query(db, getUsersAnswersAcceptedQuery(user, date))
-			result_set2 = execute_param_query(db, getUsersQuestionsAcceptedQuery1(user, date))
-			result_set3 = execute_param_query(db, getUsersQuestionsAcceptedQuery2(user, date))
+			result_set2 = execute_param_query(db, getUsersQuestionsAcceptedQuery(user, date))
+			#result_set3 = execute_param_query(db, getUsersQuestionsAcceptedQuery2(user, date))
 			result_set4 = execute_param_query(db, getQuestUpVotes(user, date))
 			result_set5 = execute_param_query(db, getQuestDownVotes(user, date))
 			result_set6 = execute_param_query(db, getAnswUpVotes(user, date))
@@ -132,9 +132,9 @@ def build_dataset(db, file_name, output_file):
 			for tup in result_set1:
 				row['UsersAnswersAccepted'] = tup[1]
 			for tup in result_set2:
-				row['UsersQuestionsAccepted1'] = tup[1]
-			for tup in result_set3:
-				row['UsersQuestionsAccepted2'] = tup[1]
+				row['UsersQuestionsAccepted'] = tup[1]
+			#for tup in result_set3:
+			#	row['UsersQuestionsAccepted2'] = tup[1]
 			for tup in result_set4:
 				q_up = tup[1]
 			for tup in result_set5:
