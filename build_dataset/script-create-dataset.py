@@ -137,7 +137,7 @@ def build_dataset(db, file_name, output_file):
 	print p_badges
 	return 'Done'
 
-def p_badges(db, file_name, output_file):
+def p_badges(db, file_name):
 	dict_reader = csv.DictReader(open(file_name, 'r'))
 	new_badges = open("badges.txt", 'w')
 
