@@ -5,6 +5,7 @@ import datetime
 import re
 import string
 import operator
+from django.utils.encoding import smart_str
 from HTMLParser import HTMLParser
 from badgesDict import badges
 
@@ -103,8 +104,8 @@ def create_dictionary(file_name, output):
 		body = row['Body']
 		title = row['Title']
 		
-		body_cleaned = del_punctuation(clean_body(body.encode('utf-8')))
-		title_cleaned = del_punctuation(clean_body(title.encode('utf-8')))
+		body_cleaned = del_punctuation(clean_body(smart_str(body)))
+		title_cleaned = del_punctuation(clean_body(smart_str(title)))
 
 		corpus = body_cleaned + " " + title_cleaned
 
