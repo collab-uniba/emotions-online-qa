@@ -2,6 +2,7 @@ import sqlite3
 import csv
 import os
 import datetime
+import re
 from HTMLParser import HTMLParser
 from badgesDict import badges
 
@@ -43,10 +44,16 @@ class MLStripper(HTMLParser):
     def get_data(self):
         return ''.join(self.fed)
 
-def strip_tags(html):
+def del_tags(html):
     s = MLStripper()
     s.feed(html)
     return s.get_data()
+
+def del_code(html):
+	return re.sub('\<code>(.*?)\</code>', '', html)
+
+def clean_body(html):
+	return del_tags(del_code(html))
 
 def execute_param_query(db, query):
 	conn = sqlite3.connect(db)
@@ -80,7 +87,8 @@ def build_dataset(db, file_name, output_file):
 		date = row['PostCreationDate']
 		body = row['Body']
 
-		row['BodyCleaned'] = strip_tags(body)
+		body_cleaned = clean_body(body)
+		row['BodyCleaned'] = body_cleaned
 
 		print "User: ",user
 		print "Date: ",date,"\n"
@@ -200,4 +208,4 @@ def p_badges(db, file_name):
 	return 'Done'
 
 #build_dataset('academia.dump.db', 'result-set.csv', 'prova_social+day+code.csv')
-p_badges('academia.dump.db', 'result-set.csv')
+#p_badges('academia.dump.db', 'result-set.csv')
