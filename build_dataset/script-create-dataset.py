@@ -8,29 +8,29 @@ from HTMLParser import HTMLParser
 from badgesDict import badges
 
 def getUsersAnswersAcceptedQuery(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersAnswersAccepted FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Posts.OwnerUserId = " + user + " AND Votes.CreationDate < \'" + date + "\' AND Votes.VoteTypeId = 1"
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersAnswersAccepted FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Posts.OwnerUserId = " + user + " AND Votes.CreationDate < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
 
 def getUsersQuestionsAcceptedQuery1(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersQuestionsAccepted FROM Posts INNER JOIN Votes ON Posts.AcceptedAnswerId = Votes.PostId WHERE Posts.PostTypeId = 1 AND Posts.AcceptedAnswerId IS NOT NULL  AND Posts.OwnerUserId = " + user + " AND Votes.CreationDate < \'" + date + "\' AND Votes.VoteTypeId = 1"
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UsersQuestionsAccepted FROM Posts INNER JOIN Votes ON Posts.AcceptedAnswerId = Votes.PostId WHERE Posts.PostTypeId = 1 AND Posts.AcceptedAnswerId IS NOT NULL  AND Posts.OwnerUserId = " + user + " AND Votes.CreationDate < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
 
 def getUsersQuestionsAcceptedQuery2(user, date):
-	return "SELECT Quest.OwnerUserId AS UserId, count(Quest.Id) AS UsersQuestionsAccepted FROM Posts Quest INNER JOIN Posts Answ ON Quest.AcceptedAnswerId = Answ.Id INNER JOIN Votes ON Answ.Id = Votes.PostId WHERE Quest.PostTypeId = 1 AND Quest.AcceptedAnswerId IS NOT NULL  AND Quest.OwnerUserId = " + user + " AND Votes.CreationDate < \'" + date + "\' AND Votes.VoteTypeId = 1"
+	return "SELECT Quest.OwnerUserId AS UserId, count(Quest.Id) AS UsersQuestionsAccepted FROM Posts Quest INNER JOIN Posts Answ ON Quest.AcceptedAnswerId = Answ.Id INNER JOIN Votes ON Answ.Id = Votes.PostId WHERE Quest.PostTypeId = 1 AND Quest.AcceptedAnswerId IS NOT NULL  AND Quest.OwnerUserId = " + user + " AND Votes.CreationDate < date(\'" + date + "\') AND Votes.VoteTypeId = 1"
 
 # Estrae il numero di upvotes, prima di una certa data (@Date), ottenuti dalle domande postate da un certo utente (@User) */
 def getQuestUpVotes(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UpVotesQuest FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 1 AND Votes.VoteTypeId = 2 AND Votes.CreationDate < \'" + date + "\' AND Posts.OwnerUserId = " + user
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UpVotesQuest FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 1 AND Votes.VoteTypeId = 2 AND Votes.CreationDate < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
 
 # Estrae il numero di downvotes, prima di una certa data (@Date), ottenuti dalle domande postate da un certo utente (@User) */
 def getQuestDownVotes(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS DownVotesQuest FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 1 AND Votes.VoteTypeId = 3 AND Votes.CreationDate < \'" + date + "\' AND Posts.OwnerUserId = " + user
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS DownVotesQuest FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 1 AND Votes.VoteTypeId = 3 AND Votes.CreationDate < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
 
 # Estrae il numero di upvotes, prima di una certa data (@Date), ottenuti dalle risposte postate da un certo utente (@User) */
 def getAnswUpVotes(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UpVotesAnsw FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Votes.VoteTypeId = 2 AND Votes.CreationDate < \'" + date + "\' AND Posts.OwnerUserId = " + user
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS UpVotesAnsw FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Votes.VoteTypeId = 2 AND Votes.CreationDate < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
 
 # Estrae il numero di downvotes, prima di una certa data (@Date), ottenuti dalle risposte postate da un certo utente (@User) */
 def getAnswDownVotes(user, date):
-	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS DownVotesAnsw FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Votes.VoteTypeId = 3 AND Votes.CreationDate < \'" + date + "\' AND Posts.OwnerUserId = " + user
+	return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS DownVotesAnsw FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Votes.VoteTypeId = 3 AND Votes.CreationDate < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
 
 # Estrae l'insieme dei badge sbloccati da un utente (@User) prima di una certa data (@Date) */
 def getBadges(user, date):
