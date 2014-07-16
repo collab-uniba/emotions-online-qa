@@ -161,7 +161,7 @@ def build_dataset(db, file_name, output_file):
 			row['CodeSnippet'] = code_snippet
 
 			accepted = 'yes'
-			if row['AcceptedAnswer'] == 'None':
+			if row['PostAcceptedAnswerId'] == 'None':
 				accepted = 'no'
 			row['Accepted'] = accepted
 
