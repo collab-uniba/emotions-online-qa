@@ -2,6 +2,7 @@ import sqlite3
 import csv
 import os
 import datetime
+from HTMLParser import HTMLParser
 from badgesDict import badges
 
 def getUsersAnswersAcceptedQuery(user, date):
@@ -33,6 +34,19 @@ def getAnswDownVotes(user, date):
 def getBadges(user, date):
 	return "SELECT Badges.UserId, Badges.Name FROM Badges WHERE Badges.Date < \'" + date + "\' AND Badges.UserId = " + user
 
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 def execute_param_query(db, query):
 	conn = sqlite3.connect(db)
@@ -44,6 +58,7 @@ def build_dataset(db, file_name, output_file):
 	dict_reader = csv.DictReader(open(file_name, 'r'))
 	
 	head = dict_reader.fieldnames
+	head.append('BodyCleaned')
 	head.append('UsersAnswersAccepted')
 	head.append('UsersQuestionsAccepted')
 	#head.append('UsersQuestionsAccepted2')
@@ -64,6 +79,9 @@ def build_dataset(db, file_name, output_file):
 		user = row['UserId']
 		date = row['PostCreationDate']
 		body = row['Body']
+
+		row['BodyCleaned'] = strip_tags(body)
+
 		print "User: ",user
 		print "Date: ",date,"\n"
 		if user != 'None':
