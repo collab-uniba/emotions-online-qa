@@ -137,4 +137,49 @@ def build_dataset(db, file_name, output_file):
 	print p_badges
 	return 'Done'
 
-build_dataset('academia.dump.db', 'result-set.csv', 'prova_social+day+code.csv')
+def p_badges(db, file_name, output_file):
+	dict_reader = csv.DictReader(open(file_name, 'r'))
+	new_badges = open("badges.txt", 'w')
+
+	p_badges = []
+
+	for row in dict_reader:
+		user = row['UserId']
+		date = row['PostCreationDate']
+		
+		print "User: ",user
+		print "Date: ",date,"\n"
+		if user != 'None':
+			
+			result_set8 = execute_param_query(db, getBadges(user, date))
+		
+			bronze = 0
+			silver = 0
+			gold = 0
+
+			for tup in result_set8:
+				if badges.has_key(tup[1]):
+					if badges[tup[1]] == 'Bronze':
+						bronze += 1
+					if badges[tup[1]] == 'Silver':
+						silver += 1
+					if badges[tup[1]] == 'Gold':
+						gold += 1
+				else:
+					if tup[1] in p_badges:
+						print ""
+					else:
+						p_badges.append(tup[1])
+						new_badges.write(tup[1]+"\n")
+					
+			row['BronzeBadge'] = bronze
+			row['SilverBadge'] = silver
+			row['GoldBadge'] = gold
+			
+		#dict_writer.writerow(row)
+	new_badges.close()
+	print p_badges
+	return 'Done'
+
+#build_dataset('academia.dump.db', 'result-set.csv', 'prova_social+day+code.csv')
+p_badges('academia.dump.db', 'result-set.csv', 'prova_badges.csv')
