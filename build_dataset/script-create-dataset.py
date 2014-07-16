@@ -3,6 +3,7 @@ import csv
 import os
 import datetime
 import re
+import string
 from HTMLParser import HTMLParser
 from badgesDict import badges
 
@@ -55,6 +56,24 @@ def del_code(html):
 def clean_body(html):
 	return del_tags(del_code(html))
 
+def del_punctuation(text):
+	return text.translate(string.maketrans ("" , ""), string.punctuation)
+
+def text_length(text):
+	text_cleaned_punc = del_punctuation(text)
+	text_cleaned = text_cleaned_punc.split(" ")
+	word = 0
+	for w in text_cleaned:
+		if w == "":
+			word = word
+		elif w == "\n":
+			word = word
+		elif w == "\t":
+			word = word
+		else:
+			word += 1 
+	return word
+
 def execute_param_query(db, query):
 	conn = sqlite3.connect(db)
 	c = conn.cursor()
@@ -66,6 +85,8 @@ def build_dataset(db, file_name, output_file):
 	
 	head = dict_reader.fieldnames
 	head.append('BodyCleaned')
+	head.append('BodyLength')
+	head.append('TitleLength')
 	head.append('UsersAnswersAccepted')
 	head.append('UsersQuestionsAccepted')
 	#head.append('UsersQuestionsAccepted2')
@@ -87,9 +108,13 @@ def build_dataset(db, file_name, output_file):
 		user = row['UserId']
 		date = row['PostCreationDate']
 		body = row['Body']
+		title = row['Title']
 
 		body_cleaned = clean_body(body)
 		row['BodyCleaned'] = body_cleaned
+
+		row['TitleLength'] = text_length(title)
+		row['BodyLength'] = text_length(body_cleaned)
 
 		print "User: ",user
 		print "Date: ",date,"\n"
@@ -214,5 +239,6 @@ def p_badges(db, file_name):
 	print p_badges
 	return 'Done'
 
-#build_dataset('academia.dump.db', 'result-set.csv', 'prova_social+day+code.csv')
+build_dataset('academia.dump.db', 'result-set.csv', 'prova_social+day+code.csv')
 #p_badges('academia.dump.db', 'result-set.csv')
+#print text_length('As from title. What kind of visa class do I have to apply for, in order to work as an academic in Japan ?')
