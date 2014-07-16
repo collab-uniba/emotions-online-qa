@@ -4,6 +4,7 @@ import os
 import datetime
 import re
 import string
+import operator
 from HTMLParser import HTMLParser
 from badgesDict import badges
 
@@ -73,6 +74,64 @@ def text_length(text):
 		else:
 			word += 1 
 	return word
+
+# Restituisce tutti i titoli e tutti i corpi, presenti nel file in input, fusi in un'unica variabile
+def get_corpus(file_name):
+	dict_reader = csv.DictReader(open(file_name, 'r'))
+	
+	corpus = ""
+
+	for row in dict_reader:
+		body = row['Body']
+		title = row['Title']
+
+		body_cleaned = del_punctuation(clean_body(body))
+		title_cleaned = del_punctuation(clean_body(title))
+		
+		corpus = corpus + title_cleaned + " " + body_cleaned
+	
+	return corpus
+
+def create_dictionary(corpus):
+	print "Processing..."
+	words = re.findall(r"[\w']+", corpus)
+	n_word = 0
+	dictionary = {}
+
+	for word in words:
+		if word == "":
+			n_word = n_word
+		elif word == "\n":
+			n_word = n_word
+		elif word == "\t":
+			n_word = n_word
+		else:
+			n_word += 1
+			if dictionary.has_key(word):
+				dictionary[word] += 1
+			else:
+				dictionary[word] = 1
+
+	print "Number of words ", n_word
+
+	for key in dictionary.keys():
+		dictionary[key] = dictionary[key]/n_word
+
+	#sorted_dict = sorted(dictionary.iteritems(), key=operator.itemgetter(1))
+	sorted_dict = sorted(dictionary, key=dictionary.get, reverse=True)
+
+	
+	#print sorted_dict
+
+	w = csv.writer(open("output.csv", "w"))
+	#for key, val in sorted_dict.items():
+	#	w.writerow([key, val])
+	for elem in sorted_dict:
+		w.writerow([elem,dictionary[elem]])
+
+	print "Done..."
+
+	return sorted_dict
 
 def execute_param_query(db, query):
 	conn = sqlite3.connect(db)
@@ -243,6 +302,7 @@ def p_badges(db, file_name):
 	print p_badges
 	return 'Done'
 
-build_dataset('academia.dump.db', 'result-set.csv', 'test.csv')
+create_dictionary(get_corpus('result-set.csv'))
+#build_dataset('academia.dump.db', 'result-set.csv', 'test.csv')
 #p_badges('academia.dump.db', 'result-set.csv')
 #print text_length('As from title. What kind of visa class do I have to apply for, in order to work as an academic in Japan ?')
