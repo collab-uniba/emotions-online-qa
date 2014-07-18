@@ -63,7 +63,8 @@ def del_punctuation(text):
 
 def text_length(text):
 	text_cleaned_punc = del_punctuation(text)
-	text_cleaned = text_cleaned_punc.split(" ")
+	text_cleaned = re.findall(r"[\w']+", text_cleaned_punc)
+	#text_cleaned = text_cleaned_punc.split(" ")
 	word = 0
 	for w in text_cleaned:
 		if w == "":
@@ -90,6 +91,7 @@ def get_corpus(file_name):
 		title_cleaned = del_punctuation(clean_body(title))
 		
 		corpus = corpus + title_cleaned + " " + body_cleaned
+		
 	
 	return corpus
 
@@ -152,123 +154,214 @@ def execute_param_query(db, query):
 	result_set = c.execute(query)
 	return result_set
 
-def build_dataset(db, file_name, output_file):
+def weekday(file_name, output_file):
 	dict_reader = csv.DictReader(open(file_name, 'r'))
 	
 	head = dict_reader.fieldnames
 	head.append('Weekday')
 	head.append('GMTHour')
+	DayL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
+	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
+	
+	for row in dict_reader:
+		date = row['PostCreationDate']
+		d = date.split('T')
+		dat = d[0].split('-')
+		hou = d[1].split(':')
+		hour = hou[0]
+		
+		row['GMTHour'] = hour
+
+		print "Anno: ", dat[0]
+		print "Mese: ", dat[1]
+		print "Giorno: ", dat[2]
+			
+		weekday = DayL[datetime.date(int(dat[0]),int(dat[1]),int(dat[2])).weekday()] + ""
+		row['Weekday'] = weekday
+		dict_writer.writerow(row)
+	
+	return 'Done'
+
+def accepted(file_name, output_file):
+	dict_reader = csv.DictReader(open(file_name, 'r'))
+	
+	head = dict_reader.fieldnames
+	head.append('Accepted')
+	
+	
+	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
+	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
+	
+	for row in dict_reader:
+		
+		accepted = 'yes'
+		if row['PostAcceptedAnswerId'] == 'None':
+			accepted = 'no'
+		row['Accepted'] = accepted
+		
+		dict_writer.writerow(row)
+	
+	return 'Done'
+
+def clean_len_code_body_title(file_name, output_file):
+	dict_reader = csv.DictReader(open(file_name, 'r'))
+	
+	head = dict_reader.fieldnames
 	head.append('BodyCleaned')
 	head.append('BodyLength')
 	head.append('TitleLength')
-	head.append('UsersAnswersAccepted')
-	head.append('UsersQuestionsAccepted')
-	#head.append('UsersQuestionsAccepted2')
-	head.append('QuestionScore')
-	head.append('AnswerScore')
-	head.append('BronzeBadge')
-	head.append('SilverBadge')
-	head.append('GoldBadge')
 	head.append('CodeSnippet')
-	head.append('Accepted')
+	
 	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
 	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
-	DayL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
-
-	p_badges = []
-
+	
 	for row in dict_reader:
-		user = row['UserId']
-		date = row['PostCreationDate']
 		body = row['Body']
 		title = row['Title']
-
-		body_cleaned = clean_body(body)
-		row['BodyCleaned'] = body_cleaned
-
-		row['TitleLength'] = text_length(title)
-		row['BodyLength'] = text_length(body_cleaned)
-
-		print "User: ",user
-		print "Date: ",date,"\n"
-		if user != 'None':
-			result_set1 = execute_param_query(db, getUsersAnswersAcceptedQuery(user, date))
-			result_set2 = execute_param_query(db, getUsersQuestionsAcceptedQuery(user, date))
-			#result_set3 = execute_param_query(db, getUsersQuestionsAcceptedQuery2(user, date))
-			result_set4 = execute_param_query(db, getQuestUpVotes(user, date))
-			result_set5 = execute_param_query(db, getQuestDownVotes(user, date))
-			result_set6 = execute_param_query(db, getAnswUpVotes(user, date))
-			result_set7 = execute_param_query(db, getAnswDownVotes(user, date))
-			result_set8 = execute_param_query(db, getBadges(user, date))
-		
-			for tup in result_set1:
-				row['UsersAnswersAccepted'] = tup[1]
-			for tup in result_set2:
-				row['UsersQuestionsAccepted'] = tup[1]
-			#for tup in result_set3:
-			#	row['UsersQuestionsAccepted2'] = tup[1]
-			for tup in result_set4:
-				q_up = tup[1]
-			for tup in result_set5:
-				q_down = tup[1]
-			for tup in result_set6:
-				a_up = tup[1]
-			for tup in result_set7:
-				a_down = tup[1]
-		
-			q_score = q_up - q_down
-			a_score = a_up - a_down
+		try:
 			
-			row['QuestionScore'] = q_score
-			row['AnswerScore'] = a_score
 
-			bronze = 0
-			silver = 0
-			gold = 0
+			body_cleaned = clean_body(body)
+			row['BodyCleaned'] = body_cleaned
 
-			for tup in result_set8:
-				if badges.has_key(tup[1]):
-					if badges[tup[1]] == 'Bronze':
-						bronze += 1
-					if badges[tup[1]] == 'Silver':
-						silver += 1
-					if badges[tup[1]] == 'Gold':
-						gold += 1
-				else:
-					p_badges.append(tup[1])
-					
-			row['BronzeBadge'] = bronze
-			row['SilverBadge'] = silver
-			row['GoldBadge'] = gold
-			
-			d = date.split('T')
-			dat = d[0].split('-')
-			hou = d[1].split(':')
-			hour = hou[0]
-			
-			row['GMTHour'] = hour
+			row['TitleLength'] = text_length(title)
+			row['BodyLength'] = text_length(body_cleaned)
 
-			print "Anno: ", dat[0]
-			print "Mese: ", dat[1]
-			print "Giorno: ", dat[2]
-			
-			weekday = DayL[datetime.date(int(dat[0]),int(dat[1]),int(dat[2])).weekday()] + ""
-			row['Weekday'] = weekday
-			
 			code_snippet = "no"
 			if '<code>' in body:
 				code_snippet = "yes"
 
 			row['CodeSnippet'] = code_snippet
+		except Exception:
+			continue
+		dict_writer.writerow(row)
+	
+	return 'Done'
 
-			accepted = 'yes'
-			if row['PostAcceptedAnswerId'] == 'None':
-				accepted = 'no'
-			row['Accepted'] = accepted
+def score(db, file_name, output_file):
+	dict_reader = csv.DictReader(open(file_name, 'r'))
+	
+	head = dict_reader.fieldnames
+	head.append('QuestionScore')
+	head.append('AnswerScore')
+	
+	
+	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
+	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
+	
+	for row in dict_reader:
+		user = row['UserId']
+		date = row['PostCreationDate']
+		result_set4 = execute_param_query(db, getQuestUpVotes(user, date))
+		result_set5 = execute_param_query(db, getQuestDownVotes(user, date))
+		result_set6 = execute_param_query(db, getAnswUpVotes(user, date))
+		result_set7 = execute_param_query(db, getAnswDownVotes(user, date))
+		
+		for tup in result_set4:
+			q_up = tup[1]
+		for tup in result_set5:
+			q_down = tup[1]
+		for tup in result_set6:
+			a_up = tup[1]
+		for tup in result_set7:
+			a_down = tup[1]
+		
+		q_score = q_up - q_down
+		a_score = a_up - a_down
+			
+		row['QuestionScore'] = q_score
+		row['AnswerScore'] = a_score
+
 
 		dict_writer.writerow(row)
 	
-	print p_badges
+	return 'Done'
+
+def badge(db, file_name, output_file):
+	dict_reader = csv.DictReader(open(file_name, 'r'))
+	
+	head = dict_reader.fieldnames
+	head.append('BronzeBadge')
+	head.append('SilverBadge')
+	head.append('GoldBadge')
+	
+	
+	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
+	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
+	
+	for row in dict_reader:
+		user = row['UserId']
+		date = row['PostCreationDate']
+		result_set = execute_param_query(db, getBadges(user, date))
+		
+		bronze = 0
+		silver = 0
+		gold = 0
+
+		for tup in result_set:
+			if badges.has_key(tup[1]):
+				if badges[tup[1]] == 'Bronze':
+					bronze += 1
+				if badges[tup[1]] == 'Silver':
+					silver += 1
+				if badges[tup[1]] == 'Gold':
+					gold += 1
+			#else:
+			#	p_badges.append(tup[1])
+					
+		row['BronzeBadge'] = bronze
+		row['SilverBadge'] = silver
+		row['GoldBadge'] = gold
+			
+
+		dict_writer.writerow(row)
+	
+	return 'Done'
+
+
+def users_answ_acc(db, file_name, output_file):
+	dict_reader = csv.DictReader(open(file_name, 'r'))
+	
+	head = dict_reader.fieldnames
+	head.append('UsersAnswersAccepted')
+	
+	
+	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
+	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
+	
+	for row in dict_reader:
+		user = row['UserId']
+		date = row['PostCreationDate']
+		result_set = execute_param_query(db, getUsersAnswersAcceptedQuery(user, date))
+		
+		for tup in result_set:
+			row['UsersAnswersAccepted'] = tup[1]		
+
+		dict_writer.writerow(row)
+	
+	return 'Done'
+	
+def users_quest_acc(db, file_name, output_file):
+	dict_reader = csv.DictReader(open(file_name, 'r'))
+	
+	head = dict_reader.fieldnames
+	head.append('UsersQuestionsAccepted')
+	
+	
+	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
+	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
+	
+	for row in dict_reader:
+		user = row['UserId']
+		date = row['PostCreationDate']
+		result_set = execute_param_query(db, getUsersQuestionsAcceptedQuery(user, date))
+		
+		for tup in result_set:
+			row['UsersQuestionsAccepted'] = tup[1]
+
+		dict_writer.writerow(row)
+	
 	return 'Done'
 
 def p_badges(db, file_name):
@@ -339,7 +432,58 @@ def tag_badges(db, outfile):
 	print p_badges
 	return 'Done'
 
-create_dictionary('so_questions.csv', 'stackoverflow_dict.csv')
+def save_csv(result_set):
+	f = open('result.csv', 'w')
+	writer = csv.writer(f)
+	
+	desc = result_set.description # Prende i campi della tabella
+	fields = []
+	for d in desc:
+		fields = fields + [d[0]]
+
+	writer.writerow(fields)
+
+	for row in result_set: # Prende i record della tabella
+		row_to_write = []
+		for c in row:
+			row_to_write = row_to_write + [smart_str(c)]
+		writer.writerow(row_to_write)
+
+	return 'Done'
+
+questions_query = "SELECT Id AS PostId, Title, Body, Tags, CreationDate AS PostCreationDate, OwnerUserId AS UserId, AcceptedAnswerId AS PostAcceptedAnswerId FROM Posts WHERE Posts.PostTypeId = 1 AND Posts.OwnerUserId IS NOT NULL"
+#save_csv(execute_param_query('stackoverflow.db', questions_query))
+#create_dictionary('stackoverflow_posts.csv', 'stackoverflow_posts_dict.csv')
 #build_dataset('academia.dump.db', 'result-set.csv', 'test.csv')
 #p_badges('academia.dump.db', 'result-set.csv')
 #print text_length('As from title. What kind of visa class do I have to apply for, in order to work as an academic in Japan ?')
+
+# Build the stackoverflow dataset
+#weekday('so_questions.csv', 'so_questions_week.csv')
+#accepted('so_questions_week.csv', 'so_questions_acc.csv')
+#os.remove('so_questions_week.csv')
+#clean_len_code_body_title('so_questions_acc.csv', 'so_questions_len.csv')
+#os.remove('so_questions_acc.csv')
+#score('stackoverflow.db', 'so_questions_len.csv', 'so_questions_sco.csv')
+#os.remove('so_questions_len.csv')
+#badges('stackoverflow.db', 'so_questions_sco.csv', 'so_questions_badg.csv')
+#os.remove('so_questions_sco.csv')
+#users_answ_acc('stackoverflow.db', 'so_questions_badg.csv', 'so_questions_answacc.csv')
+#os.remove('so_questions_badg.csv')
+#users_quest_acc('stackoverflow.db', 'so_questions_answacc.csv', 'so_questions_final.csv')
+#os.remove('so_questions_answacc.csv')
+
+# Build the academia dataset
+#weekday('ac_questions.csv', 'ac_questions_week.csv')
+#accepted('ac_questions_week.csv', 'ac_questions_acc.csv')
+#os.remove('ac_questions_week.csv')
+#clean_len_code_body_title('ac_questions_acc.csv', 'ac_questions_len.csv')
+#os.remove('ac_questions_acc.csv')
+#score('academia.dump.db', 'ac_questions_len.csv', 'ac_questions_sco.csv')
+#os.remove('ac_questions_len.csv')
+#badge('academia.dump.db', 'ac_questions_sco.csv', 'ac_questions_badg.csv')
+#os.remove('ac_questions_sco.csv')
+#users_answ_acc('academia.dump.db', 'ac_questions_badg.csv', 'ac_questions_answacc.csv')
+#os.remove('ac_questions_badg.csv')
+#users_quest_acc('academia.dump.db', 'ac_questions_answacc.csv', 'ac_questions_final.csv')
+#os.remove('ac_questions_answacc.csv')
