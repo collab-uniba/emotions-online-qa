@@ -1,0 +1,65 @@
+#!/bin/bash
+
+##### Logistic regression #####
+#INPUT_FILE=input_towekaformat_final.arff
+INPUT_FILE=${1}
+
+REMOVE_COMMAND_LIST=(
+				"weka.filters.unsupervised.attribute.Remove -R 1,3-4,8-32"		# Logistic regression "Post properties"
+				"weka.filters.unsupervised.attribute.Remove -R 1,2,6-32"		# Logistic regression "Time"
+				"weka.filters.unsupervised.attribute.Remove -R 1,2-4,6-31"		# Logistic regression "Topic"
+				"weka.filters.unsupervised.attribute.Remove -R 1,2-4,6,7,13-32"	# Logistic regression "Social"
+				"weka.filters.unsupervised.attribute.Remove -R 1,2-4,6-12,32"	# Logistic regression "Affect"
+				"weka.filters.unsupervised.attribute.Remove -R 1,8-32"			# Logistic regression "Post properties" + "Time"
+				"weka.filters.unsupervised.attribute.Remove -R 1,8-31"			# Logistic regression "Post properties" + "Time" + "Topic"
+				"weka.filters.unsupervised.attribute.Remove -R 1,13-31"			# Logistic regression "Post properties" + "Time" + "Topic" + "Social"  (aka Control model)
+				"weka.filters.unsupervised.attribute.Remove -R 1"				# Logistic regression "Post properties" + "Time" + "Topic" + "Social" + "Affect"  (aka Control model + Affect)
+					)
+
+MODEL_FILE=(
+				weka_classif/post_prop/Logistic.model
+				weka_classif/time/Logistic.model
+				weka_classif/topic/Logistic.model
+				weka_classif/social/Logistic.model
+				weka_classif/affect/Logistic.model
+				weka_classif/postprop_time/Logistic.model
+				weka_classif/postprop_time_topic/Logistic.model
+				weka_classif/postprop_time_topic_social/Logistic.model
+				weka_classif/postprop_time_topic_social_affect/Logistic.model
+			)
+
+STATIST_FILE=(
+				weka_classif/post_prop/Logistic.stat
+				weka_classif/time/Logistic.stat
+				weka_classif/topic/Logistic.stat
+				weka_classif/social/Logistic.stat
+				weka_classif/affect/Logistic.stat
+				weka_classif/postprop_time/Logistic.stat
+				weka_classif/postprop_time_topic/Logistic.stat
+				weka_classif/postprop_time_topic_social/Logistic.stat
+				weka_classif/postprop_time_topic_social_affect/Logistic.stat
+			)
+
+CLASSIF_FILE=(
+				weka_classif/post_prop/Logistic.classif.csv
+				weka_classif/time/Logistic.classif.csv
+				weka_classif/topic/Logistic.classif.csv
+				weka_classif/social/Logistic.classif.csv
+				weka_classif/affect/Logistic.classif.csv
+				weka_classif/postprop_time/Logistic.classif.csv
+				weka_classif/postprop_time_topic/Logistic.classif.csv
+				weka_classif/postprop_time_topic_social/Logistic.classif.csv
+				weka_classif/postprop_time_topic_social_affect/Logistic.classif.csv
+			)
+
+echo "Processing ${1}"
+
+for i in `seq 0 8`;
+        do
+                java -cp $WEKA weka.classifiers.meta.FilteredClassifier -F "${REMOVE_COMMAND_LIST[i]}" -c 5 -split-percentage 70  -t ${INPUT_FILE} -W "weka.classifiers.functions.Logistic" -d ${MODEL_FILE[i]} > ${STATIST_FILE[i]}
+
+				java -cp $WEKA weka.classifiers.meta.FilteredClassifier -F "${REMOVE_COMMAND_LIST[i]}" -c 5 -split-percentage 70  -t ${INPUT_FILE} -W "weka.classifiers.functions.Logistic" -classifications "weka.classifiers.evaluation.output.prediction.CSV -p first-last -file ${CLASSIF_FILE[i]} -suppress"
+        done
+
+
+#####  END Logistic regression #####
