@@ -67,4 +67,4 @@ def create_stopwords_file(file_name, output, threshold):
 
 
 #create_dictionary('academia_questions.csv', 'dict.csv')
-create_stopwords_file('dict.csv', 'sw.txt', 0.000099994)
+#create_stopwords_file('dict.csv', 'sw.txt', 0.000099994)
