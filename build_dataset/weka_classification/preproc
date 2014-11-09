@@ -13,8 +13,8 @@ echo "Processing ${1}"
 java -cp $WEKA weka.core.converters.CSVLoader ${INPUT_FILE} > input_towekaformat.arff
 
 ## 
-java -cp $WEKA weka.filters.unsupervised.attribute.NumericToNominal -R 84 -i input_towekaformat.arff -o input_towekaformat_nom.arff
-java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i input_towekaformat_nom.arff -o input_towekaformat_final.arff -R 15,16,25,27,33-36,40-83
+java -cp $WEKA weka.filters.unsupervised.attribute.NumericToNominal -R 83 -i input_towekaformat.arff -o input_towekaformat_nom.arff
+java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i input_towekaformat_nom.arff -o input_towekaformat_final.arff -R 14,15,24,26,32-35,39-82 # Use only # AFFECT # POSEMO # POSFEEL # OPTIM # NEGEMO # ANX # ANGER # SAD # COGMECH # INSIGHT # DISCREP # INHIB # TENTAT # CERTAIN # FEEL # SOCIAL # COMM
 rm input_towekaformat.arff
 rm input_towekaformat_nom.arff
 
@@ -22,38 +22,25 @@ rm input_towekaformat_nom.arff
 mkdir weka_classif
 
 mkdir weka_classif/post_prop
-## Crea arff con features "Post properties"
-#java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i academia_t10_weka_input.arff -o post_prop/academia_t10_weka_input.arff -R 3-4,8-32
 
 mkdir weka_classif/time
-## Crea arff con features "Time"
-#java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i academia_t10_weka_input.arff -o time/academia_t10_weka_input.arff -R 2,6-32
 
 mkdir weka_classif/topic
-## Crea arff con features "Topic"
-#java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i academia_t10_weka_input.arff -o topic/academia_t10_weka_input.arff -R 2-4,6-31
 
 mkdir weka_classif/social
-## Crea arff con features "Social"
-#java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i academia_t10_weka_input.arff -o social/academia_t10_weka_input.arff -R 2-4,6,7,13-32
 
 mkdir weka_classif/affect
-## Crea arff con features "Affect"
-#java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i academia_t10_weka_input.arff -o affect/academia_t10_weka_input.arff -R 2-4,6-12,32
 
 mkdir weka_classif/postprop_time
-## Crea arff con features "Post properties" + "Time"
-#java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i academia_t10_weka_input.arff -o postprop_time/academia_t10_weka_input.arff -R 8-32
 
 mkdir weka_classif/postprop_time_topic
-## Crea arff con features "Post properties" + "Time" + "Topic"
-#java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i academia_t10_weka_input.arff -o postprop_time_topic/academia_t10_weka_input.arff -R 8-31
 
 mkdir weka_classif/postprop_time_topic_social
-## Crea arff con features "Post properties" + "Time" + "Topic" + "Social"  (aka Control model)
-#java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i academia_t10_weka_input.arff -o postprop_time_topic_social/academia_t10_weka_input.arff -R 13-31
 
 mkdir weka_classif/postprop_time_topic_social_affect
-## Crea arff con features "Post properties" + "Time" + "Topic" + "Social" + "Affect"  (aka Control model + Affect)
-#java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i academia_t10_weka_input.arff -o postprop_time_topic_social_affect/academia_t10_weka_input.arff -R 13-31
-#mv academia_t10_weka_input.arff postprop_time_topic_social_affect/academia_t10_weka_input.arff 
+
+mkdir weka_classif/senti/
+#mkdir weka_classif/affect-NEGEMO-INSIGHT/
+mkdir weka_classif/postprop_time_topic_social_senti/
+#mkdir weka_classif/postprop_time_topic_social_affect-NEGEMO-INSIGHT/
+
