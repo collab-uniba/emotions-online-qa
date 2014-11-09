@@ -3,6 +3,10 @@
 # Preprocessing:
 # Prende il file csv e trasforma il campo topic in nominale ed elimina le classi linguistiche di LIWC che non vengono utilizzate.
 # Infine crea le directory dove verranno inseriti i risultati delle regressioni logistiche
+#
+#
+# Creare variabile d'ambiente $WEKA con
+# export WEKA=/path/to/weka.jar
 
 #INPUT_FILE=academia_t10_final_comma.csv
 INPUT_FILE=${1}
@@ -17,30 +21,3 @@ java -cp $WEKA weka.filters.unsupervised.attribute.NumericToNominal -R 83 -i inp
 java -cp $WEKA weka.filters.unsupervised.attribute.Remove -i input_towekaformat_nom.arff -o input_towekaformat_final.arff -R 14,15,24,26,32-35,39-82 # Use only # AFFECT # POSEMO # POSFEEL # OPTIM # NEGEMO # ANX # ANGER # SAD # COGMECH # INSIGHT # DISCREP # INHIB # TENTAT # CERTAIN # FEEL # SOCIAL # COMM
 rm input_towekaformat.arff
 rm input_towekaformat_nom.arff
-
-#java -cp weka.jar weka.core.Instances tmp/t_10/academia_t10_weka_input.arff
-mkdir weka_classif
-
-mkdir weka_classif/post_prop
-
-mkdir weka_classif/time
-
-mkdir weka_classif/topic
-
-mkdir weka_classif/social
-
-mkdir weka_classif/affect
-
-mkdir weka_classif/postprop_time
-
-mkdir weka_classif/postprop_time_topic
-
-mkdir weka_classif/postprop_time_topic_social
-
-mkdir weka_classif/postprop_time_topic_social_affect
-
-mkdir weka_classif/senti/
-#mkdir weka_classif/affect-NEGEMO-INSIGHT/
-mkdir weka_classif/postprop_time_topic_social_senti/
-#mkdir weka_classif/postprop_time_topic_social_affect-NEGEMO-INSIGHT/
-

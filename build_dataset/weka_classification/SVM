@@ -1,6 +1,9 @@
 #!/bin/bash
 
 ##### SVM #####
+# Creare variabile d'ambiente $WEKA con
+# export WEKA=/path/to/weka.jar
+
 #INPUT_FILE=input_towekaformat_final.arff
 INPUT_FILE=${1}
 
