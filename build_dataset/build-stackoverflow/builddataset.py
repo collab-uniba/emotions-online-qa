@@ -10,7 +10,7 @@ import operator
 import threading
 from django.utils.encoding import smart_str
 from HTMLParser import HTMLParser
-#from badgesDict import badges
+from badgesDict import badges
 
 
 
@@ -42,6 +42,15 @@ def getAnswDownVotes(user, date):
 	return "SELECT d_ownerID as UserID, count(d_voteID) as AnswerDownvotesScore FROM answerdownvotes_mv WHERE d_ownerID = " + user + " AND dts_voteDate < date(\'" + date + "\')"
 	#return "SELECT Posts.OwnerUserId AS UserId, count(Posts.Id) AS DownVotesAnsw FROM Posts INNER JOIN Votes ON Posts.Id = Votes.PostId WHERE Posts.PostTypeId = 2 AND Votes.VoteTypeId = 3 AND date(Votes.CreationDate) < date(\'" + date + "\') AND Posts.OwnerUserId = " + user
 
+# commenti di un utente di una domanda (@PostId) prima della data di accettazione (@Date)
+def getUsersCommentsBeforeAccDate(postid, vote_date):
+	return "SELECT c_Id, c_text FROM userscommentsquestions_mv WHERE c_ts_creationDate < \'" + vote_date + "\' AND q_Id = " + postid
+
+# commenti di un utente di una domanda (@PostId)
+def getUsersComments(postid):
+	return "SELECT c_Id, c_text FROM userscommentsquestions_mv WHERE q_Id = " + postid
+
+
 # Estrae l'insieme dei badge sbloccati da un utente (@User) prima di una certa data (@Date) */
 def getBadges(user, date):
 	return "SELECT Badges.UserId, Badges.Name FROM Badges WHERE Badges.UserId = " + user + " AND Badges.Date < \'" + date + "\'" 
@@ -61,28 +70,20 @@ def del_tags(html):
     return s.get_data()
 
 def del_code(html):
-	return re.sub('<code>[\s\S.]+</code>', '', html)
+	return re.sub('<code>[\s\S.]+?</code>', ' ', html)
 
 def clean_body(html):
 	return del_tags(del_code(html))
 
 def del_punctuation(text):
-	return text.translate(string.maketrans ("" , ""), string.punctuation)
+	return text.translate(string.maketrans ("" , ""), string.punctuation) # http://www.tutorialspoint.com/python/string_translate.htm
 
 def text_length(text):
-	text_cleaned_punc = del_punctuation(text)
-	text_cleaned = re.findall(r"[\w']+", text_cleaned_punc)
-	#text_cleaned = text_cleaned_punc.split(" ")
-	word = 0
-	for w in text_cleaned:
-		if w == "":
-			word = word
-		elif w == "\n":
-			word = word
-		elif w == "\t":
-			word = word
-		else:
-			word += 1 
+	#text_cleaned_punc = del_punctuation(text)
+	#text_cleaned = re.findall(r"[\w']+", text_cleaned_punc)
+	text_splitted = re.findall(r"[\w']+", text)
+	word = len(text_splitted)
+	
 	return word
 
 def create_dictionary(file_name, output):
@@ -547,10 +548,6 @@ def badge(db, file_name, output_file):
 	
 	head = dict_reader.fieldnames
 	f = ['PostId', 'BronzeBadge', 'SilverBadge', 'GoldBadge']
-	#head.append('BronzeBadge')
-	#head.append('SilverBadge')
-	#head.append('GoldBadge')
-	
 	
 	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f)
 	dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
@@ -567,18 +564,34 @@ def badge(db, file_name, output_file):
 		bronze = 0
 		silver = 0
 		gold = 0
+		tag_badges = {}
 
 		for tup in result_set:
-			if badges.has_key(tup[1]):
+			if badges.has_key(tup[1]): # The badge is predefined
 				if badges[tup[1]] == 'Bronze':
 					bronze += 1
 				if badges[tup[1]] == 'Silver':
 					silver += 1
 				if badges[tup[1]] == 'Gold':
 					gold += 1
-			#else:
-			#	p_badges.append(tup[1])
+			else: # The badge is not predefined, is a tag badge, then count the number of occurencies
+				if tag_badges.has_key(tup[1]):
+					tag_badges[tup[1]] += 1
+				else:
+					tag_badges[tup[1]] = 1
+
 					
+		for tag in tag_badges:
+			if tag_badges[tag] == 1:
+				bronze += 1
+			if tag_badges[tag] == 2:
+				bronze += 1
+				silver += 1
+			if tag_badges[tag] == 3:
+				bronze += 1
+				silver += 1
+				gold += 1
+
 		r['BronzeBadge'] = bronze
 		r['SilverBadge'] = silver
 		r['GoldBadge'] = gold
@@ -1001,19 +1014,163 @@ def conv_senti_weekday_time(input_file, output_file):
 	#count = 0
 	for row in dict_reader:
 		
-		if int(row['SentimentNegativeScore']) >= -1:
-			row['SentimentNegativeScore'] = str(0)
-		if int(row['SentimentPositiveScore']) <= 1:
-			row['SentimentPositiveScore'] = str(0)
+		row['SentimentNegativeScore'] = str((int(row['SentimentNegativeScore']) * -1) - 1)
+		row['SentimentPositiveScore'] = str(int(row['SentimentPositiveScore']) - 1)
 
 		row['Weekday'] = wd[row['Weekday']]
 		
 		row['GMTHour'] = time[row['GMTHour']]
 		
 		dict_writer.writerow(row)
+
+# Costruisce un csv con PostId, NumberOfUsersComments, TextOfUsersComments
+def userscommentsonquestions_dataset(database, output_file):
+	
+	# Inizializza il csv da scrivere
+	fieldnames = ['PostId' , 'NumberOfUsersComments', 'TextOfUsersComments']
+	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+	dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+	# Query per ottenere tutte le domande con la relativa data di accettazione della risposta qual'ora ci fosse
+	query_questions_voteDate = "select * from (select postId, ownerId, ts_voteDate from  questwithacceptedanswer_mv union select q_postID as postId, q_ownerID as ownerId, null from questions_mv) questions group by postId"
+	questions = execute_param_query(database, query_questions_voteDate)
+	
+	
+	for row in questions:
+		# row[0] = postId
+		# row[1] = ownerId
+		# row[2] = ts_voteDate
+
+		comments = []
+		w_row = {}
+		w_row['PostId'] = row[0]
+		if str(row[2]) != 'None':
+			#print row[0], ' Accepted'
+			comments = execute_param_query(database, getUsersCommentsBeforeAccDate(str(row[0]), str(row[2])))
+		else:
+			#print row[0], ' Not Accepted'
+			comments = execute_param_query(database, getUsersComments(str(row[0])))
+
 		
+		w_row['NumberOfUsersComments'] = str(comments.rowcount)
+		w_row['TextOfUsersComments'] = str()
+		for comm in comments:
+			# comm[0] = c_Id
+			# comm[1] = c_text
+			w_row['TextOfUsersComments'] += ' ' + comm[1]
+			#w_row['TextOfUsersComments'] += ' ' + unicode(comm[1], errors='ignore')
+		
+		dict_writer.writerow(w_row)
+
+
+def shift_sentiscore(input_file, output_file):
+	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
+	
+	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=dict_reader.fieldnames) # DELIMITER
+	dict_writer.writerow(dict((fn,fn) for fn in dict_reader.fieldnames)) #Scrive gli header
+
+	for row in dict_reader:
+		if row['SentimentPositiveScore'] != '0':
+			row['SentimentPositiveScore'] = str(int(row['SentimentPositiveScore']) - 1)
+
+		if row['CommentSentimentPositiveScore'] != '0':
+			row['CommentSentimentPositiveScore'] = str(int(row['CommentSentimentPositiveScore']) - 1)
+		
+		if row['SentimentNegativeScore'] != '0':
+			row['SentimentNegativeScore'] = str(int(row['SentimentNegativeScore']) + 1)
+
+		if row['CommentSentimentNegativeScore'] != '0':
+			row['CommentSentimentNegativeScore'] = str(int(row['CommentSentimentNegativeScore']) + 1)
+		
+		dict_writer.writerow(row)
+		
+		
+def categoric_to_binary(input_file, output_file, cols_to_convert=['Weekday', 'GMTHour', 'Topic']):
+	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
+	
+	f = []
+	for header in dict_reader.fieldnames:
+		if header not in rm_columns:
+			f.append(header)
+
+	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f) # DELIMITER
+	dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+
+	for row in dict_reader:
+		row_cleaned = {}
+		for field in row.keys():
+			if field not in rm_columns:
+				row_cleaned[field] = row[field]
+		#break
+		dict_writer.writerow(row_cleaned)
+
+# Salva il result set calcolando la lunghezza del titolo e del corpo
+def save_csv_body_title_len(result_set, filename):
+	f = open(filename, 'w')
+	writer = csv.writer(f)
+	#print result_set
+
+	desc = result_set.description # Prende i campi della tabella
+
+	i = 0
+	body_field = 0
+	fields = [] # crea il vettore che contiene gli header da scrivere nel csv di output
+	for d in desc:
+		if 'Body' in d[0]:
+			body_field = i # conserva l'indice del campo Body
+		if 'Title' in d[0]:
+			title_field = i # conserva l'indice del campo Title
+		fields = fields + [d[0]]
+		i += 1
+	fields.append('TitleLength')
+	fields.append('BodyLength')
+
+	writer.writerow(fields) # scrive gli header sul csv
+	total = 0
+	count = 0
+	for row in result_set: # Cicla sui record della tabella
+		total += 1
+		row_to_write = []
+		i = 0
+		
+		blen = 0
+		tlen = 0
+		for c in row:				
+			if i == body_field:
+				body = ''
+				try:
+					body = c.decode('unicode_escape').encode('ascii','ignore')
+				except UnicodeDecodeError:
+					try:
+						body = unicode(c).encode('ascii', 'ignore')
+					except Exception:
+						body = unicode(c, errors='ignore')#smart_str(corpus)
+
+				body_cleaned = clean_body(body) #smart_str(c))
+				blen = text_length(body_cleaned)
+
+				row_to_write = row_to_write + [body_cleaned]
+				count += 1
+
+			elif i == title_field:
+				tlen = text_length(c)
+				row_to_write = row_to_write + [c] # smart_str(c)
+			else:
+				row_to_write = row_to_write + [str(c)] # smart_str(c)
+			i += 1
+		row_to_write = row_to_write + [str(tlen)]
+		row_to_write = row_to_write + [str(blen)]
+		writer.writerow(row_to_write)
+	
+
+	print "Total post",total
+	print "Post processed ",count
+	return 'Done'
+
 
 questions_query = "SELECT q_postID AS PostId, q_title AS Title, q_body AS Body, q_tags AS Tags, q_postDate AS PostCreationDate, q_ownerID AS UserId, q_acceptedAnswerId AS PostAcceptedAnswerId, q_answerCount AS AnswerCount FROM questions_mv"
+
+questions_query_id_body_title_tags = "SELECT q_postID AS PostId, q_title AS Title, q_body AS Body, q_tags AS Tags FROM questions_mv"
 
 #if __name__ == 'main':
 #conv_senti_weekday_time('output/academia_fase5_cl.csv', 'output/academia_final.csv')

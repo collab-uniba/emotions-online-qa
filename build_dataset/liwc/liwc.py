@@ -10,29 +10,14 @@ classes = []
 
 body1 = "The worldwide diffusion of social media has profoundly changed the way we communicate and access information. Increasingly, people try to solve domain-specific problems through interaction on social online Question and Answer (Q&A) sites. The enormous success of Stack Overflow, a community of 2.9 million programmers asking and providing answers about code development, attests this increasing trend. One of the biggest drawbacks of communication through social media is to appropriately convey sentiment through text. While display rules for emotions exist and are widely accepted for traditional face-to-face interaction, people might not be prepared for effectively dealing with the barriers of social media to non-verbal communication. Though, emotions matter, especially in the context of online Q&A communities where social reputation is a key factor for successful knowledge sharing. As a consequence, the design of systems and mechanisms for fostering emotional awareness in computer-mediated communication is becoming an important technical and social challenge for research in computer-supported collaborative work and social computing."
 
-class MLStripper(HTMLParser):
-    def __init__(self):
-        self.reset()
-        self.fed = []
-    def handle_data(self, d):
-        self.fed.append(d)
-    def get_data(self):
-        return ''.join(self.fed)
+# JVM utilities
+def start_JVM(path_libjvm='/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/amd64/server/libjvm.so'):
+	jpype.startJVM(path_libjvm, "-ea", "-Djava.class.path="+os.path.abspath("."))
 
-def del_tags(html):
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
+def stop_JVM():
+	jpype.shutdownJVM()
+###############
 
-def del_code(html):
-	return re.sub('<code>[\s\S.]+</code>', '', html)
-
-def clean_body(html):
-	f = del_code(html)
-	return del_tags(f)
-
-def del_punctuation(text):
-	return text.translate(string.maketrans ("" , ""), string.punctuation)
 
 def load_classes():
 	f = open('LIWC.all.txt', 'r')
@@ -224,7 +209,7 @@ def affective_classes(file_name, output_file):
 			continue
 		dict_writer.writerow(r)
 
-	jpype.shutdownJVM()
+	stop_JVM()
 
 	print "Initial posts ", total
 	print "Post processed ", count
@@ -360,7 +345,7 @@ def coverage_dominance(file_name, output_file):
 	dict_writer.writerow(coverage_notacc)
 	dict_writer.writerow(dominance_acc)
 
-	jpype.shutdownJVM()
+	stop_JVM()
 
 	print "Initial posts ", total
 	print "Post processed ", count
@@ -377,7 +362,9 @@ load_classes()
 #print classes
 #print "Number of affective classes: ", len(classes)
 
-jpype.startJVM("/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/amd64/server/libjvm.so", "-ea", "-Djava.class.path="+os.path.abspath("."))
+# Automaticly start a JVM, you can comment the next line and start the JVM when you need it
+start_JVM()
+
 #affective_classes('stackoverflow_questions.csv', 'so_liwc.csv')
 #affective_classes('academia_questions.csv', 'ac_liwc.csv')
 #get_aff_classes_corpus(s)
@@ -387,4 +374,4 @@ jpype.startJVM("/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/amd64/server/libjvm.so
 
 
 #corpus_plus_acc('../build-academia/output/dataset_liwcsenti.csv', '../build-academia/output/academia_fase1.csv', 'academia_input_coverage.csv')
-coverage_dominance('academia_input_coverage.csv', 'academia_coverage.csv')
+#coverage_dominance('academia_input_coverage.csv', 'academia_coverage.csv')
