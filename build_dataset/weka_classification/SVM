@@ -34,7 +34,7 @@ CLASSIF_FILE=(
 
 echo "Processing ${1}"
 
-for i in `seq 0 8`;
+for i in `seq 0 3`;
         do
 				java -cp $WEKA weka.classifiers.meta.FilteredClassifier -F "${REMOVE_COMMAND_LIST[i]}" -c 5 -split-percentage 70  -t ${INPUT_FILE} -d ${MODEL_FILE[i]} -W "weka.classifiers.functions.SMO" -- -K weka.classifiers.functions.supportVector.PolyKernel > ${STATIST_FILE[i]}
                 
