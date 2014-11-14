@@ -1,5 +1,13 @@
 import csv
 
+# Copia solo le colonne desiderate da un file csv e rinomina il campo 'Accepted', 
+# nel caso ci fosse, in 'Successful'.
+#
+# parametri:
+#	input_file: nome del file csv da cui leggere
+#	output_file: nome del file csv su cui scrivere, il file conterrà tutte le colonne
+#		di input_file tranne quelle definite nel parametro rm_columns
+#	rm_columns: vettore che contiene i nomi delle colonne da non copiare 
 def drop_column(input_file, output_file, rm_columns):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
@@ -27,4 +35,3 @@ def drop_column(input_file, output_file, rm_columns):
 		dict_writer.writerow(row_cleaned)
 
 c = ['Title', 'Body', 'Tags', 'PostCreationDate', 'UserId', 'PostAcceptedAnswerId', 'AnswerCount', 'HasAnswer', 'NoAnswer']
-drop_column('output/academia_fase5_t10.csv', 'output/academia_fase5_t10_cl.csv', c)
