@@ -106,10 +106,18 @@ def text_length(text):
 	
 	return word
 
+def link_count(text):
+	links = re.findall("<a href", text)
+	n_links = len(links)
+
+	return n_links
+
 # Costruisce un dizionario, ordinato per frequenza descrescente,
 # delle parole contenute nei testi del file passato in input.
 # La frequenza viene calcolata come il numero di volte che la parola
 # compare nelle istanze diviso il numero di parole totali.
+# Prima di calcolare le frequenze, i testi vengono ripuliti dai tag html
+# e dal code snippet.
 #
 # parametri:
 #	file_name: file in formato csv con i campi 'Title' e 'Body' (da i quali prende il testo)
