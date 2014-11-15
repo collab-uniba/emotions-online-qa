@@ -106,6 +106,13 @@ def text_length(text):
 	
 	return word
 
+# Calcola il numero di link contenuti nel testo passato come parametro
+#
+# parametri:
+#	text: testo da analizzare
+#
+# output:
+#	numero di link trovati nel parametro text
 def link_count(text):
 	links = re.findall("<a href", text)
 	n_links = len(links)
