@@ -1,8 +1,15 @@
 #!/bin/bash
 
-# INPUT_FILE = first argoment to pass, csv file with separator ','
+# Avvia il preprocessing, la regressione logistica con la classe Logistic
+# e la regressione con la classe SMO (SVM).
+#
+# Comando per avviare lo script:
+#	./start_weka_regr /path/to/csv/file
+# Il file csv deve utilizzare il delimitatore ','
+#
+
 INPUT_FILE=${1}
-TO_WEKA_FORMAT_FILE=input_towekaformat_final.arff #The same name used in log_regr and SVM scripts
+TO_WEKA_FORMAT_FILE=input_towekaformat_final.arff #Lo stesso nome utilizzato negli script log_regr e SVM
 STARTTIME=$(date +%s)
 
 echo "Preprocessing ${INPUT_FILE}"
