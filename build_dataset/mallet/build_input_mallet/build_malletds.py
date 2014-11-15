@@ -2,6 +2,18 @@ import jpype
 import csv
 import os
 
+# Crea il file csv da dare in input al tool Mallet (senza lo stemming).
+#
+# parametri:
+#	input_file: nome del file csv da cui leggere, deve contenere i campi:
+#			- 'PostId'
+#			- 'Title' stringa che contiene il titolo
+#			- 'Body' stringa che contiene il corpo
+#			- 'Tags' stringa che contiene i tag nel formato <tag1><tag2>...<tagN>
+#	output_file: nome del file csv sul quale scrivere, il file conterrà i campi:
+#			- 'PostId'
+#			- 'Corpus' risultato della concatenazione dei campi 'Title','Body' e 'Tags' 
+#				(ripulito dai caratteri '<' '>')
 def dataset_mallet(input_file, output_file):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=',') # DELIMITER
 	
@@ -42,16 +54,25 @@ def dataset_mallet(input_file, output_file):
 	print 'Post processed: ', count
 	return 'Done'
 	
+# Crea il file csv da dare in input al tool Mallet (con lo stemming).
+#
+# parametri:
+#	input_file: nome del file csv da cui leggere, deve contenere i campi:
+#			- 'PostId'
+#			- 'Title' stringa che contiene il titolo
+#			- 'Body' stringa che contiene il corpo
+#			- 'Tags' stringa che contiene i tag nel formato <tag1><tag2>...<tagN>
+#	output_file: nome del file csv sul quale scrivere, il file conterrà i campi:
+#			- 'PostId'
+#			- 'Corpus' risultato della concatenazione dei campi 'Title','Body' e 'Tags' 
+#				(ripulito dai caratteri '<' '>') dove a tutte le parole è stata estratta
+#				la radice con l'algoritmo di Porter (tool Snowball)
 def dataset_mallet_stem(input_file, output_file):
 	jpype.startJVM("/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/amd64/server/libjvm.so", "-ea", "-Djava.class.path="+os.path.abspath("."))
 	
 	Snowball = jpype.JClass("Snowball")
 	
 	stemmer = Snowball()
-
-	#a = jpype.JString("I couldn\'t stand this tension, it c++ c# was too much for me. I thought I\'d better go home e rest, I felt terribly stressed out")
-	#out =  s.extract_stem_corpus(a)
-	#print out
 
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
@@ -106,4 +127,3 @@ def dataset_mallet_stem(input_file, output_file):
 	print 'Post skipped: ', skipped
 	return 'Done'
 
-dataset_mallet_stem('../../build-academia/output/academia_questions.csv', 'ac_input_mallet.csv')
