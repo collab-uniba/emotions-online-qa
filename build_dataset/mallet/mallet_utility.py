@@ -1,7 +1,6 @@
 import csv
 import random
 import time, sys
-from progressbar import Percentage, ProgressBar, Bar, RotatingMarker, FileTransferSpeed, ETA
 
 topic_name = {'Topic0':'Name0',
 	'Topic1':'Name1',
@@ -45,7 +44,29 @@ topic_name = {'Topic0':'Name0',
 	'Topic39':'Name39',
 	}
 
-#DON'T YOU DARE!
+# Dato il file che contiene, per ogni post, i topic con lo score corrispondente (file csv
+# in output da Mallet) seleziona quali topic superano una certa soglia.
+#
+# parametri:
+#	input_file: nome del file csv da cui leggere, il file deve contenere i campi:
+#			- 'PostId'
+#			- 'Topic0' che contiene lo score per il topic 0
+#			- 'Topic1' che contiene lo score per il topic 1
+#			- ...
+#			- 'TopicN' che contiene lo score per il topic N
+#	output_file: nome del file csv su cui scrivere i risultati, conterrà i campi:
+#			- 'PostId'
+#			- 'Name0' che ha valore 'yes' se lo score di 'Topic0' su input_file 
+#				è maggiore del parametro threshold, 'no' altrimenti
+#			- 'Name1' che ha valore 'yes' se lo score di 'Topic1' su input_file 
+#				è maggiore del parametro threshold, 'no' altrimenti
+#			- ...
+#			- 'NameN' che ha valore 'yes' se lo score di 'TopicN' su input_file 
+#				è maggiore del parametro threshold, 'no' altrimenti
+#	threshold: soglia con la quale vengono confrontati gli score dei topic
+#
+# I campi 'Name0', 'Name1', .., 'NameN' vengono presi dal dizionario globale topic_name.
+# NB: TALE FUNZIONE NON È MAI STATA UTILIZZATA
 def convert_mallet(input_file, output_file, threshold):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
@@ -88,6 +109,26 @@ def convert_mallet(input_file, output_file, threshold):
 
 # Extract n_posts (random) with the first most relevant n_topics
 #	input_file: the csv output from mallet  
+
+# Dato il file che contiene, per ogni post, i topic con lo score corrispondente (file csv
+# in output da Mallet) seleziona n post random con i rispettivi m topic con score più alto.
+#
+# parametri:
+#	input_file: nome del file csv da cui leggere, il file deve contenere i campi:
+#			- 'PostId'
+#			- 'Topic0' che contiene lo score per il topic 0
+#			- 'Topic1' che contiene lo score per il topic 1
+#			- ...
+#			- 'TopicN' che contiene lo score per il topic N
+#	output_file: nome del file csv su cui scrivere i risultati, conterrà  n_posts istanze
+#		random ed i campi:
+#			- 'PostId'
+#			- '1 topic' che contiene lo score, tra i topic, più alto per il post corrispondente
+#			- '2 topic' che contiene il secondo score, tra i topic, più alto per il post corrispondente
+#			- ...
+#			- 'n_topics topic' che contiene n_topics-esimo score, tra i topic, più alto per il post corrispondente
+#	n_topics: numero dei topic più alti che si vogliono selezionare
+#	n_posts: numero di post random che si vogliono selezionare
 def relevant_topics(input_file, output_file, n_topics, n_posts):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
@@ -104,12 +145,9 @@ def relevant_topics(input_file, output_file, n_topics, n_posts):
 		posts_line.append(random.randint(0, n_rows))
 	posts_line = sorted(posts_line)
 	
-	widgets = ['Something: ', Percentage(), ' ', Bar(marker=RotatingMarker()), ' ', ETA()] ## PROGRESS BAR
-	#pbar = ProgressBar(widgets=widgets, maxval=n_rows).start() ## PROGRESS BAR
-	
 	c = 0
 	for row in dict_reader:
-		#pbar.update(c+1)
+		
 		if c in posts_line:
 			topics = []
 			r = {}
@@ -125,23 +163,21 @@ def relevant_topics(input_file, output_file, n_topics, n_posts):
 
 			dict_writer.writerow(r)
 		c += 1
-		
-		update_progress(c, n_rows)
 
-		#time.sleep(1)
-	#pbar.finish()
-
-def update_progress(i, total):
-	point = total / 100
-	increment = total / 100
-	sys.stdout.write('\r')
-	# the exact output you're looking for:
-	#sys.stdout.write("[%-20s] %d%%" % ('='*i, 10*i))
-	sys.stdout.write("[" + "=" * (i / increment) +  " " * ((total - i)/ increment) + "]")
-	sys.stdout.flush()
-
-# Create the csv file with PostId and the relative most relevant topic (only one)
-#	input:  the csv output from mallet
+# Dato il file che contiene, per ogni post, i topic con lo score corrispondente (file csv
+# in output da Mallet) seleziona il topic con score più alto.
+#
+# parametri:
+#	input_file: nome del file csv da cui leggere, il file deve contenere i campi:
+#			- 'PostId'
+#			- 'Topic0' che contiene lo score per il topic 0
+#			- 'Topic1' che contiene lo score per il topic 1
+#			- ...
+#			- 'TopicN' che contiene lo score per il topic N
+#	output_file: nome del file csv su cui scrivere i risultati, conterrà i campi:
+#			- 'PostId'
+#			- 'Topic' che contiene l'id del topic (0,1,...,N) con score più alto
+#				per il post corrispondente
 def add_topic(input_file, output_file):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
@@ -153,7 +189,6 @@ def add_topic(input_file, output_file):
 	
 	c = 0
 	for row in dict_reader:
-		#pbar.update(c+1)
 		
 		topics = []
 		curr_topic = ''
@@ -175,11 +210,19 @@ def add_topic(input_file, output_file):
 		dict_writer.writerow(r)
 		c += 1
 		
-		#update_progress(c, n_rows)
-
-		#time.sleep(1)
-	#pbar.finish()
-
+# Seleziona n post random che hanno ricevuto una risposta accettata.
+#
+# parametri:
+#	input_file: nome del file csv da cui leggere, deve contenere almeno i campi:
+#			- 'PostId'
+#			- 'Accepted' che ha valori 'yes' se il post ha una risposta accettata, 
+#				'no' altrimenti
+#			- 'Topic' id del topic associato al post
+#	output_file: nome del file csv su cui scrivere i risultati, conterrà n_posts istanze
+#		(dove il campo 'Accepted' vale 'yes') ed i campi:
+#			- 'PostId'
+#			- 'Topic' id del topic associato al post
+#	n_posts: numero di post che si desiderano selezionare
 def rand_id_topic_acc(input_file, output_file, n_posts):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
@@ -215,6 +258,22 @@ def rand_id_topic_acc(input_file, output_file, n_posts):
 	print 'No. of output posts: ', i
 	print posts_line
 
+# Seleziona n post random che non hanno ricevuto una risposta accettata ma
+# che hanno ricevuto almeno una risposta
+#
+# parametri:
+#	input_file: nome del file csv da cui leggere, deve contenere almeno i campi:
+#			- 'PostId'
+#			- 'Accepted' che ha valori 'yes' se il post ha una risposta accettata, 
+#				'no' altrimenti
+#			- 'HasAnswer' che ha valori 'yes' se il post ha almeno una risposta, 
+#				'no' altrimenti
+#			- 'Topic' id del topic associato al post
+#	output_file: nome del file csv su cui scrivere i risultati, conterrà n_posts istanze
+#		(dove il campo 'Accepted' vale 'no' ed il campo 'HasAnswer' vale 'yes') ed i campi:
+#			- 'PostId'
+#			- 'Topic' id del topic associato al post
+#	n_posts: numero di post che si desiderano selezionare
 def rand_id_topic_hasansw_noacc(input_file, output_file, n_posts):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
@@ -250,6 +309,20 @@ def rand_id_topic_hasansw_noacc(input_file, output_file, n_posts):
 	print 'No. of output posts: ', i
 	print posts_line
 
+# Seleziona n post random che non hanno ricevuto una risposta accettata ma
+# che hanno ricevuto almeno una risposta
+#
+# parametri:
+#	input_file: nome del file csv da cui leggere, deve contenere almeno i campi:
+#			- 'PostId'
+#			- 'NoAnswer' che ha valori 'yes' se il post non ha alcuna risposta, 
+#				'no' altrimenti
+#			- 'Topic' id del topic associato al post
+#	output_file: nome del file csv su cui scrivere i risultati, conterrà n_posts istanze
+#		(dove il campo 'NoAnswer' vale 'yes') ed i campi:
+#			- 'PostId'
+#			- 'Topic' id del topic associato al post
+#	n_posts: numero di post che si desiderano selezionare
 def rand_id_topic_noansw(input_file, output_file, n_posts):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
@@ -284,10 +357,3 @@ def rand_id_topic_noansw(input_file, output_file, n_posts):
 	#print c
 	print 'No. of output posts: ', i
 	print posts_line
-
-
-#rand_id_topic_acc('../build-academia/output/academia_fase5.csv', 'rand_acc.csv', 300)
-#rand_id_topic_hasansw_noacc('../build-academia/output/academia_fase5.csv', 'rand_hasansw_noacc.csv', 160)
-#rand_id_topic_noansw('../build-academia/output/academia_fase5.csv', 'rand_hasansw_noacc.csv', 60)
-
-#relevant_topics('10_topics/academia_t10_longsw.csv', 'prova.csv', 3, 10)
