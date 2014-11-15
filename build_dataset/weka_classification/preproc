@@ -1,14 +1,17 @@
 #!/bin/bash
 
 # Preprocessing:
-# Prende il file csv e trasforma il campo topic in nominale ed elimina le classi linguistiche di LIWC che non vengono utilizzate.
-# Infine crea le directory dove verranno inseriti i risultati delle regressioni logistiche
+# Prende il file csv e lo converte in formato arff. Trasforma il campo topic in nominale ed elimina le classi linguistiche di LIWC che non vengono utilizzate.
+# Le classi LIWC che rimangono sono: AFFECT, POSEMO, POSFEEL, OPTIM, NEGEMO, ANX, ANGER, SAD, COGMECH, INSIGHT, DISCREP, INHIB, TENTAT, CERTAIN, FEEL, SOCIAL, COMM
 #
 #
 # Creare variabile d'ambiente $WEKA con
 # export WEKA=/path/to/weka.jar
+#
+# Comando per avviare lo script:
+#	./preproc /path/to/csv/file
+# Il file csv deve utilizzare il delimitatore ','
 
-#INPUT_FILE=academia_t10_final_comma.csv
 INPUT_FILE=${1}
 
 echo "Processing ${1}"
