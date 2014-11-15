@@ -19,15 +19,18 @@ import csv
 #				- 'PostId'
 #				- tutti i campi di file_name_input
 #				- tutti i campi di file_name_metric
-def merge(file_name_input, file_name_metric, output_file):
+def substitute(file_name_input, file_name_metric, delim=';', output_file, subst_fields=[]):
 	dict_reader_1 = csv.DictReader(open(file_name_input, 'r'), delimiter=';') # DELIMITER
-	dict_reader_2 = csv.DictReader(open(file_name_metric, 'r'), delimiter=';') # DELIMITER
+	dict_reader_2 = csv.DictReader(open(file_name_metric, 'r'), delimiter=delim) # DELIMITER
 	
 	head = dict_reader_1.fieldnames
-	head_2 = dict_reader_2.fieldnames
-	for h in head_2:
-		if h != 'PostId':
-			head.append(h)
+	if subst_fields == []:
+		head_2 = dict_reader_2.fieldnames
+		for h in head_2:
+			subst_fields.append(h)
+	#for h in head_2:
+	#	if h != 'PostId':
+	#		head.append(h)
 
 	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=head) # DELIMITER
 	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
@@ -35,12 +38,10 @@ def merge(file_name_input, file_name_metric, output_file):
 	for row_1 in dict_reader_1:
 		for row_2 in dict_reader_2:
 			if row_2['PostId'] == row_1['PostId']:
-				for h in head_2:
-					if h != 'PostId':
-						row_1[h] = row_2[h]
+				for h in subst_fields:
+					row_1[h] = row_2[h]
 				break		
 		
 		dict_writer.writerow(row_1)
 
 	return 'Done'
-

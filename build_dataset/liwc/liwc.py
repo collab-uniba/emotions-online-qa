@@ -19,7 +19,7 @@ def stop_JVM():
 ###############
 
 # Carica il vettore globale classes con le classi LIWC.
-# Il vettore sarà:
+# Il vettore sara':
 #	classes = ['POSEMO', 'NEGEMO', 'TENTAT', ...]
 def load_classes():
 	f = open('LIWC.all.txt', 'r')
@@ -36,7 +36,7 @@ def load_classes():
 # Carica il dizionario globale LIWC dove le chiavi sono le parole
 # ed i valori, corrispondenti alle chiavi, sono dei vettori che hanno: 
 #	- alla prima posizione un valore booleano che indica se la parola 
-#		corrispondente è una radice (True) o è una parola completa (False)
+#		corrispondente e' una radice (True) o e' una parola completa (False)
 #	- nelle restanti posizioni le classi LIWC in cui ricade la parola (chiave
 #		del dizionario)
 def load_liwc():
@@ -70,7 +70,7 @@ def load_liwc():
 #
 # output:
 #	restituisce un vettore che alla prima posizione ha un valore boolenao 
-#	che indica se la parola è una radice (True) o se è una parola completa
+#	che indica se la parola e' una radice (True) o se e' una parola completa
 #	(False) e nelle restanti posizioni le classi LIWC in cui ricade la parola
 def get_aff_classes_word(word):
 	aff_classes = []
@@ -84,7 +84,7 @@ def get_aff_classes_word(word):
 # ricadono all'interno di una classe LIWC diviso il numero di parole del testo.
 # Una parola viene cercata all'interno del dizionario LIWC secondo il seguente
 # criterio:
-#	- se la parola è contenuta nel dizionario calcola le frequenze
+#	- se la parola e' contenuta nel dizionario calcola le frequenze
 #	- altrimenti fai lo stemming della parola e calcola le frequenze
 #
 # parametri:
@@ -139,7 +139,7 @@ def get_aff_classes_corpus(corpus):
 # Calcola il numero di volte che le parole del testo ricadono all'interno di una classe LIWC.
 # Una parola viene cercata all'interno del dizionario LIWC secondo il seguente
 # criterio:
-#	- se la parola è contenuta nel dizionario calcola le frequenze
+#	- se la parola e' contenuta nel dizionario calcola le frequenze
 #	- altrimenti fai lo stemming della parola e calcola le frequenze
 #
 # parametri:
@@ -195,7 +195,7 @@ def get_aff_classes_corpus_count(corpus):
 #	file_name: nome del file csv da cui leggere i testi da analizzare, deve
 #		contenere almeno il campo 
 #			- 'PostId'
-#	output_file: nome del file su cui scrivere i risultati, conterrà:
+#	output_file: nome del file su cui scrivere i risultati, conterra':
 #			- 'PostId'
 #			- 'POSEMO' che contiene il numero di volte che le parole ricadono
 #				nella classe LIWC POSEMO, calcolato come nella funzione get_aff_classes_corpus_count
@@ -266,7 +266,7 @@ def affective_classes_POSEMO_NEGEMO_TENTAT_count(file_name, output_file, text_fi
 #	file_name: nome del file csv da cui leggere i testi da analizzare, deve
 #		contenere almeno il campo 
 #			- 'PostId'
-#	output_file: nome del file su cui scrivere i risultati, conterrà:
+#	output_file: nome del file su cui scrivere i risultati, conterra':
 #			- 'PostId'
 #			- un campo per ogni classe LIWC con le frequenze come calcolate 
 #				nella funzione get_aff_classes_corpus
@@ -344,7 +344,7 @@ def write_classes():
 #		almeno i campi:
 #			- 'PostId'
 #			- 'Accepted'
-#	output_file: nome del file csv su cui scrivere, conterrà i campi:
+#	output_file: nome del file csv su cui scrivere, conterra' i campi:
 #			- tutti i campi dal csv file_corpus
 #			- 'Accepted' dal csv file_acc
 def corpus_plus_acc(file_corpus, file_acc, output_file):
@@ -495,7 +495,7 @@ load_liwc()		# Inizializza il dizionario globale LIWC
 load_classes()	# Inizializza il vettore globale classes
 
 
-# Avvia la JVM nel momento in cui viene importato il file come libreria, si può commentare tale riga e avviarla solo quando necessario
+# Avvia la JVM nel momento in cui viene importato il file come libreria, si puo' commentare tale riga e avviarla solo quando necessario
 start_JVM() 
 
 #affective_classes('stackoverflow_questions.csv', 'so_liwc.csv')

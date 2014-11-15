@@ -205,13 +205,13 @@ def execute_param_query(database, query):
 # parametri:
 #	file_name: nome del file csv da cui leggere la data; tale
 #				file deve contenere almeno i campi 'PostId' e 'PostCreationDate';
-#				il formato della data, del campo 'PostCreationDate', è
+#				il formato della data, del campo 'PostCreationDate', e'
 #				del tipo '2014-01-30 21:30'
-#	output_file: nome del file csv su cui scrivere i risultati; conterrà
+#	output_file: nome del file csv su cui scrivere i risultati; conterra'
 #					i campi:
 #					- 'PostId'
 #					- 'Weekday' con valori: 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'
-#					- 'GMTHour' che contiene solo l'ora e quindi può assumere
+#					- 'GMTHour' che contiene solo l'ora e quindi puo' assumere
 #							valori: 00,01,02,03,...,23
 def weekday(file_name, output_file):
 	dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';') # DELIMITER
@@ -252,10 +252,10 @@ def weekday(file_name, output_file):
 # parametri:
 #	file_name: nome del file csv da leggere; deve contenere almeno i campi:
 #				- 'PostId'
-#				- 'PostAcceptedAnswerId' id della risposta accettata se c'è, None 
+#				- 'PostAcceptedAnswerId' id della risposta accettata se c'e', None 
 #					altrimenti
 #				- 'AnswerCount' numero delle risposte alla domanda
-#	output_file: nome del file su cui scrivere i riusltati, conterrà i campi:
+#	output_file: nome del file su cui scrivere i riusltati, conterra' i campi:
 #				- 'PostId'
 #				- 'Accepted' con valori 'yes' se il campo PostAcceptedAnswerId contiene
 #					un id, 'no'	se contiene 'None'
@@ -944,7 +944,7 @@ def tag_badges(db, outfile):
 # parametri:
 #	result_set: oggetto ritornato dalla funzione execute_param_query
 #	filename: nome del file in formato csv su cui scrivere il result_set,
-#		il file conterrà gli stessi campi del result set
+#		il file conterra' gli stessi campi del result set
 #
 # NON GESTISCE I CARATTERI UNICODE. NON UTILIZZARE
 def save_csv(result_set, filename):
@@ -974,10 +974,10 @@ def save_csv(result_set, filename):
 #	result_set: oggetto ritornato dalla funzione execute_param_query, tale
 #		result set deve contenere almeno il campo 'Body'
 #	filename: nome del file in formato csv su cui scrivere il result_set,
-#		il file conterrà: 
+#		il file conterra': 
 #			- gli stessi campi del result set con il campo 'Body' ripulito 
 #				dai tag html e dal code snippet
-#			- il campo 'CodeSnippet' che avrà valore 'yes' se il campo 'Body'
+#			- il campo 'CodeSnippet' che avra' valore 'yes' se il campo 'Body'
 #				contiene il tag <code>, 'no' altrimenti
 def save_csv_code_snip(result_set, filename):
 	f = open(filename, 'w')
@@ -1054,7 +1054,7 @@ def save_csv_code_snip(result_set, filename):
 #			- 'PostId'
 #			- 'Title' campo contenente il titolo 
 #			- 'Body' campo contenente il corpo
-#	output_file: nome del file csv su cui scrivere i risultati, conterrà i campi:
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' i campi:
 #			- 'PostId'
 #			- 'TitleLength' numero di parole del campo 'Title'
 #			- 'BodyLength' numero di parole del campo 'Body'
@@ -1132,9 +1132,9 @@ def split(file_name, out_dir, n):
 
 # Esegue una funzione, come thread, che prende in input il nome
 # del database, il nome del file csv da cui leggere ed il nome 
-# del file csv su cui scrivere. run_threads avvierà tanti thread
+# del file csv su cui scrivere. run_threads avviera' tanti thread
 # quanti sono i file csv contenuti nella directory da cui leggere.
-# In particolare, run_threads, è usata per avviare la stessa funzione 
+# In particolare, run_threads, e' usata per avviare la stessa funzione 
 # da eseguire sui file csv splittati dalla funzione split().
 #
 # parametri:
@@ -1194,7 +1194,7 @@ def m(input_dir, out_file):
 #			- 'PostId'
 #			- 'Title' titolo del post
 #			- 'Body' corpo del post
-#	output_file: nome del file csv su cui scrivere, conterrà i campi:
+#	output_file: nome del file csv su cui scrivere, conterra' i campi:
 #			- 'PostId'
 #			- 'Corpus' che ha la concatenazione del campo 'Title' con il campo 'Body'
 def dataset_liwc_senti(input_file, output_file):
@@ -1255,14 +1255,14 @@ def dataset_liwc_senti(input_file, output_file):
 #
 # parametri:
 #	input_file: nome del file da cui leggere, deve contenere almeno i campi:
-#			- 'Weekday' che può contenere valori {'Monday','Tuesday','Wednesday',
+#			- 'Weekday' che puo' contenere valori {'Monday','Tuesday','Wednesday',
 #				'Thursday','Friday','Saturday','Sunday'}
-#			- 'GMTHour' che può contenere valori {'00','01','02','03','04','05',
+#			- 'GMTHour' che puo' contenere valori {'00','01','02','03','04','05',
 #				'06','07','08','09','10','11','12','13','14','15','16','17','18',
 #				'19','20','21','22','23'}
 #			- 'SentimentNegativeScore' con valori da -1 a -5
 #			- 'SentimentPositiveScore' con valori da 1 a 5
-#	output_file: nome del file csv su cui scrivere, conterrà tutti i campi del file
+#	output_file: nome del file csv su cui scrivere, conterra' tutti i campi del file
 #		input_file, con i campi 'Weekday', 'GMTHour', 'SentimentNegativeScore' e
 #		'SentimentPositiveScore' convertiti
 def conv_senti_weekday_time(input_file, output_file):
@@ -1304,7 +1304,7 @@ def conv_senti_weekday_time(input_file, output_file):
 #
 # parametri:
 #	database: nome del database da interrogare
-#	output_file: nome del file csv su cui scrivere i risultati, conterrà i campi:
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' i campi:
 #			- 'PostId'
 #			- 'NumberOfUsersComments' numero di commenti
 #			- 'TextOfUsersComments' testo dei commenti trovati
@@ -1381,8 +1381,8 @@ def shift_sentiscore(input_file, output_file):
 # 
 # parametri:
 #	input_file: nome del file csv da cui leggere
-#	output_file: nome del file csv su cui scrivere, conterrà tutti i campi del file input_file
-#		ed in più, per ogni colonna che si vuole convertire le colonne codificate
+#	output_file: nome del file csv su cui scrivere, conterra' tutti i campi del file input_file
+#		ed in piu', per ogni colonna che si vuole convertire le colonne codificate
 #	cols_to_convert: vettore con i nomi delle colonne da codificare
 def categoric_to_binary(input_file, output_file, cols_to_convert=['Weekday', 'GMTHour', 'Topic']):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
@@ -1409,7 +1409,7 @@ def categoric_to_binary(input_file, output_file, cols_to_convert=['Weekday', 'GM
 #	result_set: oggetto ritornato dalla funzione execute_param_query, tale
 #		result set deve contenere almeno il campo 'Body'
 #	filename: nome del file in formato csv su cui scrivere il result_set,
-#		il file conterrà: 
+#		il file conterra': 
 #			- gli stessi campi del result set con il campo 'Body' ripulito 
 #				dai tag html e dal code snippet
 #			- il campo 'TitleLength' con il numero di parole del campo Title
@@ -1476,6 +1476,62 @@ def save_csv_body_title_len(result_set, filename):
 	print "Post processed ",count
 	return 'Done'
 
+def n_of_link(database, output_file):
+	
+	f = ['PostId', 'URL']
+	writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f) # DELIMITER
+	writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+
+	questions_body = "SELECT q_postID AS PostId, q_body AS Body FROM questions_mv"
+	result_set = execute_param_query(database, questions_body)
+	desc = result_set.description # Prende i campi della tabella
+
+	i = 0
+	body_field = 0
+	fields = [] # crea il vettore che contiene gli header da scrivere nel csv di output
+	for d in desc:
+		if 'Body' in d[0]:
+			body_field = i # conserva l'indice del campo Body
+		if 'PostId' in d[0]:
+			postid_field = i # conserva l'indice del campo Title
+		fields = fields + [d[0]]
+		i += 1
+	
+	total = 0
+	count = 0
+	for row in result_set: # Cicla sui record della tabella
+		total += 1
+		row_to_write = {}
+		row_to_write['URL'] = str(0)
+		i = 0
+		
+		for c in row:				
+			if i == body_field:
+				body = ''
+				try:
+					body = c.decode('unicode_escape').encode('ascii','ignore')
+				except UnicodeDecodeError:
+					try:
+						body = unicode(c).encode('ascii', 'ignore')
+					except Exception:
+						body = unicode(c, errors='ignore')
+
+				n_link = link_count(body)
+
+				row_to_write['URL'] = str(n_link)
+				count += 1
+
+			elif i == postid_field:
+				row_to_write['PostId'] = str(c)
+				
+			i += 1
+		
+		writer.writerow(row_to_write)
+	
+
+	print "Total post",total
+	print "Post processed ",count
+	return 'Done'
 
 questions_query = "SELECT q_postID AS PostId, q_title AS Title, q_body AS Body, q_tags AS Tags, q_postDate AS PostCreationDate, q_ownerID AS UserId, q_acceptedAnswerId AS PostAcceptedAnswerId, q_answerCount AS AnswerCount FROM questions_mv"
 

@@ -54,19 +54,19 @@ topic_name = {'Topic0':'Name0',
 #			- 'Topic1' che contiene lo score per il topic 1
 #			- ...
 #			- 'TopicN' che contiene lo score per il topic N
-#	output_file: nome del file csv su cui scrivere i risultati, conterrà i campi:
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' i campi:
 #			- 'PostId'
 #			- 'Name0' che ha valore 'yes' se lo score di 'Topic0' su input_file 
-#				è maggiore del parametro threshold, 'no' altrimenti
+#				e' maggiore del parametro threshold, 'no' altrimenti
 #			- 'Name1' che ha valore 'yes' se lo score di 'Topic1' su input_file 
-#				è maggiore del parametro threshold, 'no' altrimenti
+#				e' maggiore del parametro threshold, 'no' altrimenti
 #			- ...
 #			- 'NameN' che ha valore 'yes' se lo score di 'TopicN' su input_file 
-#				è maggiore del parametro threshold, 'no' altrimenti
+#				e' maggiore del parametro threshold, 'no' altrimenti
 #	threshold: soglia con la quale vengono confrontati gli score dei topic
 #
 # I campi 'Name0', 'Name1', .., 'NameN' vengono presi dal dizionario globale topic_name.
-# NB: TALE FUNZIONE NON È MAI STATA UTILIZZATA
+# NB: TALE FUNZIONE NON e' MAI STATA UTILIZZATA
 def convert_mallet(input_file, output_file, threshold):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
@@ -111,7 +111,7 @@ def convert_mallet(input_file, output_file, threshold):
 #	input_file: the csv output from mallet  
 
 # Dato il file che contiene, per ogni post, i topic con lo score corrispondente (file csv
-# in output da Mallet) seleziona n post random con i rispettivi m topic con score più alto.
+# in output da Mallet) seleziona n post random con i rispettivi m topic con score piu' alto.
 #
 # parametri:
 #	input_file: nome del file csv da cui leggere, il file deve contenere i campi:
@@ -120,14 +120,14 @@ def convert_mallet(input_file, output_file, threshold):
 #			- 'Topic1' che contiene lo score per il topic 1
 #			- ...
 #			- 'TopicN' che contiene lo score per il topic N
-#	output_file: nome del file csv su cui scrivere i risultati, conterrà  n_posts istanze
+#	output_file: nome del file csv su cui scrivere i risultati, conterra'  n_posts istanze
 #		random ed i campi:
 #			- 'PostId'
-#			- '1 topic' che contiene lo score, tra i topic, più alto per il post corrispondente
-#			- '2 topic' che contiene il secondo score, tra i topic, più alto per il post corrispondente
+#			- '1 topic' che contiene lo score, tra i topic, piu' alto per il post corrispondente
+#			- '2 topic' che contiene il secondo score, tra i topic, piu' alto per il post corrispondente
 #			- ...
-#			- 'n_topics topic' che contiene n_topics-esimo score, tra i topic, più alto per il post corrispondente
-#	n_topics: numero dei topic più alti che si vogliono selezionare
+#			- 'n_topics topic' che contiene n_topics-esimo score, tra i topic, piu' alto per il post corrispondente
+#	n_topics: numero dei topic piu' alti che si vogliono selezionare
 #	n_posts: numero di post random che si vogliono selezionare
 def relevant_topics(input_file, output_file, n_topics, n_posts):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
@@ -165,7 +165,7 @@ def relevant_topics(input_file, output_file, n_topics, n_posts):
 		c += 1
 
 # Dato il file che contiene, per ogni post, i topic con lo score corrispondente (file csv
-# in output da Mallet) seleziona il topic con score più alto.
+# in output da Mallet) seleziona il topic con score piu' alto.
 #
 # parametri:
 #	input_file: nome del file csv da cui leggere, il file deve contenere i campi:
@@ -174,9 +174,9 @@ def relevant_topics(input_file, output_file, n_topics, n_posts):
 #			- 'Topic1' che contiene lo score per il topic 1
 #			- ...
 #			- 'TopicN' che contiene lo score per il topic N
-#	output_file: nome del file csv su cui scrivere i risultati, conterrà i campi:
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' i campi:
 #			- 'PostId'
-#			- 'Topic' che contiene l'id del topic (0,1,...,N) con score più alto
+#			- 'Topic' che contiene l'id del topic (0,1,...,N) con score piu' alto
 #				per il post corrispondente
 def add_topic(input_file, output_file):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
@@ -218,7 +218,7 @@ def add_topic(input_file, output_file):
 #			- 'Accepted' che ha valori 'yes' se il post ha una risposta accettata, 
 #				'no' altrimenti
 #			- 'Topic' id del topic associato al post
-#	output_file: nome del file csv su cui scrivere i risultati, conterrà n_posts istanze
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' n_posts istanze
 #		(dove il campo 'Accepted' vale 'yes') ed i campi:
 #			- 'PostId'
 #			- 'Topic' id del topic associato al post
@@ -269,7 +269,7 @@ def rand_id_topic_acc(input_file, output_file, n_posts):
 #			- 'HasAnswer' che ha valori 'yes' se il post ha almeno una risposta, 
 #				'no' altrimenti
 #			- 'Topic' id del topic associato al post
-#	output_file: nome del file csv su cui scrivere i risultati, conterrà n_posts istanze
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' n_posts istanze
 #		(dove il campo 'Accepted' vale 'no' ed il campo 'HasAnswer' vale 'yes') ed i campi:
 #			- 'PostId'
 #			- 'Topic' id del topic associato al post
@@ -318,7 +318,7 @@ def rand_id_topic_hasansw_noacc(input_file, output_file, n_posts):
 #			- 'NoAnswer' che ha valori 'yes' se il post non ha alcuna risposta, 
 #				'no' altrimenti
 #			- 'Topic' id del topic associato al post
-#	output_file: nome del file csv su cui scrivere i risultati, conterrà n_posts istanze
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' n_posts istanze
 #		(dove il campo 'NoAnswer' vale 'yes') ed i campi:
 #			- 'PostId'
 #			- 'Topic' id del topic associato al post

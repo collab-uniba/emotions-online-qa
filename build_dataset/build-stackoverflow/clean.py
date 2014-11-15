@@ -5,7 +5,7 @@ import csv
 #
 # parametri:
 #	input_file: nome del file csv da cui leggere
-#	output_file: nome del file csv su cui scrivere, il file conterrà tutte le colonne
+#	output_file: nome del file csv su cui scrivere, il file conterra' tutte le colonne
 #		di input_file tranne quelle definite nel parametro rm_columns
 #	rm_columns: vettore che contiene i nomi delle colonne da non copiare 
 def drop_column(input_file, output_file, rm_columns):

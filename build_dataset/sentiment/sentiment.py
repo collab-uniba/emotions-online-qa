@@ -36,11 +36,11 @@ def stop_JVM():
 #	file_name: nome del file csv contenente i testi da analizzare, deve contenere almeno:
 #			- 'PostId'
 #			- il campo con il testo da analizzare
-#	output_file: nome del file csv su cui scrivere i risultati, conterrà i campi:
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' i campi:
 #			- 'PostId'
-#			- 'SentimentPositiveScore' con valore nell'intervallo [1,5], conterrà valore
+#			- 'SentimentPositiveScore' con valore nell'intervallo [1,5], conterra' valore
 #				'None' se il calcolo non va a buon fine
-#			- 'SentimentNegativeScore' con valore nell'intervallo [-1,-5], conterrà valore
+#			- 'SentimentNegativeScore' con valore nell'intervallo [-1,-5], conterra' valore
 #				'None' se il calcolo non va a buon fine
 #	text_field: nome del campo che contiene il testo che si vuole analizzare
 def sentiment(file_name, output_file, textfield='Corpus'):
@@ -99,13 +99,13 @@ def sentiment(file_name, output_file, textfield='Corpus'):
 #			- 'PostId'
 #			- 'TextOfUsersComments' contiene il testo da analizzare
 #			- 'NumberOfUsersComments'
-#	output_file: nome del file csv su cui scrivere i risultati, conterrà i campi:
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' i campi:
 #			- 'PostId'
 #			- 'NumberOfUsersComments'
 #			- 'CommentSentimentPositiveScore' con valore nell'intervallo [1,5] risultato del calcolo
-#				sul campo 'TextOfUsersComments', conterrà valore 'None' se il calcolo non va a buon fine
+#				sul campo 'TextOfUsersComments', conterra' valore 'None' se il calcolo non va a buon fine
 #			- 'CommentSentimentNegativeScore' con valore nell'intervallo [-1,-5] risultato del calcolo
-#				sul campo 'TextOfUsersComments', conterrà valore 'None' se il calcolo non va a buon fine
+#				sul campo 'TextOfUsersComments', conterra' valore 'None' se il calcolo non va a buon fine
 def sentiment_comments(file_name, output_file):
 	dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';')
 	
@@ -159,7 +159,7 @@ def sentiment_comments(file_name, output_file):
 	print "Skipped: ", skipped
 	return 'Done'
 
-# Avvia la JVM nel momento in cui viene importato il file come libreria, si può commentare tale riga e avviarla solo quando necessario
+# Avvia la JVM nel momento in cui viene importato il file come libreria, si puo' commentare tale riga e avviarla solo quando necessario
 start_JVM()
 
 # S = carica la classe Sentiment
