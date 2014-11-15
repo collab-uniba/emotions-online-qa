@@ -1,6 +1,22 @@
 #!/bin/bash
 
 ##### SVM #####
+# Avvia la regressione logistica con SVM per quattro diversi gruppi di feature.
+# Nella directory new_classif saranno contenute quattro directory, ognuna 
+# corrispondente ad un gruppo di feature. In ogni directory verranno scritti
+# i seguenti file:
+#	- SVM.model: file che contiene il modello di regressione estratto
+#	- SVM.stat: file che contiene le statistiche risulatnti dalla classificazione
+#	- SVM.classif.csv: file che contiene le istanze di test con l'etichetta 
+#		della classe a cui appartiene e l'etichetta della classe che è stata asseganta
+#		dalla classificazione
+#
+# Il dataset in input viene splittato in 70% istanze di training e 30% istanze di test.
+# Viene utilizzato un kernel polinomiale.
+#
+# Comando per avviare lo script:
+#	./SVM /path/to/arff/file
+#
 # Creare variabile d'ambiente $WEKA con
 # export WEKA=/path/to/weka.jar
 
