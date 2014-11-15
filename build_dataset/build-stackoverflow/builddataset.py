@@ -1476,6 +1476,13 @@ def save_csv_body_title_len(result_set, filename):
 	print "Post processed ",count
 	return 'Done'
 
+# Calcola il numero di link presenti in ogni post.
+#
+# parametri:
+#	database: nome del database da interrogare
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' i campi:
+#			- 'PostId'
+#			- 'URL' numero di link identificati nel corpo del post corrispondente
 def n_of_link(database, output_file):
 	
 	f = ['PostId', 'URL']
