@@ -1,6 +1,10 @@
 # Funzione che presi in input due modelli di regressione logistica, 
 # di tipo bigglm, calcola il likelihood ratio test come nel codice 
 # della funzione lrtest nel package epicalc.
+#
+# parametri:
+#	null_model: modello di regressione logistica di tipo bigglm
+#	model: modello di regressione logistica di tipo bigglm
 
 likelihood_ratio.bigglm <- function(null_model, model){
 
