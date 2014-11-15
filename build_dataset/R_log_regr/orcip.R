@@ -3,6 +3,9 @@
 #	- l'esponente del coefficente
 #	- l'esponente dell'intervallo di confidenza
 #	- il Chi2 ed il p-value per il Wald test
+#
+# parametri:
+#	logit_model: modello di regressione logistica di tipo bigglm
 
 orcipwald.bigglm <- function(logit_model){
 
