@@ -23,7 +23,8 @@ def substitute(file_name_input, file_name_metric, output_file, delim=';', subst_
 	if subst_fields == []:
 		head_2 = dict_reader_2.fieldnames
 		for h in head_2:
-			subst_fields.append(h)
+			if h != 'PostId':
+				subst_fields.append(h)
 	#for h in head_2:
 	#	if h != 'PostId':
 	#		head.append(h)
