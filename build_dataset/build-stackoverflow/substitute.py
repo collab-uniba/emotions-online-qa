@@ -11,13 +11,14 @@ import csv
 #	output_file: nome del file su cui scrivere, conterra' i campi:
 #				- 'PostId'
 #				- tutti i campi di file_name_input aggiornati
-#	delim: delimitatore da utilizzare per aprire file_name_metric
+#	delim_input: delimitatore da utilizzare per aprire file_name_input
+#	delim_metr: delimitatore da utilizzare per aprire file_name_metric
 #	subst_fields: vettore che contiene i nomi dei campi che si vogliono sostituire, tali campi devono
 #		essere presenti sia in file_name_input sia in file_name_metric; se tale vettore e' vuoto
 #		vengono considerati tutti i campi di file_name_metric
-def substitute(file_name_input, file_name_metric, output_file, delim=';', subst_fields=[]):
-	dict_reader_1 = csv.DictReader(open(file_name_input, 'r'), delimiter=';') # DELIMITER
-	dict_reader_2 = csv.DictReader(open(file_name_metric, 'r'), delimiter=delim) # DELIMITER
+def substitute(file_name_input, file_name_metric, output_file, delim_input=';', delim_metr=';', subst_fields=[]):
+	dict_reader_1 = csv.DictReader(open(file_name_input, 'r'), delimiter=delim_input) # DELIMITER
+	dict_reader_2 = csv.DictReader(open(file_name_metric, 'r'), delimiter=delim_metr) # DELIMITER
 	
 	head = dict_reader_1.fieldnames
 	if subst_fields == []:
@@ -25,10 +26,7 @@ def substitute(file_name_input, file_name_metric, output_file, delim=';', subst_
 		for h in head_2:
 			if h != 'PostId':
 				subst_fields.append(h)
-	#for h in head_2:
-	#	if h != 'PostId':
-	#		head.append(h)
-
+	
 	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=head) # DELIMITER
 	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
 	
