@@ -315,6 +315,8 @@ def affective_classes(file_name, output_file, text_field='Corpus'):
 			count += 1
 		except Exception:
 			#print r['PostId']
+			for c in classes:
+				r[c] = str(0)
 			dict_writer.writerow(r)
 			skipped += 1
 			continue
