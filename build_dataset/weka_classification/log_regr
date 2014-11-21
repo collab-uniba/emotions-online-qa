@@ -1,0 +1,72 @@
+#!/bin/bash
+
+##### Logistic regression #####
+# Avvia la regressione logistica per quattro diversi gruppi di feature.
+# Nella directory new_classif saranno contenute quattro directory, ognuna 
+# corrispondente ad un gruppo di feature. In ogni directory verranno scritti
+# i seguenti file:
+#	- Logistic.model: file che contiene il modello di regressione estratto
+#	- Logistic.stat: file che contiene le statistiche risulatnti dalla classificazione
+#	- Logistic.classif.csv: file che contiene le istanze di test con l'etichetta 
+#		della classe a cui appartiene e l'etichetta della classe che è stata asseganta
+#		dalla classificazione
+#
+# Il dataset in input viene splittato in 70% istanze di training e 30% istanze di test.
+# Il parametro ridge è impostato a 0
+#
+# Comando per avviare lo script:
+#	./log_regr /path/to/arff/file
+#
+# Creare variabile d'ambiente $WEKA con
+# export WEKA=/path/to/weka.jar
+
+#INPUT_FILE=input_towekaformat_final.arff
+
+mkdir new_classif
+mkdir new_classif/all/
+mkdir new_classif/all_postprop/
+mkdir new_classif/all_social/
+mkdir new_classif/all_affect/
+
+INPUT_FILE=${1}
+
+
+REMOVE_COMMAND_LIST=(
+				"weka.filters.unsupervised.attribute.Remove -R 2-13,15,18,26,31-34 -V" # All
+				"weka.filters.unsupervised.attribute.Remove -R 5,8-13,15,18,26,32-34 -V" # All - Post Properties
+				"weka.filters.unsupervised.attribute.Remove -R 2-7,12,13,15,18,26,31,33,34 -V" # All - Social Factors
+				"weka.filters.unsupervised.attribute.Remove -R 2-11,31,32 -V" # All - Affect
+					)
+
+MODEL_FILE=(
+				new_classif/all/Logistic.model
+				new_classif/all_postprop/Logistic.model
+				new_classif/all_social/Logistic.model
+				new_classif/all_affect/Logistic.model
+			)
+
+STATIST_FILE=(
+				new_classif/all/Logistic.stat
+				new_classif/all_postprop/Logistic.stat
+				new_classif/all_social/Logistic.stat
+				new_classif/all_affect/Logistic.stat
+			)
+
+CLASSIF_FILE=(
+				new_classif/all/Logistic.classif.csv
+				new_classif/all_postprop/Logistic.classif.csv
+				new_classif/all_social/Logistic.classif.csv
+				new_classif/all_affect/Logistic.classif.csv
+			)
+
+echo "Processing ${1}"
+
+for i in `seq 0 3`;
+        do
+                java -cp $WEKA weka.classifiers.meta.FilteredClassifier -F "${REMOVE_COMMAND_LIST[i]}" -c 5 -split-percentage 70  -t ${INPUT_FILE}  -d ${MODEL_FILE[i]} > ${STATIST_FILE[i]} -W "weka.classifiers.functions.Logistic" -- -R 0
+
+		java -cp $WEKA weka.classifiers.meta.FilteredClassifier -F "${REMOVE_COMMAND_LIST[i]}" -c 5 -split-percentage 70  -t ${INPUT_FILE} -classifications "weka.classifiers.evaluation.output.prediction.CSV -p first-last -file ${CLASSIF_FILE[i]} -suppress" -W "weka.classifiers.functions.Logistic" -- -R 0
+        done
+
+
+#####  END Logistic regression #####
