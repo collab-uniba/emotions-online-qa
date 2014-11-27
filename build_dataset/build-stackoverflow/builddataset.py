@@ -1198,7 +1198,7 @@ def m(input_dir, out_file):
 #			- 'PostId'
 #			- 'Corpus' che ha la concatenazione del campo 'Title' con il campo 'Body'
 def dataset_liwc_senti(input_file, output_file):
-	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=',') # DELIMITER
+	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
 	head = dict_reader.fieldnames
 	f = ['PostId', 'Corpus']
