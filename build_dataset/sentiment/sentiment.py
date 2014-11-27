@@ -46,7 +46,7 @@ def stop_JVM():
 def sentiment(file_name, output_file, textfield='Corpus'):
 	dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';')
 	
-	f = [postId, 'SentimentPositiveScore', 'SentimentNegativeScore']
+	f = ['PostId', 'SentimentPositiveScore', 'SentimentNegativeScore']
 	
 	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f)
 	dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
