@@ -1,10 +1,16 @@
 # Copyright (c) 2013 Georgios Gousios
 # MIT-licensed
 
-drop database stackoverflow; 
-create database stackoverflow DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+# ERRORE RISCONTRATO: quando si esegue in mysql 'source dump.sql'
+# ERROR 13 (HY000): Can't get stat of '/mnt/workingdir/stackoverflow_dump/Badges.xml' (Errcode: 13)
+#
+# SOLUZIONE
+# sudo chown mysql:mysql /mnt/workingdir/stackoverflow_dump/ -R
+
+drop database academia; 
+create database academia DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
  
-use stackoverflow;
+use academia;
  
 create table Badges (
 Id INT NOT NULL PRIMARY KEY,
@@ -94,7 +100,7 @@ RelatedPostId INT,
 LinkTypeId INT
 );
  
-load xml  infile '/mnt/workingdir/stackoverflow_dump/Badges.xml'
+load xml infile '/mnt/workingdir/stackoverflow_dump/Badges.xml'
 into table Badges
 rows identified by '<row>';
  
