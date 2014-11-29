@@ -1,0 +1,4 @@
+Sono richiesti i seguenti requisiti:
+- python-mysqldb
+- python-jpype
+- java-7-openjdk-amd64
