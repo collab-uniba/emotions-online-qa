@@ -7,10 +7,10 @@
 # SOLUZIONE
 # sudo chown mysql:mysql /mnt/workingdir/stackoverflow_dump/ -R
 
-drop database academia; 
-create database academia DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+drop database stackoverflow; 
+create database stackoverflow DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
  
-use academia;
+use stackoverflow;
  
 create table Badges (
 Id INT NOT NULL PRIMARY KEY,
