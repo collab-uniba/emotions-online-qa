@@ -3,7 +3,6 @@ from HTMLParser import HTMLParser
 import string
 import jpype
 import os
-from django.utils.encoding import smart_str
 
 LIWC = {}
 classes = []
