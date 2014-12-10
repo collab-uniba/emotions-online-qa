@@ -15,7 +15,7 @@ def del_punctuation(text):
 #	output: file csv con la colonna delle parole e la colonna delle frequenze
 def create_dictionary(file_name, output):
 	print "Processing..."
-	dict_reader = csv.DictReader(open(file_name, 'r'))
+	dict_reader = csv.DictReader(open(file_name, 'r'),delimiter=';')
 
 	dictionary = {}
 	n_word = 0
