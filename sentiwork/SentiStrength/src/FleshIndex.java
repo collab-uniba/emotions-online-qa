@@ -84,6 +84,19 @@ public static int countCharacters(String word) {
     return ch;
 }
 
+
+public static int countWords(String content){
+	//conta le parole in un testo
+    int words = 0;	
+    String wordDelim = ".,':;?{}[]=-+_!@#$%^&*() ";
+    StringTokenizer wordTokenizer = new StringTokenizer(content,wordDelim);
+    words = wordTokenizer.countTokens();
+    
+    return words;
+	
+}
+
+
 public static int countSentences(String content){
 	//conta le frasi in un testo
     int sentences = 0;	
