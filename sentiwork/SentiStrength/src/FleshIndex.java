@@ -28,7 +28,7 @@ public class FleshIndex {
     sentences = sentenceTokenizer.countTokens();
     
     //calculate flesch index
-    final float f1 = (float) 206.835;
+    calcfinal float f1 = (float) 206.835;
     final float f2 = (float) 84.6;
     final float f3 = (float) 1.015;
     float r1 = (float) syllables / (float) words;
@@ -52,6 +52,44 @@ public class FleshIndex {
 
     
   }
+
+public static float getARI (String text){
+	
+	int sentence = 0;
+	int words = 0;
+	int characters = 0;
+	
+	String delimmiters = ".,':;?{}[]=-+_!@#$%^&*() ";
+	StringTokenizer tokenizer = new StringTokenizer(text, delimiters);
+	while (tokenizer.hasMoreTokens())
+	{
+		String word = tokenizer.nextToken();
+		characters += countCharacters(word);
+		words++;
+	}
+	//look for sentence delimiters
+	    String sentenceDelim = ".:;?!";
+	    StringTokenizer sentenceTokenizer = new StringTokenizer(text,sentenceDelim);
+	    sentences = sentenceTokenizer.countTokens();
+	    
+	    //calculate Automated Reading Index
+	    final float f1 = (float) 4.71;
+	    final float f2 = (float) 0.5;
+	    final float f3 = (float) 21.43;
+	    float r1 = (float) characters / (float) words;
+	    float r2 = (float) words / (float) sentences;
+	    float ARI = (f1 * r1) + (f2 * r2) - f3;
+	    
+	return ARI;
+}
+
+//conta caratteri in una parola
+public static int countCharacters(String word) {
+	
+    int ch = word.length();
+    return ch;
+}
+
 
   public static float getFleschEaseIndex(String text){
 
