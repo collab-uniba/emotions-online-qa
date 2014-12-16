@@ -57,7 +57,8 @@ public static float getCLI (String text){
 
 	int sentence = 0;
 	int words = 0;
-	int characters = 0;
+	int charactersL = 0;
+	int charactsS = 0;
 
 	String delimmiters = ".,':;?{}[]=-+_!@#$%^&*() ";
 	StringTokenizer tokenizer = new StringTokenizer(text, delimiters);
@@ -65,12 +66,22 @@ public static float getCLI (String text){
 	for (int i = 1; i <= 100; i++)
 	    {
     		String word = tokenizer.nextToken();
-		characters += countCharacters(word);
+		charactersL += countCharacters(word);
     		}
-    		int L = characters/100; //media caratteri in 100 parole
+    		int L = charactersL/100; //media caratteri in 100 parole
 	//manca calcolo S, media del numero di frasi per 100 parole
-	    sentences = countSentences(text);
-	    int S =0;
+	
+	for (int j = 1; j <= 100; j++)
+	    {
+    		String word = tokenizer.nextToken();
+		charactersS += countCharacters(word);
+    		}
+    		int subS = charactersS+100
+    		String subStr = subStr.substring(0,subS);
+	    	sentences = countSentences(subStr);
+	    
+	    int S = sentences/100; //numero di frasi medio ogni 100 parole
+
 	    //calculate Coleman Liaw Index
 	    final float f1 = (float) 0.588;
 	    final float f2 = (float) 0.296;
