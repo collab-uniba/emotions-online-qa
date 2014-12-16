@@ -50,6 +50,40 @@ public class FleshIndex {
     
   }
 
+/*
+public static float getCLI (String text){
+// metodo per calcolare indice di readability 
+// Coleman Liaw Index
+
+	int sentence = 0;
+	int words = 0;
+	int characters = 0;
+
+	String delimmiters = ".,':;?{}[]=-+_!@#$%^&*() ";
+	StringTokenizer tokenizer = new StringTokenizer(text, delimiters);
+
+	for (int i = 1; i <= 100; i++)
+	    {
+    		String word = tokenizer.nextToken();
+		characters += countCharacters(word);
+    		}
+    		int L = characters/100; //media caratteri in 100 parole
+	//manca calcolo S, media del numero di frasi per 100 parole
+	    sentences = countSentences(text);
+	    int S =0;
+	    //calculate Coleman Liaw Index
+	    final float f1 = (float) 0.588;
+	    final float f2 = (float) 0.296;
+	    final float f3 = (float) 15.8;
+	    
+	    float CLI = (f1 * L) - (f2 * S) - f3;
+	    
+	return CLI;
+}
+*/
+
+
+
 public static float getARI (String text){
 	
 	int sentence = 0;
