@@ -183,16 +183,13 @@ def emoticons_count(file_name, output_file):
 		
         for row in dict_reader:
 
-        #        print'cisono'
                 r={}
                 r['PostId'] = row['PostId']
                 body = row['Body']
                 title = row['Title']
                 corpus = title + body
-#                emoticons = 0
                 try:
 
-#                       r['EmoticonsYN'] = 'yes'
 		   appo=corpus.split( )
 		   count = 0
                    for i in appo:
@@ -202,11 +199,10 @@ def emoticons_count(file_name, output_file):
 				print i
 
                    r['NEmoticons'] = count 
-#                print emoticons
                 except Exception:
                        continue
                 dict_writer.writerow(r)
-#    return 'Done'
+
 
 #crea file di predizione random
 #utilizzato per testare il classificatore 
@@ -232,7 +228,7 @@ def get_random_num(file_name, output_file):
                 except Exception:
                        continue
                 dict_writer.writerow(r)
-#    return 'Done'
+
 
 
 
@@ -304,13 +300,10 @@ def day30_quest(file_name, input_file, output_file): #input_file contiene  gli i
         count = 0
 	a = []
 	ida =0
-	#getQuest30="SELECT PostId FROM only30"
-	#result_set = execute_param_query(db, getQuest30)
 	app = []
 	for tup in dict_reader2:
 		 ida= int(tup['PostId'])
 		 app.append(ida)
-		 #print 'inseriti in app', ida
         for row in dict_reader1:
                 if int(row['PostId']) in app:
                     dict_writer.writerow(row)
@@ -326,14 +319,12 @@ def last_questions(database, output_file):
 	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
 	dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
 
-	# Query per ottenere tutte le domande chiuse  
+  # Query per ottenere tutte le domande chiuse  
   # select * from(select distinct(postId), MAX(creationDate), PostHistoryTypeId from (select * from PostHistory group by(postId) order by(CreationDate)desc )a)b where PostHistoryTypeId='10' OR PostHistoryTypeId='12' INTO OUTFILE '/mnt/vdb1/deletedPosts.csv' FIELDS TERMINATED BY ';' ;
 
 	query_questions_lastQuestions = "SELECT q_postID FROM questions_mv WHERE q_postDate > date('2014-04-04')"
 	lastQuestions = execute_param_query(database, query_questions_lastQuestions)
 	for row in lastQuestions:
-		# row[0] = postId
-		
 		w_row = {}
 		w_row['PostId'] = row[0]
 		dict_writer.writerow(w_row)
@@ -352,7 +343,6 @@ def closed_questions(database, output_file):
 		w_row['PostId'] = row[0]
 		dict_writer.writerow(w_row)
 		c += 1
-	
 	print "post da eliminare: " 
 	print c	
 		
@@ -411,8 +401,7 @@ def closed_questions13(database, output_file):
         print "post con id 13: "
         print c
 
-
-
+		
 # crea un csv con gli id delle domande bloccate
 def closed_questions14(database, output_file):
         fieldnames = ['PostId']
@@ -508,11 +497,7 @@ def topic_align(file_name, output_file):
 			r['IsTheSameTopicBTitle'] = 'yes'
 		else: 
 			r['IsTheSameTopicBTitle'] ='no'
-#		if row['TopicBody']	== row['TopicTags']:
-#			r['IsTheSameTopicBTags'] = 'yes'
-#		else: 
-#			r['IsTheSameTopicBTags'] = 'no'
-		
+
 		dict_writer.writerow(r)
 		count += 1
 
@@ -531,8 +516,6 @@ def cutfile(inputfile,output_file):
 	count=0
 	soglia = 5582755 
 	for row in dict_reader:
-		#if count > 12326500 :
-
 		if int(row['PostId']) > soglia:
 			r={}
 			r['PostId']=row['PostId']
@@ -831,7 +814,6 @@ def SiteName(file_name, output_file, database_name, site_category): #inserisce i
 	return 'Done'
 
 	
-# Calcola i 
 #
 # parametri:
 #	file_name: nome del file csv da leggere; deve contenere almeno i campi:
@@ -949,11 +931,9 @@ def simple_gratitude(file_name, output_file):
 		r['PostId'] = row['PostId']
 		body = row['Body'].lower()
 		title = row['Title'].lower()
-#		corpus = title + body
+
 		try:
-		#	if (text_length(body) == 0):
-		#		gratitude ="NA"
-		#	else:	
+	
 			r['TitleLength'] = text_length(title)
 			r['BodyLength'] = text_length(body)
 
@@ -966,7 +946,7 @@ def simple_gratitude(file_name, output_file):
 			count += 1
 			print gratitude
 		except Exception, e:
-			#continue
+
 			print Exception, e
 		dict_writer.writerow(r)
 	print 'Post processed: ', count
@@ -2005,44 +1985,6 @@ def takecorpus(database, input_file, output_file):
 	  dict_writer.writerow(w_r)
 
 
-#def userscommentsonquestions_dataset(database, output_file):
-	#dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
-
-	# Inizializza il csv da scrivere
-#	fieldnames = ['PostId' , 'NumberOfUsersComments', 'TextOfUsersComments']	
-#	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
-#	dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
-
-	# Query per ottenere tutte le domande con la relativa data di accettazione della risposta nel caso ci sia
-#	query_questions_voteDate = "select * from (select postId, ownerId, ts_voteDate from  questwithacceptedanswer_mv union select q_postID as postId, q_ownerID as ownerId, null from questions_mv) questions group by postId"
-#	questions = execute_param_query(database, query_questions_voteDate)
-	
-	
-#	for row in questions:
-		# row[0] = postId
-		# row[1] = ownerId
-		# row[2] = ts_voteDate
-
-#		comments = []
-#		w_row = {}
-#		w_row['PostId'] = row[0]
-#		if str(row[2]) != 'None':
-#			comments = execute_param_query(database, getUsersCommentsBeforeAccDate(str(row[0]), str(row[2])))
-#		else:
-#			comments = execute_param_query(database, getUsersComments(str(row[0])))
-
-		
-#		w_row['NumberOfUsersComments'] = str(comments.rowcount)
-#		w_row['TextOfUsersComments'] = str()
-#		for comm in comments:
-			# comm[0]  c_Id
-			# comm[1]  c_text
-#			w_row['TextOfUsersComments'] += ' ' + comm[1]
-			#w_row['TextOfUsersComments'] += ' ' + unicode(comm[1], errors='ignore')
-		
-#		dict_writer.writerow(w_row)
-
-
 def alluserscommentsonquestions_dataset(database, input_file, output_file):
 # Inizializza il csv da scrivere
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=',')
@@ -2066,19 +2008,9 @@ def alluserscommentsonquestions_dataset(database, input_file, output_file):
                  
 		 for tup in comments: w_r['NumberOfAllUsersComments']= int(tup[1])
 	   else:
-	    #for row in questions:
-# row[0] = postId
-# row[1] = ts_voteDate
-		
-		#w_row = {}
-		#w_row['PostId'] = row[0]
-		#f str(row[1]) != 'None':
+	   
 		  comments_1 = execute_param_query(database, getAllUsersCommentsBeforeAccDate(str(row_1['PostId']),str(row[1])))
 		  for tup_1 in comments_1: w_r['NumberOfAllUsersComments']=int(tup_1[1])
-		#else:
-		#	comments = execute_param_query(database, getAllUsersComments(str(row[0])))
-		#	for tup in comments: w_row['NumberOfAllUsersComments']=int(tup[0])
-		#w_row['NumberOfAllUsersComments'] = str(comments.rowcount)
 		
 	  dict_writer.writerow(w_r)
 
@@ -2094,8 +2026,7 @@ def success(database, input_file, output_file):
         count = 0
 			
         for row in dict_reader: 
-	#	query_questions_succ ="select count(*) as count from questwithacceptedanswer_mv where postId='"+ str(row['PostId'])+"'"
-	#	questions = ""
+
 		questions = execute_param_query(database, getSuccess(row['PostId']))
 		r={}
 		r['PostId']= row['PostId']
@@ -2337,72 +2268,21 @@ def readability_metrics(input_file, output_file):
 	body = row['Body']
 	title = row ['Title']
 	text = title + body
-        #print text
         print c
-        #if (text!=' '):
-        #print 'len text :', len(text)
         if(len(text)>1):
-        #if(len(text)>0):
+        
             rd = Readability(text)     
-           # try:
-           #     r['AutomatedReadingIndex'] = float(rd.ARI())
-           # except Exception:
-            #    r['AutomatedReadingIndex'] = float(rd.ARI())
-             #   skippAri += 1
-              #  continue
-           # try:
-           #     r['FleschReadingEase'] = float(rd.FleschReadingEase())
-           # except Exception:
-            #except ZeroDivisionError:
-           #     r['FleschReadingEase'] = 0
-           #     skippFRE += 1
-           #     continue
-           # try:
-           #     r['FleschKincaidGradeLevel']= float(rd.FleschKincaidGradeLevel())
-           # except Exception:
-           #     r['FleschKincaidGradeLevel']= 0
-           #     skippFKGL +=1
-           #     continue
-           # try:
-           #     r['GunningFogIndex'] = float(rd.GunningFogIndex())
-           # except Exception:
-           #     r['GunningFogIndex'] = 0
-           #     skipGFI += 1
-           #     continue       
-           # try:   
-           #     r['SMOGIndex'] = float(rd.SMOGIndex())
-           # except Exception:
-           #     r['SMOGIndex'] = 0
-           #     skipSMOG += 1
-           #     continue
-           # try:   
-           #     r['ColemanLiauIndex'] = float(rd.ColemanLiauIndex())
-           # except Exception:
-           #     r['ColemanLiauIndex'] = 0
-           #     skipCLI += 1
-           #     continue
- 
             upperchars= utils.metric_upperchar(text)
             r['NSentences'] = int(rd.getSentenceCount())
             r['NWords'] = int(rd.getWordCount())
             r['NChars'] = int(rd.getCharCount())
-           # r['NSyllables'] = int(rd.getSyllableCount())
-           # r['NComplexWords'] = int(rd.getComplexWordsCount())
             r['AvgWordsPSentence'] = float(rd.getAvgWordsPSentence())      
             r['AvgUpperCharsPPost'] = upperchars
         else:
             print 'Riga Vuota'
-           # r['AutomatedReadingIndex'] = 0
-           # r['FleschReadingEase'] = 'NONE'
-           # r['FleschKincaidGradeLevel'] = 0
-           # r['GunningFogIndex'] = 0
-           # r['SMOGIndex'] = 0
-           # r['ColemanLiauIndex'] = 0
             r['NSentences'] = 0
             r['NWords'] = 0
             r['NChars'] = 0
-           # r['NSyllables'] = 0
-           # r['NComplexWords'] = 0
             r['AvgWordsPSentence'] = 0
             r['AvgUpperCharsPPost'] = 0
         dict_writer.writerow(r)
@@ -2490,8 +2370,6 @@ def media_fre(input_file):
                 if(str(row['FleschReadingEase'])!= 'NONE'):
                         print 'Calcolo media non none'
                         fre_p = decimal.Decimal(row['FleschReadingEase'])
-                        #decimal.getcontext().prec = 2
-                        #decimal.getcontext().rounding = getattr(decimal,'ROUND_HALF_EVEN')
                         fre_p= fre_p*1
 
                         c+=1
@@ -2518,73 +2396,24 @@ def conv_metrics(input_file, output_file):
         count = 0
         total = 0
         fre_medio =0
-#        fre_medio = decimal.Decimal(media_fre(input_file))
-#        decimal.getcontext().prec = 2
-#        decimal.getcontext().rounding = getattr(decimal,'ROUND_HALF_EVEN')
-#        fre_medio= fre_medio*1
-#        print 'fremedio restiutito', fre_medio
         for row in dict_reader:
  
                 r = {}
                 r['PostId'] = row['PostId']
                 r['CodeSnippet'] = row['CodeSnippet']
-#		r['Successful']=row['Successful']
-#		r['TopicBody']=row['TopicBody']
-#		r['TopicTitle']=row['TopicTitle']
-#		r['TopicTags']=row['TopicTags']
-#		r['UserReputationScore']=row ['userReputationScore']
-#		r['UserReputationCat']=row['userReputationCat']
-#		r['UserReputationCatNum']=row['userReputationCatNum']
                 r['Weekday'] = row['Weekday']
                 r['GMTHour'] = row['GMTHour']
-#                r['Successful'] = row['Successful']
                 r['BodyLength'] = row['BodyLength']
                 r['TitleLength'] = row['TitleLength']
-#                r['QuestionScore'] = row['QuestionScore']
-#                r['AnswerScore'] = row['AnswerScore']
-#                r['UsersAnswersAccepted'] = row['UsersAnswersAccepted']
-#                r['UsersQuestionsAccepted'] = row['UsersQuestionsAccepted']
                 r['SentimentPositiveScore'] = row['SentimentPositiveScore']
                 r['SentimentNegativeScore'] = row['SentimentNegativeScore']
-#                r['NumberOfUsersComments'] = row['NumberOfUsersComments']
- #		if (int(row['NumberOfUsersComments'])==0):
- #                 r['CommentSentimentPositiveScore'] = "NA"
- #                 r['CommentSentimentNegativeScore'] = "NA"
- #               else:
-		r['CommentSentimentPositiveScore'] = row['CommentSentimentPositiveScore']
+				r['CommentSentimentPositiveScore'] = row['CommentSentimentPositiveScore']
                 r['CommentSentimentNegativeScore'] = row['CommentSentimentNegativeScore']
-
-#                r['BronzeBadge'] = row['BronzeBadge']
-#                r['SilverBadge'] = row['SilverBadge']
-#                r['GoldBadge'] = row['GoldBadge']
                 r['URL'] = int(row['URL'])
                 r['IsTheSameTopicBTitle'] = row['IsTheSameTopicBTitle']
-#                r['IsTheSameTopicBTags'] = row['IsTheSameTopicBTags']
-#                r['TopicTBT'] = row['TopicTBT']
-#                r['NumberOfAllUsersComments'] = row['NumberOfAllUsersComments']
-#                r['NSentences'] = row['NSentences']
-#                r['NWords'] = row['NWords']
-#                r['NChars'] = row['NChars']
-#                r['NSyllables'] = row['NSyllables']
-#                r['NComplexWords'] = row['NComplexWords']
-#                r['AvgWordsPSentence'] = row['AvgWordsPSentence']
                 r['AvgUpperCharsPPost'] = row['AvgUpperCharsPPost']
                 r['Gratitude'] = row['Gratitude']
                 r['NTag'] = row['NTag']
-#		r['NImg'] = row['NImg']
-#		r['NEmoticons']=row['NEmoticons']
-#                r['SiteName'] = row['SiteName']
-#                r['Category'] = row['Category']
-#                if(row['FleschReadingEase']=='NONE'):
-#                        r['AutomatedReadingIndex']= str(1)
-#                        r['FleschKincaidGradeLevel'] = str(-3.4)
-#                        r['ColemanLiauIndex']= str(0)
-#                        r['FleschReadingEase']=fre_medio
-#                else:
-#                        r['AutomatedReadingIndex'] = row['AutomatedReadingIndex']
-#                        r['FleschReadingEase'] = row['FleschReadingEase']
-#                        r['FleschKincaidGradeLevel'] = row['FleschKincaidGradeLevel']
-#                        r['ColemanLiauIndex'] = row['ColemanLiauIndex']
                 writer.writerow(r)
                 count += 1
         total+=1
@@ -2616,7 +2445,6 @@ def conv_metrics_nicole(input_file, output_file):
                 r['TitleLength'] = row['TitleLength']
                 r['SentimentPositiveScore'] = row['SentimentPositiveScore']
                 r['SentimentNegativeScore'] = row['SentimentNegativeScore']
-               # r['NumberOfUsersComments'] = int(row['NumberOfUsersComments'])
 		if (str(row['CommentSentimentPositiveScore']) == str("NA")):
 			r['CommentSentimentPositiveScore'] = str("?")
 		else: 
@@ -2628,19 +2456,9 @@ def conv_metrics_nicole(input_file, output_file):
                 	r['CommentSentimentNegativeScore'] = (row['CommentSentimentNegativeScore'])
                 r['URL'] = row['URL']
                 r['IsTheSameTopicBTitle'] = row['IsTheSameTopicBTitle']
-#                r['NSentences'] = row['NSentences']
                 r['AvgUpperCharsPPost'] = row['AvgUpperCharsPPost']
                 r['Gratitude'] = row['Gratitude']
                 r['NTag'] = row['NTag']
-#                r['NImg'] = row['NImg']
-#		r['NChars'] = row['NChars']
-#                r['NEmoticons']=row['NEmoticons']
-#                r['SiteName'] = row['SiteName']
-#                r['Category'] = row['Category']
-#		r['QuestionScore'] = row ['QuestionScore']
-#                r['AnswerScore'] = row ['AnswerScore']
-#                r['UsersAnswersAccepted'] = row ['UsersAnswersAccepted']
-#                r['UsersQuestionsAccepted'] = row ['UsersQuestionsAccepted']
                 writer.writerow(r)
                 count += 1
         total+=1
