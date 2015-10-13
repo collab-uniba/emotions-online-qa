@@ -1,4 +1,7 @@
-use stackoverflow;
+# Script per creare le viste materializzate
+
+
+use stackoverflow_march;
 
 #vista materializzata all Questions
 DROP TABLE questions_mv;
@@ -195,4 +198,24 @@ CREATE TABLE  userscommentsquestions_mv (
 INSERT INTO userscommentsquestions_mv
 SELECT Comments.Id as c_Id, questions_mv.q_postID as q_Id, questions_mv.q_ownerID as userId, Comments.Text as c_text, date(Comments.CreationDate) as c_date
 FROM questions_mv INNER JOIN Comments ON questions_mv.q_postId = Comments.PostId AND questions_mv.q_ownerId = Comments.UserId;
+
+# Script per creare la tabella questionHistory_mv
+# crea una tabella che contiene  le domande con PostHistory non nullo
+# Utile per estrarre le domande modificate e rimosse 
+
+use stackoverflow;
+DROP TABLE questionsHistory_mv;
+CREATE TABLE questionsHistory_mv (
+	Id INTEGER NOT NULL PRIMARY KEY 
+  , postID INTEGER  
+  , postHistoryTypeId SMALLINT
+  , creationDate datetime
+  , INDEX pID (postID)
+  , INDEX pDate (creationDate)
+);
+
+
+INSERT INTO questionsHistory_mv SELECT PostHistory.Id, PostHistory.postId, PostHistory.PostHistoryTypeId, PostHistory.CreationDate FROM questions_mv1 INNER JOIN PostHistory ON questions_mv1.q_postID = PostHistory.PostId  WHERE PostHistoryTypeId IS NOT NULL;
+
+SELECT postId, creationDate, PostHistoryTypeId FROM    qutionsHistory_mv  WHERE questionsHistory_mv.creationDate IN (select MAX(creationDate) from questionsHistory_mv a where questionsHistory_mv.postID = a.postId Group by a.postId )AND PostHistoryTypeId ='10' OR PostHistoryTypeId='12';
 
