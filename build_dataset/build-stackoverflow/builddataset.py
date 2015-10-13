@@ -1,4 +1,4 @@
-import MySQLdb
+import MySQLdb 
 import sqlite3
 import csv
 import os
@@ -8,10 +8,15 @@ import re
 import string
 import operator
 import threading
+import utils
+import decimal
 from HTMLParser import HTMLParser
 from badgesDict import badges
+from readability import Readability
+import random
 
-
+def getSuccess(post):
+	return "SELECT count(*) AS count FROM questwithacceptedanswer_mv WHERE postId='"+ post +"'"
 
 def getUsersAnswersAcceptedQuery(user, date):
 	return "SELECT ownerID AS UserID, count(postID) AS UsersAnswersAccepted FROM acceptedanswer_mv WHERE ownerID = " + user + " AND ts_voteDate < date(\'" + date + "\')"
@@ -39,15 +44,527 @@ def getAnswDownVotes(user, date):
 def getUsersCommentsBeforeAccDate(postid, vote_date):
 	return "SELECT c_Id, c_text FROM userscommentsquestions_mv WHERE c_ts_creationDate < \'" + vote_date + "\' AND q_Id = " + postid
 
+# commenti di utenti ad una domanda (@PostId) prima della data di accettazione (@Date)
+def getAllUsersCommentsBeforeAccDate(postid, vote_date):
+	return "SELECT c_Id, count(*) as count FROM alluserscommentsquestions_mv WHERE c_ts_creationDate < '" + vote_date + "' AND q_Id = " + postid
+
 # commenti di un utente di una domanda (@PostId)
 def getUsersComments(postid):
 	return "SELECT c_Id, c_text FROM userscommentsquestions_mv WHERE q_Id = " + postid
+
+# commenti di tutti gli utenti ad una domanda(@PostId)
+def getAllUsersComments(postid):
+	return "SELECT c_Id, count(*) as count FROM alluserscommentsquestions_mv WHERE q_Id = " + postid
 
 # Estrae l'insieme dei badge sbloccati da un utente (@User) prima di una certa data (@Date) */
 def getBadges(user, date):
 	return "SELECT Badges.UserId, Badges.Name FROM Badges WHERE Badges.UserId = " + user + " AND Badges.Date < \'" + date + "\'" 
 
+# Estrae le modifiche effettuate prima della data di accettazione
+def getBodyEditsBeforeAccDate(postid, vote_date):
+        return "SELECT Id FROM PostHistory WHERE posthistorytypeid = 5 AND creationDate < \'" + vote_date + "\' AND PostId = " + postid
 
+
+# edits di tutti gli utenti ad una risposta (@PostId)
+def getBodyEdits(postid):
+        return "SELECT Id FROM PostHistory WHERE posthistorytypeid = 5 AND PostId = " + postid
+
+
+
+#categorizzazione del reputation score sulla base degli scaglioni definiti
+def user_reputation(database, file_name, output_file):
+        dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';')
+        head = dict_reader.fieldnames
+        f = ['PostId', 'userReputationScore', 'userReputationCat','userReputationCatNum']
+
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f)
+        dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+        for row in dict_reader:
+          r = {}
+          r['PostId'] = row['PostId']
+
+        #tup[0] = Id utente
+        #tup[1] = Reputation utente
+	  user = row['UserId']
+	  query_reputation = "select Reputation from Users where id = " + user 
+          questions = execute_param_query(database, query_reputation)
+	  for tup in questions: score=int(tup[0])
+	  r['userReputationScore'] = score
+          if score <10:
+              categoryname='Inactive'
+              categorynumber=int(0)
+          if (score>9 and score<100):
+              categoryname='Low'
+              categorynumber=int(1)
+          if (score>99 and score<20000):
+              categoryname='Medium'
+              categorynumber=int(2)
+          if score>19999:
+              categoryname='High'
+              categorynumber=int(3)
+
+          r['userReputationCat']=categoryname
+          r['userReputationCatNum']=categorynumber
+
+          dict_writer.writerow(r)
+
+        return 'Done'
+
+
+def n_of_img(database, output_file):
+
+        f = ['PostId', 'NImg']
+        writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f) # DELIMITER
+        writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+
+        questions_body = "SELECT q_postID AS PostId, q_body AS Body FROM questions_mv"
+        result_set = execute_param_query(database, questions_body)
+        desc = result_set.description # Prende i campi della tabella
+
+        i = 0
+        body_field = 0
+        fields = [] # crea il vettore che contiene gli header da scrivere nel csv di output
+        for d in desc:
+                if 'Body' in d[0]:
+                        body_field = i # conserva l'indice del campo Body
+                if 'PostId' in d[0]:
+                        postid_field = i # conserva l'indice del campo Title
+                fields = fields + [d[0]]
+                i += 1
+
+        total = 0
+        count = 0
+        for row in result_set: # Cicla sui record della tabella
+                total += 1
+                row_to_write = {}
+                row_to_write['NImg'] = str(0)
+                i = 0
+
+                for c in row:
+                        if i == body_field:
+                                body = ''
+                                try:
+                                        body = c.decode('unicode_escape').encode('ascii','ignore')
+                                except UnicodeDecodeError:
+                                        try:
+                                                body = unicode(c).encode('ascii', 'ignore')
+                                        except Exception:
+                                                body = unicode(c, errors='ignore')
+
+                                n_img = img_count(body)
+                                row_to_write['NImg'] = str(n_img)
+                                count += 1
+
+			elif i == postid_field:
+                                row_to_write['PostId'] = str(c)
+				i += 1
+
+                writer.writerow(row_to_write)
+
+
+        print "Total post",total
+        print "Post processed ",count
+        return 'Done'
+
+
+
+def emoticons_count(file_name, output_file):
+        dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';')
+
+        head = dict_reader.fieldnames
+        #head.append('Gratitude')
+        #head.append('TitleLength')
+        #head.append('CodeSnippet')
+        f= ['PostId', 'NEmoticons']
+        dict_writer = csv.DictWriter(open(output_file, 'w'),delimiter=';', fieldnames=f)
+        dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+        count = 0
+	smileys = """%-),(-:,(:,(^-^),(^.^),(^_^),)-:,):,)o:,*\o/*,--^--@,0:),:'(,:'-(, :(,:),:*(,:-&,:-(,:-(o),:-),:-*,:-/,:-D,:-O,:-P,:-S,:-\,:-|,:-},:/,:D,:E,:F,:O,:P,:S,:X,:\,:],:_(,:o(,:o),:p,:s,:|,;),;^),;o), =),=],>:(,>:),>:D,>:L,>:O,>=D,@}->--,XD,^_^,xD,}:)""".split(',')
+		
+        for row in dict_reader:
+
+        #        print'cisono'
+                r={}
+                r['PostId'] = row['PostId']
+                body = row['Body']
+                title = row['Title']
+                corpus = title + body
+#                emoticons = 0
+                try:
+
+#                       r['EmoticonsYN'] = 'yes'
+		   appo=corpus.split( )
+		   count = 0
+                   for i in appo:
+
+			if str(i) in smileys:
+				count += 1
+				print i
+
+                   r['NEmoticons'] = count 
+#                print emoticons
+                except Exception:
+                       continue
+                dict_writer.writerow(r)
+#    return 'Done'
+
+#crea file di predizione random
+#utilizzato per testare il classificatore 
+def get_random_num(file_name, output_file):
+        dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=',')
+
+        head = dict_reader.fieldnames
+        #head.append('Gratitude')
+        #head.append('TitleLength')
+        #head.append('CodeSnippet')
+        f= ['gold', 'random_prediction']
+        dict_writer = csv.DictWriter(open(output_file, 'w'),delimiter=',', fieldnames=f)
+        dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+        count = 0
+       
+        for row in dict_reader:
+
+                r={}
+                r['gold'] = row['gold']
+                try:
+        	   r['random_prediction'] = random.randint(0,1)
+                   
+                except Exception:
+                       continue
+                dict_writer.writerow(r)
+#    return 'Done'
+
+
+
+def getowner(database, output_file):
+        query_owner = "select q_postID, q_ownerID from questions_mv "
+        questions = execute_param_query(database, query_owner)
+	f = ['PostId', 'userQOwner']
+
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=',', fieldnames=f)
+        dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+		
+	for tup in questions:
+		r={}
+		r['PostId'] = tup[0]
+		r['userQOwner'] = tup[1]
+		dict_writer.writerow(r)
+	return 'Done'
+
+
+def n_edits(database, output_file):
+
+       # Inizializza il csv da scrivere
+        fieldnames = ['PostId' , 'NumberOfEdits']
+        count=0
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+	c = 0	
+	# Query per ottenere tutte le domande con la relativa data di accettazione della risposta nel caso ci sia
+        query_questions_voteDate = "select * from (select postId, ownerId, ts_voteDate from  questwithacceptedanswer_mv union select q_postID as postId, q_ownerID as ownerId, null from questions_mv) questions group by postId"
+        questions = execute_param_query(database, query_questions_voteDate)
+      
+	for row in questions:
+             
+
+                edits = []
+                w_row = {}
+                w_row['PostId'] = row[0]
+                if str(row[2]) != 'None':
+                        bodyedits  = execute_param_query(database, getBodyEditsBeforeAccDate(str(row[0]), str(row[2])))
+                else:
+
+                        bodyedits  = execute_param_query(database, getBodyEdits(str(row[0])))
+
+		
+                w_row['NumberOfEdits'] = str(bodyedits.rowcount)
+		if bodyedits.rowcount != 0:
+
+			c += 1
+
+                dict_writer.writerow(w_row)
+                count+=1
+		print c
+        print 'Processed',count
+        return 'Done'
+
+
+
+		
+
+#estrae le metriche relative alle domande degli ultimi 30 giorni, non chiuse
+
+def day30_quest(file_name, input_file, output_file): #input_file contiene  gli id delle domande da tenere
+        dict_reader1 = csv.DictReader(open(file_name, 'r'), delimiter = ';')
+	dict_reader2 = csv.DictReader(open(input_file, 'r'), delimiter = ';')
+        head = dict_reader1.fieldnames
+        
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=head)
+        dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
+        count = 0
+	a = []
+	ida =0
+	#getQuest30="SELECT PostId FROM only30"
+	#result_set = execute_param_query(db, getQuest30)
+	app = []
+	for tup in dict_reader2:
+		 ida= int(tup['PostId'])
+		 app.append(ida)
+		 #print 'inseriti in app', ida
+        for row in dict_reader1:
+                if int(row['PostId']) in app:
+                    dict_writer.writerow(row)
+		    count += 1
+
+        print 'Post scritti: ', count
+        return 'Done'
+
+#id delle domande degli ultimi 30 giorni
+def last_questions(database, output_file):
+# Inizializza il csv da scrivere
+	fieldnames = ['PostId']
+	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+	dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+	# Query per ottenere tutte le domande chiuse  
+  # select * from(select distinct(postId), MAX(creationDate), PostHistoryTypeId from (select * from PostHistory group by(postId) order by(CreationDate)desc )a)b where PostHistoryTypeId='10' OR PostHistoryTypeId='12' INTO OUTFILE '/mnt/vdb1/deletedPosts.csv' FIELDS TERMINATED BY ';' ;
+
+	query_questions_lastQuestions = "SELECT q_postID FROM questions_mv WHERE q_postDate > date('2014-04-04')"
+	lastQuestions = execute_param_query(database, query_questions_lastQuestions)
+	for row in lastQuestions:
+		# row[0] = postId
+		
+		w_row = {}
+		w_row['PostId'] = row[0]
+		dict_writer.writerow(w_row)
+
+# crea un csv con gli id delle domande eliminate o chiuse (PostHistoryTypeId = 10 o 12
+def closed_questions(database, output_file):
+	fieldnames = ['PostId']
+	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+	dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+	query_delQ="SELECT postId, creationDate, PostHistoryTypeId FROM questionsHistory_mv WHERE questionsHistory_mv.creationDate = (select MAX(creationDate)  from questionsHistory_mv a  where questionsHistory_mv.postID = a.postId AND creationDate > date('2014-04-04') Group by a.postId Order by a.creationDate desc LIMIT 1) AND PostHistoryTypeId ='10' OR PostHistoryTypeId ='12'"
+	delQ = execute_param_query(database, query_delQ)
+	c = 0
+	for row in delQ:
+		w_row = {}
+		w_row['PostId'] = row[0]
+		dict_writer.writerow(w_row)
+		c += 1
+	
+	print "post da eliminare: " 
+	print c	
+		
+# crea un csv con gli id delle domande eliminate (PostHistoryTypeId=12)
+def closed_questions12(database, output_file):
+        fieldnames = ['PostId']
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+        query_delQ="SELECT postId, creationDate, PostHistoryTypeId FROM questionsHistory_mv WHERE questionsHistory_mv.creationDate =(select MAX(creationDate) from questionsHistory_mv a where questionsHistory_mv.postID = a.postId Group by a.postId Order by a.creationDate desc LIMIT 1) AND PostHistoryTypeId ='12'"
+        delQ = execute_param_query(database, query_delQ)
+        c = 0
+        for row in delQ:
+                w_row = {}
+                w_row['PostId'] = row[0]
+                dict_writer.writerow(w_row)
+                c += 1
+
+        print "post con id 12: "
+        print c
+
+#crea un csv con gli id delle domande riaperte (PostHistoryTypeId=11)
+def closed_questions11(database, output_file):
+        fieldnames = ['PostId']
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+        query_delQ="SELECT postId, creationDate, PostHistoryTypeId FROM questionsHistory_mv WHERE questionsHistory_mv.creationDate =(select MAX(creationDate) from questionsHistory_mv a where questionsHistory_mv.postID = a.postId Group by a.postId Order by a.creationDate desc LIMIT 1) AND PostHistoryTypeId ='11'"
+        delQ = execute_param_query(database, query_delQ)
+        c = 0
+
+        for row in delQ:
+                w_row = {}
+                w_row['PostId'] = row[0]
+                dict_writer.writerow(w_row)
+                c += 1
+
+        print "post con id 11: "
+        print c
+
+#crea un csv con gli id delle domande restored (PostHistoryTypeId = 13)
+def closed_questions13(database, output_file):
+        fieldnames = ['PostId']
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+        query_delQ="SELECT postId, creationDate, PostHistoryTypeId FROM questionsHistory_mv WHERE questionsHistory_mv.creationDate =(select MAX(creationDate) from questionsHistory_mv a where questionsHistory_mv.postID = a.postId Group by a.postId Order by a.creationDate desc LIMIT 1) AND PostHistoryTypeId ='13'"
+        delQ = execute_param_query(database, query_delQ)
+        c = 0
+        for row in delQ:
+                w_row = {}
+                w_row['PostId'] = row[0]
+                dict_writer.writerow(w_row)
+                c += 1
+
+        print "post con id 13: "
+        print c
+
+
+
+# crea un csv con gli id delle domande bloccate
+def closed_questions14(database, output_file):
+        fieldnames = ['PostId']
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+        query_delQ="SELECT postId, creationDate, PostHistoryTypeId FROM questionsHistory_mv WHERE questionsHistory_mv.creationDate = (select MAX(creationDate) from questionsHistory_mv a where questionsHistory_mv.postID = a.postId AND creationDate > date('2014-04-04') Group by a.postId Order by a.creationDate desc LIMIT 1) AND PostHistoryTypeId ='14'"
+        delQ = execute_param_query(database, query_delQ)
+        c = 0
+        for row in delQ:
+                w_row = {}
+                w_row['PostId'] = row[0]
+                dict_writer.writerow(w_row)
+                c += 1
+
+        print "post con id 14: "
+        print c
+
+
+# crea un csv con gli id delle domande eliminate o chiuse (PostHistoryTypeId = 10)
+def closed_questions10(database, output_file):
+        fieldnames = ['PostId']
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+        query_delQ="SELECT postId, creationDate,PostHistoryTypeId FROM questionsHistory_mv WHERE questionsHistory_mv.creationDate = (select MAX(creationDate) from questionsHistory_mv a where questionsHistory_mv.postID = a.postId Group by a.postId Order by a.creationDate desc LIMIT 1) AND PostHistoryTypeId ='10'"
+        delQ = execute_param_query(database, query_delQ)
+        c = 0
+        for row in delQ:
+                w_row = {}
+                w_row['PostId'] = row[0]
+                dict_writer.writerow(w_row)
+                c += 1
+
+        print "post con id 10: "
+        print c
+
+# crea un csv con gli id delle domande sbloccate (PostHistoryTypeId=15)
+def closed_questions15(database, output_file):
+        fieldnames = ['PostId']
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+        query_delQ="SELECT postId, creationDate, PostHistoryTypeId FROM questionsHistory_mv WHERE questionsHistory_mv.creationDate =(select MAX(creationDate) from questionsHistory_mv a where questionsHistory_mv.postID = a.postId AND creationDate > date('2014-04-04') Group by a.postId Order by a.creationDate desc LIMIT 1) AND PostHistoryTypeId ='15'"
+        delQ = execute_param_query(database, query_delQ)
+        c = 0
+        for row in delQ:
+                w_row = {}
+                w_row['PostId'] = row[0]
+                dict_writer.writerow(w_row)
+                c += 1
+
+        print "post con id 15: "
+        print c
+
+
+#Crea un csv con gli id dei post migrati (PostHistoryTypeId = 17)
+def closed_questions17(database, output_file):
+        fieldnames = ['PostId']
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+        query_delQ="SELECT postId, creationDate, PostHistoryTypeId FROM questionsHistory_mv WHERE questionsHistory_mv.creationDate =(select MAX(creationDate) from questionsHistory_mv a where questionsHistory_mv.postID = a.postId Group by a.postId Order by a.creationDate desc LIMIT 1) AND PostHistoryTypeId ='17'"
+        delQ = execute_param_query(database, query_delQ)
+        c = 0
+        for row in delQ:
+                w_row = {}
+                w_row['PostId'] = row[0]
+                dict_writer.writerow(w_row)
+                c += 1
+
+        print "post con id 17: "
+        print c
+
+
+#verifica allineamento topic tra body e title e body e tag
+#il file di input deve avere i campi PostId, TopicBody, TopicTitle, TopicTags
+def topic_align(file_name, output_file):
+
+	dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';')  # DELIMITER
+	
+	head = dict_reader.fieldnames
+	f = ['PostId', 'IsTheSameTopicBTitle']
+	
+	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f)  # DELIMITER
+	dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+	count = 0
+	for row in dict_reader:
+		r = {}
+		r['PostId'] = row['PostId']
+
+		if row['TopicBody'] == row['TopicTitle']:
+			r['IsTheSameTopicBTitle'] = 'yes'
+		else: 
+			r['IsTheSameTopicBTitle'] ='no'
+#		if row['TopicBody']	== row['TopicTags']:
+#			r['IsTheSameTopicBTags'] = 'yes'
+#		else: 
+#			r['IsTheSameTopicBTags'] = 'no'
+		
+		dict_writer.writerow(r)
+		count += 1
+
+	print 'Post processed: ', count
+	return 'Done'
+
+	
+#estrae le prime tre righe di un file csv
+def cutfile(inputfile,output_file):
+
+	dict_reader = csv.DictReader(open(inputfile, 'r'), delimiter=';')
+	head = ['PostId']
+	
+	dict_writer = csv.DictWriter(open(output_file, 'w'),delimiter=';', fieldnames=head)
+	dict_writer.writerow(dict((fn,fn) for fn in head))
+	count=0
+	soglia = 5582755 
+	for row in dict_reader:
+		#if count > 12326500 :
+
+		if int(row['PostId']) > soglia:
+			r={}
+			r['PostId']=row['PostId']
+			dict_writer.writerow(r)
+		count += 1
+	return 'done'	
+	
+
+
+#select su colonne, specificate in f=[], di un csv di input. 
+def cutculumn(inputfile, output_file):
+
+
+        dict_reader = csv.DictReader(open(inputfile, 'r'), delimiter=';')
+
+	f = ['PostId']
+        dict_writer = csv.DictWriter(open(output_file, 'w'),delimiter=';', fieldnames=f)
+        dict_writer.writerow(dict((fn,fn) for fn in f))
+        count = 0
+        
+        for row in dict_reader:
+               
+		r={}
+		r['PostId'] = row['PostId']
+        	dict_writer.writerow(r)
+                count += 1
+	print count
+        return 'done'
+
+
+	
+	
 # Classe utilizzata dalla funzione del_tags per parserizzare
 # il codice html 
 class MLStripper(HTMLParser):
@@ -79,6 +596,7 @@ def del_tags(text):
 #
 # output:
 #	testo del parametro text senza code snippet
+
 def del_code(text):
 	return re.sub('<code>[\s\S.]+?</code>', ' ', text)
 
@@ -91,7 +609,7 @@ def del_code(text):
 # output:
 #	testo del parametro text senza tag html e senza code snippet
 def clean_body(text):
-	return del_tags(del_code(text))
+	return del_tags(del_code(text).replace(";"," "))
 
 # Calcola il numero di parole contenute nel testo passato come parametro
 #
@@ -118,6 +636,47 @@ def link_count(text):
 	n_links = len(links)
 
 	return n_links
+
+#Calcola numero di immagini in un post
+
+def img_count(body):
+        imgi = re.findall("<img ", body)
+        n_img = len(imgi)
+
+        return n_img
+
+	
+	
+# Contatore di tag associati ad una domanda
+#
+# parametri:
+#	text: testo da analizzare
+#
+# output:
+#	numero di tag trovati nel parametro text
+def tag_count(text):
+	tags = re.findall("<", text)
+	n_tag = len(tags)
+
+	return n_tag
+
+
+def emo_count(corpus):
+	smileys = """%-),(-:,(:,(^-^),(^.^),(^_^),)-:,):,)o:,*\o/*,--^--@,0:),:'(,:'-(, :(,:),:*(,:-&,:-(,:-(o),:-),:-*,:-/,:-D,:-O,:-P,:-S,:-\,:-|,:-},:/,:D,:E,:F,:O,:P,:S,:X,:\,:],:_(,:o(,:o),:p,:s,:|,;),;^),;o), =),=],>:(,>:),>:D,>:L,>:O,>=D,@}->--,XD,^_^,xD,}:)""".split(',')
+	regex = "|".join(map(re.escape, smileys))	
+	a=corpus.split( )
+	emo =0
+	for i in a:
+		emoti=[]
+		emoti = re.findall(regex, str(i))
+		if len(emoti) != 0:
+			emo +=1
+	print emo
+        n_emo = emo
+
+        return n_emo
+
+
 
 # Costruisce un dizionario, ordinato per frequenza descrescente,
 # delle parole contenute nei testi del file passato in input.
@@ -193,7 +752,7 @@ def create_dictionary(file_name, output):
 #	result set 
 def execute_param_query(database, query):
 	conn = MySQLdb.connect(host="localhost",user="root",
-                  passwd="root",db=database)
+                  passwd="5tartQu3ry1ng!",db=database)
 	c = conn.cursor()
 	c.execute(query)
 	c.fetchall()
@@ -227,6 +786,7 @@ def weekday(file_name, output_file):
 	for row in dict_reader:
 		r = {}
 		r['PostId'] = row['PostId']
+		print row['PostId']
 		date = row['PostCreationDate']
 		d = date.split(' ')
 		dat = d[0].split('-')
@@ -243,10 +803,34 @@ def weekday(file_name, output_file):
 		r['Weekday'] = weekday
 		dict_writer.writerow(r)
 		count += 1
-	
+			
 	print 'Post processed: ', count
 	return 'Done'
 
+#aggiunge l'etichetta col nome del sito di stackExchange che si sta analizzando
+	
+def SiteName(file_name, output_file, database_name, site_category): #inserisce il nome del database
+	#quando si dovranno unire i csv dei vadi siti, fare un append
+	dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';')  # DELIMITER
+	
+	head = dict_reader.fieldnames
+	f = ['PostId', 'SiteName', 'Category']
+	
+	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f)  # DELIMITER
+	dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+	count = 0
+	for row in dict_reader:
+		r = {}
+		r['PostId'] = row['PostId']
+		r['SiteName'] = database_name
+		r['Category'] = site_category
+		dict_writer.writerow(r)
+		count += 1
+
+	print 'Post processed: ', count
+	return 'Done'
+
+	
 # Calcola i 
 #
 # parametri:
@@ -312,39 +896,79 @@ def accepted(file_name, output_file):
 #				- 'CodeSnippet' con valori 'yes' se 'Body' contiene del code snippet, 'no'
 #					altrimenti
 def clean_len_code_body_title(file_name, output_file):
-	dict_reader = csv.DictReader(open(file_name, 'r'))
+        dict_reader = csv.DictReader(open(file_name, 'r'))
+
+        head = dict_reader.fieldnames
+        head.append('BodyLength')
+        head.append('TitleLength')
+        head.append('CodeSnippet')
+
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=head)
+        dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
+        count = 0
+        for row in dict_reader:
+
+                body = row['Body']
+                title = row['Title']
+                try:
+
+
+                        body_cleaned = clean_body(body.decode('unicode_escape').encode('ascii','ignore'))
+
+                        row['Body'] = body_cleaned
+
+                        row['TitleLength'] = text_length(title)
+                        row['BodyLength'] = text_length(body_cleaned)
+
+                        code_snippet = "no"
+                        if '<code>' in body:
+                                code_snippet = "yes"
+
+                        row['CodeSnippet'] = code_snippet
+                        count += 1
+                except Exception:
+                        continue
+                dict_writer.writerow(row)
+        print 'Post processed: ', count
+        return 'Done'
+
+
+def simple_gratitude(file_name, output_file):
+	dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';')
 	
 	head = dict_reader.fieldnames
-	head.append('BodyLength')
-	head.append('TitleLength')
-	head.append('CodeSnippet')
-	
-	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
-	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
+	#head.append('Gratitude')
+	#head.append('TitleLength')
+	#head.append('CodeSnippet')
+	f= ['PostId', 'Gratitude', 'TitleLength','BodyLength']
+	dict_writer = csv.DictWriter(open(output_file, 'w'),delimiter=';', fieldnames=f)
+	dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
 	count = 0
 	for row in dict_reader:
-		
-		body = row['Body']
-		title = row['Title']
+		r={}
+		r['PostId'] = row['PostId']
+		body = row['Body'].lower()
+		title = row['Title'].lower()
+#		corpus = title + body
 		try:
+		#	if (text_length(body) == 0):
+		#		gratitude ="NA"
+		#	else:	
+			r['TitleLength'] = text_length(title)
+			r['BodyLength'] = text_length(body)
+
+			gratitude = "no"
+			if ('thanks'in body or 'thx'in body or 'thanx'in body or 'thank you' in body):
+
+				gratitude = "yes"
 			
-
-			body_cleaned = clean_body(body.decode('unicode_escape').encode('ascii','ignore'))
-			
-			row['Body'] = body_cleaned
-
-			row['TitleLength'] = text_length(title)
-			row['BodyLength'] = text_length(body_cleaned)
-
-			code_snippet = "no"
-			if '<code>' in body:
-				code_snippet = "yes"
-
-			row['CodeSnippet'] = code_snippet
+			r['Gratitude'] = gratitude
 			count += 1
-		except Exception:
-			continue
-		dict_writer.writerow(row)
+			print gratitude
+		except Exception, e:
+			#continue
+			print Exception, e
+		dict_writer.writerow(r)
 	print 'Post processed: ', count
 	return 'Done'
 
@@ -440,12 +1064,12 @@ def scoreqdown(db, file_name, output_file):
 #			- 'QuestionScore' numero degli up vote meno il numero dei down vote delle 
 #				domande dell'utente prima della data in 'PostCreationDate'
 def scorequestion(db, file_name, output_file):
-	dict_reader = csv.DictReader(open(file_name, 'r'))
+	dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';')
 	
 	head = dict_reader.fieldnames
 	f = ['PostId', 'QuestionScore']
 	
-	dict_writer = csv.DictWriter(open(output_file, 'w'), f)
+	dict_writer = csv.DictWriter(open(output_file, 'w'), f, delimiter=';')
 	dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
 	count = 0
 	for row in dict_reader:
@@ -563,12 +1187,12 @@ def scoreadown(db, file_name, output_file):
 #			- 'AnswerScore' numero degli up vote meno il numero dei down vote delle 
 #				risposte dell'utente prima della data in 'PostCreationDate'
 def scoreanswer(db, file_name, output_file):
-	dict_reader = csv.DictReader(open(file_name, 'r'))
+	dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';')
 	
 	head = dict_reader.fieldnames
 	f = ['PostId', 'AnswerScore']
 	
-	dict_writer = csv.DictWriter(open(output_file, 'w'), f)
+	dict_writer = csv.DictWriter(open(output_file, 'w'), f, delimiter=';')
 	dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
 	count = 0
 	for row in dict_reader:
@@ -619,14 +1243,14 @@ def scoreanswer(db, file_name, output_file):
 #		- 'AnswerScore' risultato della sottrazione tra il campo 'AnswerUpVotes' e il
 #			campo 'AnswerDownVotes'
 def score(file_name, output_file):
-	dict_reader = csv.DictReader(open(file_name, 'r'))
+	dict_reader = csv.DictReader(open(file_name, 'r'),delimiter=';')
 	
 	head = dict_reader.fieldnames
 	head.append('QuestionScore')
 	head.append('AnswerScore')
 	
 	
-	dict_writer = csv.DictWriter(open(output_file, 'w'), head)
+	dict_writer = csv.DictWriter(open(output_file, 'w', delimiter=';'), head)
 	dict_writer.writerow(dict((fn,fn) for fn in head)) #Scrive gli header
 	
 	for row in dict_reader:
@@ -1009,11 +1633,12 @@ def save_csv_code_snip(result_set, filename):
 		for c in row:				
 			if i == body_field:
 				try:
-					body_cleaned = clean_body(c.decode('unicode_escape').encode('ascii','ignore'))
+					body_cleaned = clean_body(c.decode('unicode_escape').encode('ISO-8859-1','ignore').encode('string-escape'))
 				except UnicodeDecodeError:
 					print count
 					try:
-						body_cleaned = clean_body(unicode(c).encode('ascii', 'ignore'))
+						body_cleaned = clean_body(unicode(c).encode('ISO-8859-1', 'ignore').encode('string-escape'))
+						
 					except Exception:	
 						body_cleaned = clean_body(unicode(c, errors='ignore'))
 					
@@ -1021,11 +1646,11 @@ def save_csv_code_snip(result_set, filename):
 					code_snippet = "yes"
 					
 				try:
-					row_to_write = row_to_write + [body_cleaned.decode('unicode_escape').encode('ascii','ignore')]
+					row_to_write = row_to_write + [body_cleaned.decode('unicode_escape').encode('ISO-8859-1','ignore').encode('string-escape')]
 				except UnicodeDecodeError:
 					print count
 					try:
-						row_to_write = row_to_write + [unicode(body_cleaned).encode('ascii', 'ignore')]
+						row_to_write = row_to_write + [unicode(body_cleaned).encode('ISO-8859-1', 'ignore').encode('string-escape')]
 					except Exception:	
 						row_to_write = row_to_write + [unicode(body_cleaned, errors='ignore')]
 					
@@ -1146,7 +1771,7 @@ def split(file_name, out_dir, n):
 #		il nome del file csv da cui leggere ed il nome del file csv su cui 
 #		scrivere
 #	db: nome del database
-def run_threads(input_dir, out_dir, func, db):
+def run_threads(input_dir, out_dir, func):
 	input_files = os.listdir(input_dir)	#restituisce i file in input_dir in ordine alfabetico
 	input_files.sort() #si assicura che siano in ordine alfabetico
 	os.mkdir(out_dir)
@@ -1154,7 +1779,7 @@ def run_threads(input_dir, out_dir, func, db):
 		o = s.replace('.csv', '_out.csv') 
 		
 		print o
-		t = threading.Thread(target=func, args=(db, input_dir+s, out_dir+o)) 
+		t = threading.Thread(target=func, args=(input_dir+s, out_dir+o)) 
 		#thread_list.append(t)
 		t.start()
 		
@@ -1198,7 +1823,7 @@ def m(input_dir, out_file):
 #			- 'PostId'
 #			- 'Corpus' che ha la concatenazione del campo 'Title' con il campo 'Body'
 def dataset_liwc_senti(input_file, output_file):
-	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=',') # DELIMITER
+	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
 	head = dict_reader.fieldnames
 	f = ['PostId', 'Corpus']
@@ -1265,7 +1890,7 @@ def dataset_liwc_senti(input_file, output_file):
 #	output_file: nome del file csv su cui scrivere, conterra' tutti i campi del file
 #		input_file, con i campi 'Weekday', 'GMTHour', 'SentimentNegativeScore' e
 #		'SentimentPositiveScore' convertiti
-def conv_senti_weekday_time(input_file, output_file):
+def conv_weekday_time(input_file, output_file):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
 	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=dict_reader.fieldnames) # DELIMITER
@@ -1287,8 +1912,14 @@ def conv_senti_weekday_time(input_file, output_file):
 	#count = 0
 	for row in dict_reader:
 		
-		row['SentimentNegativeScore'] = str((int(row['SentimentNegativeScore']) * -1) - 1)
-		row['SentimentPositiveScore'] = str(int(row['SentimentPositiveScore']) - 1)
+	
+
+
+
+#		if row['SentimentPositiveScore'] != '0':
+#			row['SentimentPositiveScore'] = str(int(row['SentimentPositiveScore']) - 1)
+#		if row['SentimentNegativeScore'] != '0':
+#			row['SentimentNegativeScore'] = str((int(row['SentimentNegativeScore'])+ 1) * -1)
 
 		row['Weekday'] = wd[row['Weekday']]
 		
@@ -1308,45 +1939,181 @@ def conv_senti_weekday_time(input_file, output_file):
 #			- 'PostId'
 #			- 'NumberOfUsersComments' numero di commenti
 #			- 'TextOfUsersComments' testo dei commenti trovati
-def userscommentsonquestions_dataset(database, output_file):
-	
+
+def userscommentsonquestions_dataset(database, input_file, output_file):
+        #dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
+	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';')
+        head = dict_reader.fieldnames
+
+        # Inizializza il csv da scrivere
+        fieldnames = ['PostId' , 'NumberOfUsersComments', 'TextOfUsersComments', 'Successful']
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+        # Query per ottenere tutte le domande con la relativa data di accettazione della risposta nel caso ci sia
+        #query_questions_voteDate = "select * from (select postId, ownerId, ts_voteDate from  questwithacceptedanswer_mv union select q_postID as postId, q_ownerID as ownerId, null from questions_mv) questions group by postId"
+        #questions = execute_param_query(database, query_questions_voteDate)
+	soglia=0	
+	for row_1 in dict_reader:
+          w_r = {}
+          w_r['PostId'] = row_1['PostId']
+	  w_r['Successful'] = row_1['Successful']
+
+        #for row in questions:
+                # row[0] = postId
+                # row[1] = ownerId
+                # row[2] = ts_voteDate
+          query_questions_voteDate = "select postId, ts_voteDate, count(*) as count from questwithacceptedanswer_mv where postId = " + str(row_1['PostId'])
+          questions = execute_param_query(database, query_questions_voteDate)
+          for row in questions:
+		 comments = []
+           	 if (int(row[2])== int(soglia)):
+                   comments = execute_param_query(database, getUsersComments(str(row_1['PostId'])))
+           	 else:
+                   comments = execute_param_query(database, getUsersCommentsBeforeAccDate(str(row_1['PostId']),str(row[1])))
+	   	 w_r['NumberOfUsersComments'] = str(comments.rowcount)
+           	 w_r['TextOfUsersComments'] = str()
+
+	   	 for comm in comments:
+               # comm[0]  c_Id
+                # comm[1]  c_text
+               		w_r['TextOfUsersComments'] +=  str(comm[1]) + ' '
+                #w_r['TextOfUsersComments'] += ' ' + unicode(comm[1], errors='ignore')
+     
+          dict_writer.writerow(w_r)
+
+def takecorpus(database, input_file, output_file):
+        #dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
+        dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';')
+        head = dict_reader.fieldnames
+
+        # Inizializza il csv da scrivere
+        fieldnames = ['PostId' , 'Body', 'Title']
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+
+	for row_1 in dict_reader:
+          w_r = {}
+          w_r['PostId'] = row_1['PostId']
+       
+          questions = execute_param_query(database, getCorpus(str(row_1['PostId'])))
+          for tup in questions:
+	    body_senza_code= del_code(tup[2])
+	    body_cleaned = del_tags(body_senza_code) 
+	    w_r['Body'] = re.sub("[;]", " " ,body_cleaned)
+            w_r['Title'] = re.sub("[;]"," ",tup[1])
+	  dict_writer.writerow(w_r)
+
+
+#def userscommentsonquestions_dataset(database, output_file):
+	#dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
+
 	# Inizializza il csv da scrivere
-	fieldnames = ['PostId' , 'NumberOfUsersComments', 'TextOfUsersComments']
-	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
-	dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+#	fieldnames = ['PostId' , 'NumberOfUsersComments', 'TextOfUsersComments']	
+#	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=fieldnames) # DELIMITER
+#	dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
 
 	# Query per ottenere tutte le domande con la relativa data di accettazione della risposta nel caso ci sia
-	query_questions_voteDate = "select * from (select postId, ownerId, ts_voteDate from  questwithacceptedanswer_mv union select q_postID as postId, q_ownerID as ownerId, null from questions_mv) questions group by postId"
-	questions = execute_param_query(database, query_questions_voteDate)
+#	query_questions_voteDate = "select * from (select postId, ownerId, ts_voteDate from  questwithacceptedanswer_mv union select q_postID as postId, q_ownerID as ownerId, null from questions_mv) questions group by postId"
+#	questions = execute_param_query(database, query_questions_voteDate)
 	
 	
-	for row in questions:
+#	for row in questions:
 		# row[0] = postId
 		# row[1] = ownerId
 		# row[2] = ts_voteDate
 
-		comments = []
-		w_row = {}
-		w_row['PostId'] = row[0]
-		if str(row[2]) != 'None':
-			comments = execute_param_query(database, getUsersCommentsBeforeAccDate(str(row[0]), str(row[2])))
-		else:
-			comments = execute_param_query(database, getUsersComments(str(row[0])))
+#		comments = []
+#		w_row = {}
+#		w_row['PostId'] = row[0]
+#		if str(row[2]) != 'None':
+#			comments = execute_param_query(database, getUsersCommentsBeforeAccDate(str(row[0]), str(row[2])))
+#		else:
+#			comments = execute_param_query(database, getUsersComments(str(row[0])))
 
 		
-		w_row['NumberOfUsersComments'] = str(comments.rowcount)
-		w_row['TextOfUsersComments'] = str()
-		for comm in comments:
-			# comm[0] = c_Id
-			# comm[1] = c_text
-			w_row['TextOfUsersComments'] += ' ' + comm[1]
+#		w_row['NumberOfUsersComments'] = str(comments.rowcount)
+#		w_row['TextOfUsersComments'] = str()
+#		for comm in comments:
+			# comm[0]  c_Id
+			# comm[1]  c_text
+#			w_row['TextOfUsersComments'] += ' ' + comm[1]
 			#w_row['TextOfUsersComments'] += ' ' + unicode(comm[1], errors='ignore')
 		
-		dict_writer.writerow(w_row)
+#		dict_writer.writerow(w_row)
 
+
+def alluserscommentsonquestions_dataset(database, input_file, output_file):
+# Inizializza il csv da scrivere
+	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=',')
+        head = dict_reader.fieldnames
+
+	#dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';')
+	soglia=0
+	fieldnames = ['PostId' , 'NumberOfAllUsersComments']
+	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=',', fieldnames=fieldnames) # DELIMITER
+	dict_writer.writerow(dict((fn,fn) for fn in fieldnames)) #Scrive gli header
+	for row_1 in dict_reader:
+          w_r = {}
+          w_r['PostId'] = row_1['PostId']
+
+# Query per ottenere tutte le domande con la relativa data di accettazione della risposta nel caso ci sia
+	  query_questions_voteDate = "select postId, ts_voteDate, count(*) as count from questwithacceptedanswer_mv where postId = " + str(row_1['PostId'])
+	  questions = execute_param_query(database, query_questions_voteDate)
+	  for row in questions:	
+	   if int(row[2])== int(soglia):
+		 comments = execute_param_query(database, getAllUsersComments(str(row_1['PostId'])))
+                 
+		 for tup in comments: w_r['NumberOfAllUsersComments']= int(tup[1])
+	   else:
+	    #for row in questions:
+# row[0] = postId
+# row[1] = ts_voteDate
+		
+		#w_row = {}
+		#w_row['PostId'] = row[0]
+		#f str(row[1]) != 'None':
+		  comments_1 = execute_param_query(database, getAllUsersCommentsBeforeAccDate(str(row_1['PostId']),str(row[1])))
+		  for tup_1 in comments_1: w_r['NumberOfAllUsersComments']=int(tup_1[1])
+		#else:
+		#	comments = execute_param_query(database, getAllUsersComments(str(row[0])))
+		#	for tup in comments: w_row['NumberOfAllUsersComments']=int(tup[0])
+		#w_row['NumberOfAllUsersComments'] = str(comments.rowcount)
+		
+	  dict_writer.writerow(w_r)
+
+
+
+
+def success(database, input_file, output_file):  
+	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';')
+        head = dict_reader.fieldnames
+        f= ['PostId', 'Successful']
+        dict_writer = csv.DictWriter(open(output_file, 'w'),delimiter=';', fieldnames=f)
+        dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+        count = 0
+			
+        for row in dict_reader: 
+	#	query_questions_succ ="select count(*) as count from questwithacceptedanswer_mv where postId='"+ str(row['PostId'])+"'"
+	#	questions = ""
+		questions = execute_param_query(database, getSuccess(row['PostId']))
+		r={}
+		r['PostId']= row['PostId']
+		for q in questions: 
+		 if (q[0] != 0):
+			r['Successful']='yes'
+	  	 else:
+			r['Successful'] ='no'
+               
+                dict_writer.writerow(r)
+		count+=1
+        print 'Post processed: ', count
+        return 'Done'
+		
+		
 # Converte le scale di sentiment score 
 # da [1,...5] a [0,...4] per lo score positivo
-# da [-1,...,-5] a [0,...,-4] per lo score negativo
+# da [-1,...,-5] a [0,...,4] per lo score negativo
 #
 # parametri:
 #	input_file: nome del file csv da cui leggere, deve contenere almeno i campi:
@@ -1368,10 +2135,10 @@ def shift_sentiscore(input_file, output_file):
 			row['CommentSentimentPositiveScore'] = str(int(row['CommentSentimentPositiveScore']) - 1)
 		
 		if row['SentimentNegativeScore'] != '0':
-			row['SentimentNegativeScore'] = str(int(row['SentimentNegativeScore']) + 1)
+			row['SentimentNegativeScore'] = str((int(row['SentimentNegativeScore'])+ 1) * -1)
 
 		if row['CommentSentimentNegativeScore'] != '0':
-			row['CommentSentimentNegativeScore'] = str(int(row['CommentSentimentNegativeScore']) + 1)
+			row['CommentSentimentNegativeScore'] = str((int(row['CommentSentimentNegativeScore'])+ 1)* -1)
 		
 		dict_writer.writerow(row)
 		
@@ -1384,7 +2151,7 @@ def shift_sentiscore(input_file, output_file):
 #	output_file: nome del file csv su cui scrivere, conterra' tutti i campi del file input_file
 #		ed in piu', per ogni colonna che si vuole convertire le colonne codificate
 #	cols_to_convert: vettore con i nomi delle colonne da codificare
-def categoric_to_binary(input_file, output_file, cols_to_convert=['Weekday', 'GMTHour', 'Topic']):
+def categoric_to_binary(input_file, output_file, cols_to_convert=['Weekday', 'GMTHour', 'TopicTBT']):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
 	f = []
@@ -1476,6 +2243,175 @@ def save_csv_body_title_len(result_set, filename):
 	print "Post processed ",count
 	return 'Done'
 
+	
+# Calcola il numero di tag associati ad ogni post.
+#
+# parametri:
+#	database: nome del database da interrogare
+#	output_file: nome del file csv su cui scrivere i risultati, conterra' i campi:
+#			- 'PostId'
+#			- 'nTag' numero di tag associati al post corrispondente
+	
+	
+def n_of_tag(database, output_file):
+	
+	f = ['PostId', 'NTag']
+	writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f) # DELIMITER
+	writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+
+	questions_tag = "SELECT q_postID AS PostId, q_tags AS Tag FROM questions_mv"
+	result_set = execute_param_query(database, questions_tag)
+	desc = result_set.description # Prende i campi della tabella
+
+	i = 0
+	tag_field = 0
+	fields = [] # crea il vettore che contiene gli header da scrivere nel csv di output
+	for d in desc:
+		if 'Tag' in d[0]:
+			tag_field = i # conserva l'indice del campo Tag
+		if 'PostId' in d[0]:
+			postid_field = i # conserva l'indice del campo Title
+		fields = fields + [d[0]]
+		i += 1
+	
+	total = 0
+	count = 0
+	for row in result_set: # Cicla sui record della tabella
+		total += 1
+		row_to_write = {}
+		row_to_write['NTag'] = str(0)
+		i = 0
+		
+		for c in row:				
+			if i == tag_field:
+				tag = ''
+				try:
+					tag = c.decode('unicode_escape').encode('ascii','ignore')
+				except UnicodeDecodeError:
+					try:
+						tag = unicode(c).encode('ascii', 'ignore')
+					except Exception:
+						tag = unicode(c, errors='ignore')
+
+				n_tag = tag_count(tag)
+
+				row_to_write['NTag'] = str(n_tag)
+				count += 1
+
+			elif i == postid_field:
+				row_to_write['PostId'] = str(c)
+				
+			i += 1
+		
+		writer.writerow(row_to_write)
+	
+
+	print "Total post",total
+	print "Post processed ",count
+	return 'Done'
+
+
+
+#Calcolo metriche readability
+def readability_metrics(input_file, output_file):
+    dict_reader = csv.DictReader(open(input_file,'r'),delimiter=';')
+    head = dict_reader.fieldnames
+     
+    f =['PostId','NSentences','NWords','NChars','AvgWordsPSentence','AvgUpperCharsPPost']
+    dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f)
+    dict_writer.writerow(dict((fn,fn) for fn in f))
+     
+    count = 0
+    skippAri = 0
+    skippFRE = 0
+    skippFKGL = 0
+    skipGFI = 0
+    skipSMOG = 0
+    skipCLI = 0
+    upperchars = 0 
+    c=0
+    for row in dict_reader:
+        r={}
+        c+=1
+        r['PostId']= row['PostId']
+	body = row['Body']
+	title = row ['Title']
+	text = title + body
+        #print text
+        print c
+        #if (text!=' '):
+        #print 'len text :', len(text)
+        if(len(text)>1):
+        #if(len(text)>0):
+            rd = Readability(text)     
+           # try:
+           #     r['AutomatedReadingIndex'] = float(rd.ARI())
+           # except Exception:
+            #    r['AutomatedReadingIndex'] = float(rd.ARI())
+             #   skippAri += 1
+              #  continue
+           # try:
+           #     r['FleschReadingEase'] = float(rd.FleschReadingEase())
+           # except Exception:
+            #except ZeroDivisionError:
+           #     r['FleschReadingEase'] = 0
+           #     skippFRE += 1
+           #     continue
+           # try:
+           #     r['FleschKincaidGradeLevel']= float(rd.FleschKincaidGradeLevel())
+           # except Exception:
+           #     r['FleschKincaidGradeLevel']= 0
+           #     skippFKGL +=1
+           #     continue
+           # try:
+           #     r['GunningFogIndex'] = float(rd.GunningFogIndex())
+           # except Exception:
+           #     r['GunningFogIndex'] = 0
+           #     skipGFI += 1
+           #     continue       
+           # try:   
+           #     r['SMOGIndex'] = float(rd.SMOGIndex())
+           # except Exception:
+           #     r['SMOGIndex'] = 0
+           #     skipSMOG += 1
+           #     continue
+           # try:   
+           #     r['ColemanLiauIndex'] = float(rd.ColemanLiauIndex())
+           # except Exception:
+           #     r['ColemanLiauIndex'] = 0
+           #     skipCLI += 1
+           #     continue
+ 
+            upperchars= utils.metric_upperchar(text)
+            r['NSentences'] = int(rd.getSentenceCount())
+            r['NWords'] = int(rd.getWordCount())
+            r['NChars'] = int(rd.getCharCount())
+           # r['NSyllables'] = int(rd.getSyllableCount())
+           # r['NComplexWords'] = int(rd.getComplexWordsCount())
+            r['AvgWordsPSentence'] = float(rd.getAvgWordsPSentence())      
+            r['AvgUpperCharsPPost'] = upperchars
+        else:
+            print 'Riga Vuota'
+           # r['AutomatedReadingIndex'] = 0
+           # r['FleschReadingEase'] = 'NONE'
+           # r['FleschKincaidGradeLevel'] = 0
+           # r['GunningFogIndex'] = 0
+           # r['SMOGIndex'] = 0
+           # r['ColemanLiauIndex'] = 0
+            r['NSentences'] = 0
+            r['NWords'] = 0
+            r['NChars'] = 0
+           # r['NSyllables'] = 0
+           # r['NComplexWords'] = 0
+            r['AvgWordsPSentence'] = 0
+            r['AvgUpperCharsPPost'] = 0
+        dict_writer.writerow(r)
+        count+=1
+    print 'Post processed for readability metrics: ', count
+    return 'Done'
+
+
+	
 # Calcola il numero di link presenti in ogni post.
 #
 # parametri:
@@ -1540,6 +2476,188 @@ def n_of_link(database, output_file):
 	print "Post processed ",count
 	return 'Done'
 
+
+
+def media_fre(input_file):
+
+        dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
+        c=0
+        acc_fre=0
+        media_fre=0
+        fre_p=0
+        for row in dict_reader:
+                print row['PostId']
+                if(str(row['FleschReadingEase'])!= 'NONE'):
+                        print 'Calcolo media non none'
+                        fre_p = decimal.Decimal(row['FleschReadingEase'])
+                        #decimal.getcontext().prec = 2
+                        #decimal.getcontext().rounding = getattr(decimal,'ROUND_HALF_EVEN')
+                        fre_p= fre_p*1
+
+                        c+=1
+                        acc_fre= acc_fre+fre_p
+
+        print 'fine accumulatore'
+        media_fre= acc_fre/c
+        m= decimal.Decimal(media_fre)
+        decimal.getcontext().prec = 2
+        decimal.getcontext().rounding = getattr(decimal,'ROUND_HALF_EVEN')
+
+        m= m*1
+        print 'num', acc_fre
+        print 'den', c
+        print 'media', media_fre
+        return m
+
+def conv_metrics(input_file, output_file):
+        dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';')
+        head = dict_reader.fieldnames
+        f = ['PostId','CodeSnippet','Weekday','GMTHour','BodyLength','TitleLength','URL','IsTheSameTopicBTitle','AvgUpperCharsPPost','Gratitude','NTag','SentimentPositiveScore','SentimentNegativeScore','CommentSentimentPositiveScore','CommentSentimentNegativeScore']
+        writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f) # DELIMITER
+        writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+        count = 0
+        total = 0
+        fre_medio =0
+#        fre_medio = decimal.Decimal(media_fre(input_file))
+#        decimal.getcontext().prec = 2
+#        decimal.getcontext().rounding = getattr(decimal,'ROUND_HALF_EVEN')
+#        fre_medio= fre_medio*1
+#        print 'fremedio restiutito', fre_medio
+        for row in dict_reader:
+ 
+                r = {}
+                r['PostId'] = row['PostId']
+                r['CodeSnippet'] = row['CodeSnippet']
+#		r['Successful']=row['Successful']
+#		r['TopicBody']=row['TopicBody']
+#		r['TopicTitle']=row['TopicTitle']
+#		r['TopicTags']=row['TopicTags']
+#		r['UserReputationScore']=row ['userReputationScore']
+#		r['UserReputationCat']=row['userReputationCat']
+#		r['UserReputationCatNum']=row['userReputationCatNum']
+                r['Weekday'] = row['Weekday']
+                r['GMTHour'] = row['GMTHour']
+#                r['Successful'] = row['Successful']
+                r['BodyLength'] = row['BodyLength']
+                r['TitleLength'] = row['TitleLength']
+#                r['QuestionScore'] = row['QuestionScore']
+#                r['AnswerScore'] = row['AnswerScore']
+#                r['UsersAnswersAccepted'] = row['UsersAnswersAccepted']
+#                r['UsersQuestionsAccepted'] = row['UsersQuestionsAccepted']
+                r['SentimentPositiveScore'] = row['SentimentPositiveScore']
+                r['SentimentNegativeScore'] = row['SentimentNegativeScore']
+#                r['NumberOfUsersComments'] = row['NumberOfUsersComments']
+ #		if (int(row['NumberOfUsersComments'])==0):
+ #                 r['CommentSentimentPositiveScore'] = "NA"
+ #                 r['CommentSentimentNegativeScore'] = "NA"
+ #               else:
+		r['CommentSentimentPositiveScore'] = row['CommentSentimentPositiveScore']
+                r['CommentSentimentNegativeScore'] = row['CommentSentimentNegativeScore']
+
+#                r['BronzeBadge'] = row['BronzeBadge']
+#                r['SilverBadge'] = row['SilverBadge']
+#                r['GoldBadge'] = row['GoldBadge']
+                r['URL'] = int(row['URL'])
+                r['IsTheSameTopicBTitle'] = row['IsTheSameTopicBTitle']
+#                r['IsTheSameTopicBTags'] = row['IsTheSameTopicBTags']
+#                r['TopicTBT'] = row['TopicTBT']
+#                r['NumberOfAllUsersComments'] = row['NumberOfAllUsersComments']
+#                r['NSentences'] = row['NSentences']
+#                r['NWords'] = row['NWords']
+#                r['NChars'] = row['NChars']
+#                r['NSyllables'] = row['NSyllables']
+#                r['NComplexWords'] = row['NComplexWords']
+#                r['AvgWordsPSentence'] = row['AvgWordsPSentence']
+                r['AvgUpperCharsPPost'] = row['AvgUpperCharsPPost']
+                r['Gratitude'] = row['Gratitude']
+                r['NTag'] = row['NTag']
+#		r['NImg'] = row['NImg']
+#		r['NEmoticons']=row['NEmoticons']
+#                r['SiteName'] = row['SiteName']
+#                r['Category'] = row['Category']
+#                if(row['FleschReadingEase']=='NONE'):
+#                        r['AutomatedReadingIndex']= str(1)
+#                        r['FleschKincaidGradeLevel'] = str(-3.4)
+#                        r['ColemanLiauIndex']= str(0)
+#                        r['FleschReadingEase']=fre_medio
+#                else:
+#                        r['AutomatedReadingIndex'] = row['AutomatedReadingIndex']
+#                        r['FleschReadingEase'] = row['FleschReadingEase']
+#                        r['FleschKincaidGradeLevel'] = row['FleschKincaidGradeLevel']
+#                        r['ColemanLiauIndex'] = row['ColemanLiauIndex']
+                writer.writerow(r)
+                count += 1
+        total+=1
+        print 'Post last_30days: ', count
+	print total
+        return 'Done'
+
+
+#script per convertire NA in ? 
+#Preso in input il csv per R restituisce un file csv con separatore "," pronto per la conversione harff
+def conv_metrics_nicole(input_file, output_file):
+        dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';')
+        head = dict_reader.fieldnames
+
+        f = ['PostId','CodeSnippet','Weekday','GMTHour','Successful','BodyLength','TitleLength','URL','CommentSentimentPositiveScore','CommentSentimentNegativeScore','SentimentPositiveScore','SentimentNegativeScore','IsTheSameTopicBTitle','AvgUpperCharsPPost','Gratitude','NTag']
+        writer = csv.DictWriter(open(output_file, 'w'), delimiter=',', fieldnames=f) # DELIMITER
+        writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+        count = 0
+        total = 0
+        for row in dict_reader:
+
+                r = {}
+                r['PostId'] = row['PostId']
+                r['CodeSnippet'] = row['CodeSnippet']
+                r['Weekday'] = row['Weekday']
+                r['GMTHour'] = row['GMTHour']
+                r['Successful'] = row['Successful']
+                r['BodyLength'] = row['BodyLength']
+                r['TitleLength'] = row['TitleLength']
+                r['SentimentPositiveScore'] = row['SentimentPositiveScore']
+                r['SentimentNegativeScore'] = row['SentimentNegativeScore']
+               # r['NumberOfUsersComments'] = int(row['NumberOfUsersComments'])
+		if (str(row['CommentSentimentPositiveScore']) == str("NA")):
+			r['CommentSentimentPositiveScore'] = str("?")
+		else: 
+			r['CommentSentimentPositiveScore'] = (row['CommentSentimentPositiveScore'])
+
+		if (str(row['CommentSentimentNegativeScore']) == str("NA")):
+			r['CommentSentimentNegativeScore'] = str("?")
+		else:
+                	r['CommentSentimentNegativeScore'] = (row['CommentSentimentNegativeScore'])
+                r['URL'] = row['URL']
+                r['IsTheSameTopicBTitle'] = row['IsTheSameTopicBTitle']
+#                r['NSentences'] = row['NSentences']
+                r['AvgUpperCharsPPost'] = row['AvgUpperCharsPPost']
+                r['Gratitude'] = row['Gratitude']
+                r['NTag'] = row['NTag']
+#                r['NImg'] = row['NImg']
+#		r['NChars'] = row['NChars']
+#                r['NEmoticons']=row['NEmoticons']
+#                r['SiteName'] = row['SiteName']
+#                r['Category'] = row['Category']
+#		r['QuestionScore'] = row ['QuestionScore']
+#                r['AnswerScore'] = row ['AnswerScore']
+#                r['UsersAnswersAccepted'] = row ['UsersAnswersAccepted']
+#                r['UsersQuestionsAccepted'] = row ['UsersQuestionsAccepted']
+                writer.writerow(r)
+                count += 1
+        total+=1
+        print total
+        return 'Done'
+
+
+
 questions_query = "SELECT q_postID AS PostId, q_title AS Title, q_body AS Body, q_tags AS Tags, q_postDate AS PostCreationDate, q_ownerID AS UserId, q_acceptedAnswerId AS PostAcceptedAnswerId, q_answerCount AS AnswerCount FROM questions_mv"
 
+
 questions_query_id_body_title_tags = "SELECT q_postID AS PostId, q_title AS Title, q_body AS Body, q_tags AS Tags FROM questions_mv"
+
+
+def getCorpus(postId):
+	return "select q_postID as PostId, q_title as Title, q_body as Body, q_tags as Tags from questions_mv where q_postID = " + postId
+
+
+
+
