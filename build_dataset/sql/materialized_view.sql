@@ -175,4 +175,24 @@ FROM questions_mv INNER JOIN Votes ON questions_mv.q_acceptedAnswerId = Votes.Po
 WHERE questions_mv.q_acceptedAnswerId IS NOT NULL AND Votes.VoteTypeId = 1
 ;
 
+# userscommentquestions_mv
+# Vista materializzata: Contiene tutti i commenti che un utente di una domanda ha scritto alla sua domanda
+
+DROP TABLE userscommentsquestions_mv;
+CREATE TABLE  userscommentsquestions_mv (
+	c_Id INTEGER NOT NULL PRIMARY KEY
+  ,	q_Id INTEGER NOT NULL
+  ,	userId INTEGER NOT NULL
+  ,	c_text TEXT
+  ,	c_ts_creationDate DATE NOT NULL
+  ,	INDEX idx_c_Id (c_Id)
+  ,	INDEX idx_q_Id (q_Id)
+  ,	INDEX idx_userId (userId)
+  ,	INDEX idx_c_ts_creationDate (c_ts_creationDate)
+  ,	INDEX idx_quest_dataVoto(q_Id, c_ts_creationDate)
+);
+
+INSERT INTO userscommentsquestions_mv
+SELECT Comments.Id as c_Id, questions_mv.q_postID as q_Id, questions_mv.q_ownerID as userId, Comments.Text as c_text, date(Comments.CreationDate) as c_date
+FROM questions_mv INNER JOIN Comments ON questions_mv.q_postId = Comments.PostId AND questions_mv.q_ownerId = Comments.UserId;
 

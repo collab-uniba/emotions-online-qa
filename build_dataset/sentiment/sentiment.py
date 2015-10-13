@@ -22,7 +22,7 @@ def get_senti_score(corpus):
 
 # JVM utilities
 def start_JVM(path_libjvm='/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/amd64/server/libjvm.so'):
-	jpype.startJVM(path_libjvm, "-ea", "-Djava.class.path="+os.path.abspath("."))
+	jpype.startJVM(path_libjvm, "-ea", "-Djava.class.path="+os.path.abspath(".")+":"+os.path.abspath("lib/SentiStrengthCom.jar"))
 
 def stop_JVM():
 	jpype.shutdownJVM()
@@ -46,7 +46,7 @@ def stop_JVM():
 def sentiment(file_name, output_file, textfield='Corpus'):
 	dict_reader = csv.DictReader(open(file_name, 'r'), delimiter=';')
 	
-	f = [postId, 'SentimentPositiveScore', 'SentimentNegativeScore']
+	f = ['PostId', 'SentimentPositiveScore', 'SentimentNegativeScore']
 	
 	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f)
 	dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
