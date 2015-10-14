@@ -1,11 +1,31 @@
 # Copyright (c) 2013 Georgios Gousios
 # MIT-licensed
 
-# ERRORE RISCONTRATO: quando si esegue in mysql 'source dump.sql'
+# FERDINANDO ERRORE RISCONTRATO: quando si esegue in mysql 'source dump.sql'
 # ERROR 13 (HY000): Can't get stat of '/mnt/workingdir/stackoverflow_dump/Badges.xml' (Errcode: 13)
 #
 # SOLUZIONE
 # sudo chown mysql:mysql /mnt/workingdir/stackoverflow_dump/ -R
+
+# RAFFAELLA ERRORE RISCONTRATO:  
+# ERROR 29 (HY000): File '/mnt/vdb1/academia/Budges.xml' not found (Errcode: 13)
+#
+# SOLUZIONE 
+# modificare i permessi in apparmor come segue
+
+# vi /etc/apparmor.d/usr.sbin.mysqld
+#
+# {
+# ...
+# /mnt/vdb1/academia/ r,
+# /mnt/vdb1/academia/* rw,
+# ...
+# }
+#
+# dopo la modifica fare il RELOAD di apparmor
+# /etc/init.d/apparmor reload
+#
+
 
 drop database stackoverflow; 
 create database stackoverflow DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
