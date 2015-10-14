@@ -181,7 +181,7 @@ def relevant_topics(input_file, output_file, n_topics, n_posts):
 def add_topic(input_file, output_file):
 	dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
 	
-	f = ['PostId', 'Topic']
+	f = ['PostId', 'TopicTBT']
 	
 	dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f) # DELIMITER
 	dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
@@ -201,7 +201,7 @@ def add_topic(input_file, output_file):
 					curr_prob = float(row[field])
 					curr_topic = field
 				#topics.append(float(row[field]))
-		r['Topic'] = curr_topic.replace('Topic', '')
+		r['TopicTBT'] = curr_topic.replace('Topic', '')
 		#topics = sorted(topics, reverse=True)
 
 		#for c in range(1, n_topics+1):
@@ -210,6 +210,111 @@ def add_topic(input_file, output_file):
 		dict_writer.writerow(r)
 		c += 1
 		
+
+#####
+def add_topic_title(input_file, output_file):
+        dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
+
+        f = ['PostId', 'TopicTitle']
+
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+
+
+        c = 0
+        for row in dict_reader:
+
+                topics = []
+                curr_topic = ''
+                curr_prob = 0
+                r = {}
+                r['PostId'] = row['PostId']
+                for field in row:
+                        if field != 'PostId':
+                                if curr_prob < float(row[field]):
+                                        curr_prob = float(row[field])
+                                        curr_topic = field
+                                #topics.append(float(row[field]))
+                r['TopicTitle'] = curr_topic.replace('Topic', '')
+                #topics = sorted(topics, reverse=True)
+
+                #for c in range(1, n_topics+1):
+                #       r[str(c)+' topic'] = topics[c-1]
+
+                dict_writer.writerow(r)
+                c += 1
+
+#################
+
+def add_topic_tags(input_file, output_file):
+        dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
+
+        f = ['PostId', 'TopicTags']
+
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+
+
+        c = 0
+        for row in dict_reader:
+
+                topics = []
+                curr_topic = ''
+                curr_prob = 0
+                r = {}
+                r['PostId'] = row['PostId']
+                for field in row:
+                        if field != 'PostId':
+                                if curr_prob < float(row[field]):
+                                        curr_prob = float(row[field])
+                                        curr_topic = field
+                                #topics.append(float(row[field]))
+                r['TopicTags'] = curr_topic.replace('Topic', '')
+                #topics = sorted(topics, reverse=True)
+
+                #for c in range(1, n_topics+1):
+                #       r[str(c)+' topic'] = topics[c-1]
+
+                dict_writer.writerow(r)
+                c += 1
+
+
+###############
+def add_topic_body(input_file, output_file):
+        dict_reader = csv.DictReader(open(input_file, 'r'), delimiter=';') # DELIMITER
+
+        f = ['PostId', 'TopicBody']
+
+        dict_writer = csv.DictWriter(open(output_file, 'w'), delimiter=';', fieldnames=f) # DELIMITER
+        dict_writer.writerow(dict((fn,fn) for fn in f)) #Scrive gli header
+
+
+        c = 0
+        for row in dict_reader:
+
+                topics = []
+                curr_topic = ''
+                curr_prob = 0
+                r = {}
+                r['PostId'] = row['PostId']
+                for field in row:
+                        if field != 'PostId':
+                                if curr_prob < float(row[field]):
+                                        curr_prob = float(row[field])
+                                        curr_topic = field
+                                #topics.append(float(row[field]))
+                r['TopicBody'] = curr_topic.replace('Topic', '')
+                #topics = sorted(topics, reverse=True)
+
+                #for c in range(1, n_topics+1):
+                #       r[str(c)+' topic'] = topics[c-1]
+
+                dict_writer.writerow(r)
+                c += 1
+
+
+
+
 # Seleziona n post random che hanno ricevuto una risposta accettata.
 #
 # parametri:

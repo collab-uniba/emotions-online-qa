@@ -33,7 +33,7 @@ def dataset_mallet(input_file, output_file):
 		try:
 			#t = tags.replace('<',' ')
 			tags_cleaned = tags.replace('<',' ').replace('>',' ')
-			corpus = title + " " + body + " " + tags_cleaned
+			corpus = title + body + tags 
 			
 			try:
 				r['Corpus'] = corpus.decode('unicode_escape').encode('ascii','ignore')
@@ -68,6 +68,10 @@ def dataset_mallet(input_file, output_file):
 #				(ripulito dai caratteri '<' '>') dove a tutte le parole e' stata estratta
 #				la radice con l'algoritmo di Porter (tool Snowball)
 def dataset_mallet_stem(input_file, output_file):
+	
+       try :
+
+
 	jpype.startJVM("/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/amd64/server/libjvm.so", "-ea", "-Djava.class.path="+os.path.abspath("."))
 	
 	Snowball = jpype.JClass("Snowball")
@@ -88,13 +92,14 @@ def dataset_mallet_stem(input_file, output_file):
 	for row in dict_reader:
 		r = {}
 		r['PostId'] = row['PostId']
-		body = row['Body']
+#		body = row['Body']
 		title = row['Title']
-		tags = row['Tags']
+#		tags = row['Tags']
+
 		try:
 			#t = tags.replace('<',' ')
-			tags_cleaned = tags.replace('<',' ').replace('>',' ')
-			corpus = title + " " + body + " " + tags_cleaned
+		#	tags_cleaned = tags.replace('<',' ').replace('>',' ')
+			corpus = title # tags_cleaned
 			
 			try:
 				corpus = corpus.decode('unicode_escape').encode('ascii','ignore')
@@ -120,10 +125,16 @@ def dataset_mallet_stem(input_file, output_file):
 			continue
 		dict_writer.writerow(r)
 		total += 1
-	
-	#jpype.shutdownJVM()
-	print "Initial posts ", total
-	print 'Post processed: ', count
-	print 'Post skipped: ', skipped
-	return 'Done'
+	                # Code that throws a java.lang.RuntimeException
+       except Exception: 
+                #if JavaException.javaClass() is java.lang.RuntimeException :
+                 #       print "Caught the runtime exception : ", JavaException.message()
+                 #       print JavaException.stackTrace()
+		jpype.shutdownJVM()
+		dataset_mallet_stem(input_file, output_file)
+	 #       jpype.shutdownJVM()
+       print "Initial posts ", total
+       print 'Post processed: ', count
+       print 'Post skipped: ', skipped
+       return 'Done'
 
