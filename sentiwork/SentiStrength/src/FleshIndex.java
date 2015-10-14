@@ -22,13 +22,10 @@ public class FleshIndex {
       syllables += countSyllables(word);
       words++;
     }
-    //look for sentence delimiters
-    String sentenceDelim = ".:;?!";
-    StringTokenizer sentenceTokenizer = new StringTokenizer(content,sentenceDelim);
-    sentences = sentenceTokenizer.countTokens();
+    sentences = countSentences(content);
     
     //calculate flesch index
-    final float f1 = (float) 206.835;
+    calcfinal float f1 = (float) 206.835;
     final float f2 = (float) 84.6;
     final float f3 = (float) 1.015;
     float r1 = (float) syllables / (float) words;
@@ -53,6 +50,108 @@ public class FleshIndex {
     
   }
 
+/*
+public static float getCLI (String text){
+// metodo per calcolare indice di readability 
+// Coleman Liaw Index
+
+	int sentence = 0;
+	int words = 0;
+	int charactersL = 0;
+	int charactsS = 0;
+
+	String delimmiters = ".,':;?{}[]=-+_!@#$%^&*() ";
+	StringTokenizer tokenizer = new StringTokenizer(text, delimiters);
+
+	for (int i = 1; i <= 100; i++)
+	    {
+    		String word = tokenizer.nextToken();
+		charactersL += countCharacters(word);
+    		}
+    		int L = charactersL/100; //media caratteri in 100 parole
+	//manca calcolo S, media del numero di frasi per 100 parole
+	
+	for (int j = 1; j <= 100; j++)
+	    {
+    		String word = tokenizer.nextToken();
+		charactersS += countCharacters(word);
+    		}
+    		int subS = charactersS+100
+    		String subStr = subStr.substring(0,subS);
+	    	sentences = countSentences(subStr);
+	    
+	    int S = sentences/100; //numero di frasi medio ogni 100 parole
+
+	    //calculate Coleman Liaw Index
+	    final float f1 = (float) 0.588;
+	    final float f2 = (float) 0.296;
+	    final float f3 = (float) 15.8;
+	    
+	    float CLI = (f1 * L) - (f2 * S) - f3;
+	    
+	return CLI;
+}
+*/
+
+
+
+public static float getARI (String text){
+	
+	int sentence = 0;
+	int words = 0;
+	int characters = 0;
+	
+	String delimmiters = ".,':;?{}[]=-+_!@#$%^&*() ";
+	StringTokenizer tokenizer = new StringTokenizer(text, delimiters);
+	while (tokenizer.hasMoreTokens())
+	{
+		String word = tokenizer.nextToken();
+		characters += countCharacters(word);
+		words++;
+	}
+    sentences = countSentences(text);
+	    
+	    //calculate Automated Reading Index
+	    final float f1 = (float) 4.71;
+	    final float f2 = (float) 0.5;
+	    final float f3 = (float) 21.43;
+	    float r1 = (float) characters / (float) words;
+	    float r2 = (float) words / (float) sentences;
+	    float ARI = (f1 * r1) + (f2 * r2) - f3;
+	    
+	return ARI;
+}
+
+//conta caratteri in una parola
+public static int countCharacters(String word) {
+	
+    int ch = word.length();
+    return ch;
+}
+
+
+public static int countWords(String content){
+	//conta le parole in un testo
+    int words = 0;	
+    String wordDelim = ".,':;?{}[]=-+_!@#$%^&*() ";
+    StringTokenizer wordTokenizer = new StringTokenizer(content,wordDelim);
+    words = wordTokenizer.countTokens();
+    
+    return words;
+	
+}
+
+
+public static int countSentences(String content){
+	//conta le frasi in un testo
+    int sentences = 0;	
+    String sentenceDelim = ".:;?!";
+    StringTokenizer sentenceTokenizer = new StringTokenizer(content,sentenceDelim);
+    sentences = sentenceTokenizer.countTokens();
+    
+    return sentences;
+	
+}
   public static float getFleschEaseIndex(String text){
 
 	    int syllables = 0;
@@ -69,10 +168,8 @@ public class FleshIndex {
 	      words++;
 	    }
 	    //look for sentence delimiters
-	    String sentenceDelim = ".:;?!";
-	    StringTokenizer sentenceTokenizer = new StringTokenizer(text,sentenceDelim);
-	    sentences = sentenceTokenizer.countTokens();
-	    
+	       sentences = countSentences(text);
+ 
 	    //calculate flesch index
 	    final float f1 = (float) 206.835;
 	    final float f2 = (float) 84.6;
@@ -100,10 +197,8 @@ public class FleshIndex {
 	      words++;
 	    }
 	    //look for sentence delimiters
-	    String sentenceDelim = ".:;?!";
-	    StringTokenizer sentenceTokenizer = new StringTokenizer(text,sentenceDelim);
-	    sentences = sentenceTokenizer.countTokens();
-	    
+	       sentences = countSentences(text);
+ 
 	    //calculate flesch index
 
 	    final float f4 = (float) 0.39;
